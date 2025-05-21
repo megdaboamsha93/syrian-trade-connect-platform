@@ -1,3 +1,7 @@
+
+@import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -13,10 +17,10 @@
     --popover: 0 0% 100%;
     --popover-foreground: 222.2 84% 4.9%;
 
-    --primary: 222.2 47.4% 11.2%;
+    --primary: 210 100% 35%;
     --primary-foreground: 210 40% 98%;
 
-    --secondary: 210 40% 96.1%;
+    --secondary: 160 84% 39%;
     --secondary-foreground: 222.2 47.4% 11.2%;
 
     --muted: 210 40% 96.1%;
@@ -35,19 +39,12 @@
     --radius: 0.5rem;
 
     --sidebar-background: 0 0% 98%;
-
     --sidebar-foreground: 240 5.3% 26.1%;
-
     --sidebar-primary: 240 5.9% 10%;
-
     --sidebar-primary-foreground: 0 0% 98%;
-
     --sidebar-accent: 240 4.8% 95.9%;
-
     --sidebar-accent-foreground: 240 5.9% 10%;
-
     --sidebar-border: 220 13% 91%;
-
     --sidebar-ring: 217.2 91.2% 59.8%;
   }
 
@@ -61,10 +58,10 @@
     --popover: 222.2 84% 4.9%;
     --popover-foreground: 210 40% 98%;
 
-    --primary: 210 40% 98%;
+    --primary: 210 100% 50%;
     --primary-foreground: 222.2 47.4% 11.2%;
 
-    --secondary: 217.2 32.6% 17.5%;
+    --secondary: 160 84% 39%;
     --secondary-foreground: 210 40% 98%;
 
     --muted: 217.2 32.6% 17.5%;
@@ -98,4 +95,24 @@
   body {
     @apply bg-background text-foreground;
   }
+
+  html[dir="rtl"] {
+    font-family: 'Tajawal', sans-serif;
+  }
+
+  html[dir="ltr"] {
+    font-family: 'Roboto', sans-serif;
+  }
+
+  .card-gradient {
+    @apply bg-gradient-to-br from-card to-secondary/10 backdrop-blur-sm;
+  }
+
+  .rtl-flip {
+    @apply [transform:rotateY(180deg)] rtl:[transform:rotateY(0deg)];
+  }
+}
+
+.glass {
+  @apply bg-white/30 backdrop-blur-lg border border-white/20 rounded-md shadow-lg;
 }
