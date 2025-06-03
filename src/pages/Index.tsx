@@ -24,7 +24,7 @@ const Index: React.FC = () => {
               {t('home.hero.subtitle')}
             </p>
             <div className="flex flex-wrap gap-4">
-              <Button asChild size="lg" variant="default" className="bg-white text-primary hover:bg-white/90">
+              <Button asChild size="lg" variant="secondary" className="text-primary hover:text-primary/90">
                 <Link to="/browse">
                   {t('home.cta.browse')}
                   <ChevronRight className="ml-2 h-4 w-4" />
