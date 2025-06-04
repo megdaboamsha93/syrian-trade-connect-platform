@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { useLanguage } from '../contexts/LanguageContext';
 import { Button } from '@/components/ui/button';
@@ -26,7 +25,7 @@ const Header: React.FC = () => {
         </Link>
         
         {/* Desktop Navigation */}
-        <nav className="hidden md:flex items-center space-x-6">
+        <nav className="hidden md:flex items-center space-x-6 rtl:space-x-reverse">
           <Link to="/" className="font-medium hover:text-primary">{t('nav.home')}</Link>
           <Link to="/browse" className="font-medium hover:text-primary">{t('nav.browse')}</Link>
           <Link to="/messages" className="font-medium hover:text-primary">{t('nav.messages')}</Link>

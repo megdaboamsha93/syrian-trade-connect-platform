@@ -1,14 +1,13 @@
-
 import React from 'react';
 import { useLanguage } from '../contexts/LanguageContext';
 import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
-import { ChevronRight, Building2, Filter, MessageCircle } from 'lucide-react';
+import { ChevronRight, ChevronLeft, Building2, Filter, MessageCircle } from 'lucide-react';
 import { businesses } from '../data/businesses';
 import BusinessCard from '@/components/BusinessCard';
 
 const Index: React.FC = () => {
-  const { t } = useLanguage();
+  const { t, dir } = useLanguage();
   const featuredBusinesses = businesses.slice(0, 3);
   
   return (
@@ -23,18 +22,34 @@ const Index: React.FC = () => {
             <p className="text-lg md:text-xl mb-8 text-white/90">
               {t('home.hero.subtitle')}
             </p>
-            <div className="flex flex-wrap gap-4">
-              <Button asChild size="lg" variant="secondary" className="text-primary hover:text-primary/90">
-                <Link to="/browse">
-                  {t('home.cta.browse')}
-                  <ChevronRight className="ml-2 h-4 w-4" />
-                </Link>
-              </Button>
-              <Button asChild size="lg" variant="outline" className="border-white text-white hover:bg-white/10">
-                <Link to="/register">
-                  {t('home.cta.register')}
-                </Link>
-              </Button>
+            <div className={`${dir === 'rtl' ? 'text-right' : 'text-left'}`}> 
+              <div className="inline-flex flex-wrap gap-4">
+                <Button
+                  asChild
+                  size="lg"
+                  variant="default"
+                  className="bg-white text-primary hover:bg-white/90"
+                >
+                  <Link to="/browse">
+                    {t('home.cta.browse')}
+                    {dir === 'rtl' ? (
+                      <ChevronLeft className="mr-2 h-4 w-4 inline" />
+                    ) : (
+                      <ChevronRight className="ml-2 h-4 w-4 inline" />
+                    )}
+                  </Link>
+                </Button>
+                <Button
+                  asChild
+                  size="lg"
+                  variant="default"
+                  className="bg-white text-primary hover:bg-white/90"
+                >
+                  <Link to="/register">
+                    {t('home.cta.register')}
+                  </Link>
+                </Button>
+              </div>
             </div>
           </div>
         </div>

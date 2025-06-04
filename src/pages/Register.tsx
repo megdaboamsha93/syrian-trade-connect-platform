@@ -1,5 +1,4 @@
-
-import React from 'react';
+import React, { useState } from 'react';
 import { useLanguage } from '../contexts/LanguageContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -14,15 +13,40 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
+const API_URL = import.meta.env.VITE_API_URL;
+
 const Register: React.FC = () => {
   const { t } = useLanguage();
-  
-  const handleSubmit = (e: React.FormEvent) => {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
+  const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // In a real app, this would register against a backend
-    alert('Registration functionality would be implemented in a real app');
+    setError(null);
+    setLoading(true);
+    try {
+      const res = await fetch(`${API_URL}/api/auth/register`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password, firstName, lastName })
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setError(data.error || (data.errors && data.errors[0]?.msg) || 'Registration failed');
+      } else {
+        alert('Registration successful! Please check your email to verify your account.');
+      }
+    } catch (err) {
+      setError('Network error');
+    } finally {
+      setLoading(false);
+    }
   };
-  
+
   const industries = ['manufacturing', 'agriculture', 'textiles', 'materials', 'services'];
   const businessTypes = ['importer', 'exporter', 'both'];
   
@@ -40,57 +64,25 @@ const Register: React.FC = () => {
             <form onSubmit={handleSubmit} className="space-y-6">
               <div className="space-y-4">
                 <div>
-                  <Label htmlFor="businessName">{t('auth.businessName')}</Label>
-                  <Input id="businessName" required />
+                  <Label htmlFor="firstName">{t('auth.firstName') || 'First Name'}</Label>
+                  <Input id="firstName" required value={firstName} onChange={e => setFirstName(e.target.value)} />
                 </div>
-                
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <Label htmlFor="businessType">{t('auth.businessType')}</Label>
-                    <Select>
-                      <SelectTrigger id="businessType">
-                        <SelectValue placeholder="Select type" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {businessTypes.map((type) => (
-                          <SelectItem key={type} value={type}>
-                            {t(`browse.type.${type}`)}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  
-                  <div>
-                    <Label htmlFor="industry">{t('auth.industry')}</Label>
-                    <Select>
-                      <SelectTrigger id="industry">
-                        <SelectValue placeholder="Select industry" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {industries.map((industry) => (
-                          <SelectItem key={industry} value={industry}>
-                            {t(`industry.${industry}`)}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
+                <div>
+                  <Label htmlFor="lastName">{t('auth.lastName') || 'Last Name'}</Label>
+                  <Input id="lastName" required value={lastName} onChange={e => setLastName(e.target.value)} />
                 </div>
-                
                 <div>
                   <Label htmlFor="email">{t('auth.email')}</Label>
-                  <Input id="email" type="email" required />
+                  <Input id="email" type="email" required value={email} onChange={e => setEmail(e.target.value)} />
                 </div>
-                
                 <div>
                   <Label htmlFor="password">{t('auth.password')}</Label>
-                  <Input id="password" type="password" required />
+                  <Input id="password" type="password" required value={password} onChange={e => setPassword(e.target.value)} />
                 </div>
               </div>
-              
-              <Button type="submit" className="w-full">
-                {t('auth.register')}
+              {error && <div className="text-red-600 text-sm">{error}</div>}
+              <Button type="submit" className="w-full" disabled={loading}>
+                {loading ? 'Registering...' : t('auth.register')}
               </Button>
             </form>
             

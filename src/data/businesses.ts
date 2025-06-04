@@ -1,4 +1,3 @@
-
 export type BusinessType = 'importer' | 'exporter' | 'both';
 
 export interface Product {
@@ -35,7 +34,7 @@ export const businesses: Business[] = [
     nameEn: 'Al-Durra Textiles',
     nameAr: 'شركة الدرة للنسيج',
     logoUrl: 'https://placeholder.com/wp-content/uploads/2018/10/placeholder.com-logo3.jpg',
-    coverUrl: 'https://images.unsplash.com/photo-1618160702438-9b02ab6515c9',
+    coverUrl: 'https://tinyurl.com/4hb6vdb8',
     foundedYear: 1998,
     employeeCount: '50-100',
     industry: 'textiles',
@@ -70,7 +69,7 @@ export const businesses: Business[] = [
     nameEn: 'Syrian Olive Treasures',
     nameAr: 'كنوز الزيتون السوري',
     logoUrl: 'https://placeholder.com/wp-content/uploads/2018/10/placeholder.com-logo1.jpg',
-    coverUrl: 'https://images.unsplash.com/photo-1558160767-0c61082c10d6',
+    coverUrl: 'https://tinyurl.com/mssfvhvv',
     foundedYear: 2005,
     employeeCount: '10-50',
     industry: 'agriculture',
@@ -105,7 +104,7 @@ export const businesses: Business[] = [
     nameEn: 'Damascus Steel Imports',
     nameAr: 'استيراد دمشق للصلب',
     logoUrl: 'https://placeholder.com/wp-content/uploads/2018/10/placeholder.com-logo4.jpg',
-    coverUrl: 'https://images.unsplash.com/photo-1565132340484-08df2a717e2f',
+    coverUrl: 'https://tinyurl.com/4anb4v4n',
     foundedYear: 2010,
     employeeCount: '10-50',
     industry: 'materials',
@@ -132,7 +131,7 @@ export const businesses: Business[] = [
     nameEn: 'Syrian Nuts & Dried Fruits Co.',
     nameAr: 'شركة المكسرات والفواكه المجففة السورية',
     logoUrl: 'https://placeholder.com/wp-content/uploads/2018/10/placeholder.com-logo5.jpg',
-    coverUrl: 'https://images.unsplash.com/photo-1599639668393-7cc3bef9e93c',
+    coverUrl: 'https://rb.gy/qy6l9y',
     foundedYear: 2002,
     employeeCount: '50-100',
     industry: 'agriculture',
@@ -167,7 +166,7 @@ export const businesses: Business[] = [
     nameEn: 'Al-Sham Machinery',
     nameAr: 'آلات الشام',
     logoUrl: 'https://placeholder.com/wp-content/uploads/2018/10/placeholder.com-logo2.jpg',
-    coverUrl: 'https://images.unsplash.com/photo-1518723290443-9328331f71e9',
+    coverUrl: 'https://rb.gy/mnyguj',
     foundedYear: 1995,
     employeeCount: '100-500',
     industry: 'manufacturing',

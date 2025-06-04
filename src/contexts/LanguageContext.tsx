@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useEffect, useState } from 'react';
 
 type LanguageContextType = {
@@ -95,6 +94,8 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
       'auth.businessName': 'Business Name',
       'auth.businessType': 'Business Type',
       'auth.industry': 'Industry',
+      'auth.firstName': 'First Name',
+      'auth.lastName': 'Last Name',
     },
     ar: {
       // General
@@ -175,6 +176,8 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
       'auth.businessName': 'اسم الشركة',
       'auth.businessType': 'نوع الشركة',
       'auth.industry': 'الصناعة',
+      'auth.firstName': 'الاسم الأول',
+      'auth.lastName': 'اسم العائلة',
     }
   };
 
