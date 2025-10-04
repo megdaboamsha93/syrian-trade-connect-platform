@@ -14,16 +14,265 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      business_products: {
+        Row: {
+          business_id: string
+          category: string
+          created_at: string
+          description_ar: string | null
+          description_en: string | null
+          id: string
+          image_urls: string[] | null
+          is_active: boolean | null
+          minimum_order: string | null
+          name_ar: string
+          name_en: string
+          price_range: string | null
+          updated_at: string
+        }
+        Insert: {
+          business_id: string
+          category: string
+          created_at?: string
+          description_ar?: string | null
+          description_en?: string | null
+          id?: string
+          image_urls?: string[] | null
+          is_active?: boolean | null
+          minimum_order?: string | null
+          name_ar: string
+          name_en: string
+          price_range?: string | null
+          updated_at?: string
+        }
+        Update: {
+          business_id?: string
+          category?: string
+          created_at?: string
+          description_ar?: string | null
+          description_en?: string | null
+          id?: string
+          image_urls?: string[] | null
+          is_active?: boolean | null
+          minimum_order?: string | null
+          name_ar?: string
+          name_en?: string
+          price_range?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "business_products_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      businesses: {
+        Row: {
+          business_type: Database["public"]["Enums"]["business_type"]
+          contact_email: string
+          contact_phone: string | null
+          created_at: string
+          description_ar: string | null
+          description_en: string | null
+          id: string
+          industry: string
+          is_verified: boolean | null
+          location: string
+          logo_url: string | null
+          name_ar: string
+          name_en: string
+          owner_id: string
+          updated_at: string
+          website_url: string | null
+        }
+        Insert: {
+          business_type: Database["public"]["Enums"]["business_type"]
+          contact_email: string
+          contact_phone?: string | null
+          created_at?: string
+          description_ar?: string | null
+          description_en?: string | null
+          id?: string
+          industry: string
+          is_verified?: boolean | null
+          location: string
+          logo_url?: string | null
+          name_ar: string
+          name_en: string
+          owner_id: string
+          updated_at?: string
+          website_url?: string | null
+        }
+        Update: {
+          business_type?: Database["public"]["Enums"]["business_type"]
+          contact_email?: string
+          contact_phone?: string | null
+          created_at?: string
+          description_ar?: string | null
+          description_en?: string | null
+          id?: string
+          industry?: string
+          is_verified?: boolean | null
+          location?: string
+          logo_url?: string | null
+          name_ar?: string
+          name_en?: string
+          owner_id?: string
+          updated_at?: string
+          website_url?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "businesses_owner_id_fkey"
+            columns: ["owner_id"]
+            isOneToOne: true
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      conversations: {
+        Row: {
+          created_at: string
+          id: string
+          last_message_at: string
+          participant_1_id: string
+          participant_1_unread: number | null
+          participant_2_id: string
+          participant_2_unread: number | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          last_message_at?: string
+          participant_1_id: string
+          participant_1_unread?: number | null
+          participant_2_id: string
+          participant_2_unread?: number | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          last_message_at?: string
+          participant_1_id?: string
+          participant_1_unread?: number | null
+          participant_2_id?: string
+          participant_2_unread?: number | null
+        }
+        Relationships: []
+      }
+      messages: {
+        Row: {
+          attachments: string[] | null
+          content: string
+          conversation_id: string
+          created_at: string
+          id: string
+          is_read: boolean | null
+          sender_id: string
+        }
+        Insert: {
+          attachments?: string[] | null
+          content: string
+          conversation_id: string
+          created_at?: string
+          id?: string
+          is_read?: boolean | null
+          sender_id: string
+        }
+        Update: {
+          attachments?: string[] | null
+          content?: string
+          conversation_id?: string
+          created_at?: string
+          id?: string
+          is_read?: boolean | null
+          sender_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "messages_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "conversations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          created_at: string
+          full_name: string
+          id: string
+          location: string | null
+          phone: string | null
+          preferred_language: string | null
+          updated_at: string
+        }
+        Insert: {
+          avatar_url?: string | null
+          created_at?: string
+          full_name: string
+          id: string
+          location?: string | null
+          phone?: string | null
+          preferred_language?: string | null
+          updated_at?: string
+        }
+        Update: {
+          avatar_url?: string | null
+          created_at?: string
+          full_name?: string
+          id?: string
+          location?: string | null
+          phone?: string | null
+          preferred_language?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      user_roles: {
+        Row: {
+          created_at: string
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "admin" | "moderator" | "user"
+      business_type: "importer" | "exporter" | "both"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +399,9 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["admin", "moderator", "user"],
+      business_type: ["importer", "exporter", "both"],
+    },
   },
 } as const
