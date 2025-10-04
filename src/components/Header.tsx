@@ -1,7 +1,8 @@
 import React from 'react';
 import { useLanguage } from '../contexts/LanguageContext';
+import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
-import { Globe, Menu } from 'lucide-react';
+import { Globe, Menu, LogOut, User } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -12,7 +13,12 @@ import { Link } from 'react-router-dom';
 
 const Header: React.FC = () => {
   const { language, setLanguage, t } = useLanguage();
+  const { user, signOut } = useAuth();
   const [isMenuOpen, setIsMenuOpen] = React.useState(false);
+
+  const handleLogout = async () => {
+    await signOut();
+  };
 
   return (
     <header className="sticky top-0 z-50 bg-white/80 backdrop-blur-sm border-b border-border">
@@ -58,12 +64,26 @@ const Header: React.FC = () => {
 
           {/* Auth Buttons */}
           <div className="hidden md:flex gap-2">
-            <Button variant="outline" asChild>
-              <Link to="/login">{t('nav.login')}</Link>
-            </Button>
-            <Button asChild>
-              <Link to="/register">{t('nav.register')}</Link>
-            </Button>
+            {user ? (
+              <>
+                <Button variant="outline" size="icon" title="Profile">
+                  <User className="h-5 w-5" />
+                </Button>
+                <Button variant="outline" onClick={handleLogout}>
+                  <LogOut className="h-4 w-4 mr-2" />
+                  {t('nav.logout')}
+                </Button>
+              </>
+            ) : (
+              <>
+                <Button variant="outline" asChild>
+                  <Link to="/login">{t('nav.login')}</Link>
+                </Button>
+                <Button asChild>
+                  <Link to="/register">{t('nav.register')}</Link>
+                </Button>
+              </>
+            )}
           </div>
 
           {/* Mobile Menu Button */}
@@ -86,14 +106,27 @@ const Header: React.FC = () => {
             <Link to="/messages" className="font-medium py-2 hover:text-primary" onClick={() => setIsMenuOpen(false)}>
               {t('nav.messages')}
             </Link>
-            <div className="flex gap-2 py-2">
-              <Button variant="outline" asChild className="flex-1">
-                <Link to="/login" onClick={() => setIsMenuOpen(false)}>{t('nav.login')}</Link>
-              </Button>
-              <Button asChild className="flex-1">
-                <Link to="/register" onClick={() => setIsMenuOpen(false)}>{t('nav.register')}</Link>
-              </Button>
-            </div>
+            {user ? (
+              <div className="flex flex-col gap-2 py-2">
+                <Button variant="outline" className="w-full justify-start">
+                  <User className="h-4 w-4 mr-2" />
+                  {t('nav.profile')}
+                </Button>
+                <Button variant="outline" onClick={() => { handleLogout(); setIsMenuOpen(false); }} className="w-full justify-start">
+                  <LogOut className="h-4 w-4 mr-2" />
+                  {t('nav.logout')}
+                </Button>
+              </div>
+            ) : (
+              <div className="flex gap-2 py-2">
+                <Button variant="outline" asChild className="flex-1">
+                  <Link to="/login" onClick={() => setIsMenuOpen(false)}>{t('nav.login')}</Link>
+                </Button>
+                <Button asChild className="flex-1">
+                  <Link to="/register" onClick={() => setIsMenuOpen(false)}>{t('nav.register')}</Link>
+                </Button>
+              </div>
+            )}
           </nav>
         </div>
       )}

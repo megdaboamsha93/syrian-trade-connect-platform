@@ -28,6 +28,7 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
       'nav.profile': 'Profile',
       'nav.login': 'Login',
       'nav.register': 'Register',
+      'nav.logout': 'Logout',
 
       // Home
       'home.hero.title': 'Connecting Syrian Businesses Globally',
@@ -96,6 +97,7 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
       'auth.industry': 'Industry',
       'auth.firstName': 'First Name',
       'auth.lastName': 'Last Name',
+      'auth.fullName': 'Full Name',
     },
     ar: {
       // General
@@ -110,6 +112,7 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
       'nav.profile': 'الملف الشخصي',
       'nav.login': 'تسجيل الدخول',
       'nav.register': 'التسجيل',
+      'nav.logout': 'تسجيل الخروج',
 
       // Home
       'home.hero.title': 'ربط الشركات السورية عالمياً',
@@ -178,6 +181,7 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
       'auth.industry': 'الصناعة',
       'auth.firstName': 'الاسم الأول',
       'auth.lastName': 'اسم العائلة',
+      'auth.fullName': 'الاسم الكامل',
     }
   };
 
