@@ -75,9 +75,11 @@ export type Database = {
           business_type: Database["public"]["Enums"]["business_type"]
           contact_email: string
           contact_phone: string | null
+          cover_url: string | null
           created_at: string
           description_ar: string | null
           description_en: string | null
+          founded_year: number | null
           id: string
           industry: string
           is_verified: boolean | null
@@ -93,9 +95,11 @@ export type Database = {
           business_type: Database["public"]["Enums"]["business_type"]
           contact_email: string
           contact_phone?: string | null
+          cover_url?: string | null
           created_at?: string
           description_ar?: string | null
           description_en?: string | null
+          founded_year?: number | null
           id?: string
           industry: string
           is_verified?: boolean | null
@@ -111,9 +115,11 @@ export type Database = {
           business_type?: Database["public"]["Enums"]["business_type"]
           contact_email?: string
           contact_phone?: string | null
+          cover_url?: string | null
           created_at?: string
           description_ar?: string | null
           description_en?: string | null
+          founded_year?: number | null
           id?: string
           industry?: string
           is_verified?: boolean | null

@@ -1,14 +1,36 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useLanguage } from '../contexts/LanguageContext';
 import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
 import { ChevronRight, ChevronLeft, Building2, Filter, MessageCircle } from 'lucide-react';
-import { businesses } from '../data/businesses';
+import { supabase } from '@/integrations/supabase/client';
+import type { Database } from '@/integrations/supabase/types';
 import BusinessCard from '@/components/BusinessCard';
+
+type Business = Database['public']['Tables']['businesses']['Row'];
 
 const Index: React.FC = () => {
   const { t, dir } = useLanguage();
-  const featuredBusinesses = businesses.slice(0, 3);
+  const [featuredBusinesses, setFeaturedBusinesses] = useState<Business[]>([]);
+  
+  useEffect(() => {
+    const fetchFeaturedBusinesses = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('businesses')
+          .select('*')
+          .order('created_at', { ascending: false })
+          .limit(3);
+
+        if (error) throw error;
+        setFeaturedBusinesses(data || []);
+      } catch (error) {
+        console.error('Error fetching featured businesses:', error);
+      }
+    };
+
+    fetchFeaturedBusinesses();
+  }, []);
   
   return (
     <div className="min-h-screen">

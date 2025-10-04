@@ -1,8 +1,10 @@
 
 import React from 'react';
 import { useLanguage } from '../contexts/LanguageContext';
-import { Business } from '../data/businesses';
+import type { Database } from '@/integrations/supabase/types';
 import BusinessCard from './BusinessCard';
+
+type Business = Database['public']['Tables']['businesses']['Row'];
 
 interface BusinessGridProps {
   businesses: Business[];

@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useLanguage } from '../contexts/LanguageContext';
-import { businesses, Business, BusinessType } from '../data/businesses';
+import { supabase } from '@/integrations/supabase/client';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import {
@@ -11,16 +11,46 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Search } from 'lucide-react';
+import { Search, Loader2 } from 'lucide-react';
 import BusinessGrid from '@/components/BusinessGrid';
+import type { Database } from '@/integrations/supabase/types';
+
+type Business = Database['public']['Tables']['businesses']['Row'];
 
 const Browse: React.FC = () => {
   const { t } = useLanguage();
-  const [filteredBusinesses, setFilteredBusinesses] = useState<Business[]>(businesses);
+  const [businesses, setBusinesses] = useState<Business[]>([]);
+  const [filteredBusinesses, setFilteredBusinesses] = useState<Business[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [industryFilter, setIndustryFilter] = useState('all');
   const [businessTypeFilter, setBusinessTypeFilter] = useState('all');
+  const [loading, setLoading] = useState(true);
   
+  // Fetch businesses from Supabase
+  useEffect(() => {
+    const fetchBusinesses = async () => {
+      try {
+        setLoading(true);
+        const { data, error } = await supabase
+          .from('businesses')
+          .select('*')
+          .order('created_at', { ascending: false });
+
+        if (error) throw error;
+        
+        setBusinesses(data || []);
+        setFilteredBusinesses(data || []);
+      } catch (error) {
+        console.error('Error fetching businesses:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchBusinesses();
+  }, []);
+
+  // Filter businesses based on search and filters
   useEffect(() => {
     let filtered = [...businesses];
 
@@ -29,10 +59,10 @@ const Browse: React.FC = () => {
       const lowerSearchTerm = searchTerm.toLowerCase();
       filtered = filtered.filter(
         business => 
-          business.nameEn.toLowerCase().includes(lowerSearchTerm) ||
-          business.nameAr.toLowerCase().includes(lowerSearchTerm) ||
-          business.descriptionEn.toLowerCase().includes(lowerSearchTerm) ||
-          business.descriptionAr.toLowerCase().includes(lowerSearchTerm)
+          business.name_en.toLowerCase().includes(lowerSearchTerm) ||
+          business.name_ar.toLowerCase().includes(lowerSearchTerm) ||
+          (business.description_en?.toLowerCase().includes(lowerSearchTerm)) ||
+          (business.description_ar?.toLowerCase().includes(lowerSearchTerm))
       );
     }
 
@@ -43,11 +73,11 @@ const Browse: React.FC = () => {
 
     // Filter by business type
     if (businessTypeFilter !== 'all') {
-      filtered = filtered.filter(business => business.businessType === businessTypeFilter as BusinessType);
+      filtered = filtered.filter(business => business.business_type === businessTypeFilter);
     }
 
     setFilteredBusinesses(filtered);
-  }, [searchTerm, industryFilter, businessTypeFilter]);
+  }, [searchTerm, industryFilter, businessTypeFilter, businesses]);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -144,7 +174,13 @@ const Browse: React.FC = () => {
               {t('browse.results')} ({filteredBusinesses.length})
             </h3>
           </div>
-          <BusinessGrid businesses={filteredBusinesses} />
+          {loading ? (
+            <div className="flex justify-center items-center py-20">
+              <Loader2 className="h-8 w-8 animate-spin text-primary" />
+            </div>
+          ) : (
+            <BusinessGrid businesses={filteredBusinesses} />
+          )}
         </div>
       </div>
     </div>
