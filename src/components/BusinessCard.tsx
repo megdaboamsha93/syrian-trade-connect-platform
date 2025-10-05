@@ -35,13 +35,13 @@ const BusinessCard: React.FC<BusinessCardProps> = ({ business }) => {
           )}
         </div>
         <CardContent className="p-4">
-          <div className="flex items-start justify-between mb-2">
-            <div className="text-lg font-semibold line-clamp-1">{name}</div>
+          <div className="flex items-start gap-2 mb-2">
+            <div className="text-lg font-semibold line-clamp-1 flex-1">{name}</div>
             {business.is_verified && (
-              <div className="flex items-center text-xs text-blue-600">
-                <CheckCircle className="h-4 w-4 mr-1" />
+              <Badge variant="default" className="gap-1 shrink-0">
+                <CheckCircle className="h-3 w-3" />
                 {t('business.verified')}
-              </div>
+              </Badge>
             )}
           </div>
           <div className="flex flex-wrap gap-2 mb-3">

@@ -24,6 +24,7 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
       // Navigation
       'nav.home': 'Home',
       'nav.browse': 'Browse Businesses',
+      'nav.myBusiness': 'My Business',
       'nav.messages': 'Messages',
       'nav.profile': 'Profile',
       'nav.login': 'Login',
@@ -108,6 +109,7 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
       // Navigation
       'nav.home': 'الرئيسية',
       'nav.browse': 'تصفح الشركات',
+      'nav.myBusiness': 'أعمالي',
       'nav.messages': 'الرسائل',
       'nav.profile': 'الملف الشخصي',
       'nav.login': 'تسجيل الدخول',

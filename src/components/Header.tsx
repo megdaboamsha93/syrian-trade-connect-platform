@@ -34,6 +34,7 @@ const Header: React.FC = () => {
         <nav className="hidden md:flex items-center space-x-6 rtl:space-x-reverse">
           <Link to="/" className="font-medium hover:text-primary">{t('nav.home')}</Link>
           <Link to="/browse" className="font-medium hover:text-primary">{t('nav.browse')}</Link>
+          {user && <Link to="/my-business" className="font-medium hover:text-primary">{t('nav.myBusiness')}</Link>}
           <Link to="/messages" className="font-medium hover:text-primary">{t('nav.messages')}</Link>
         </nav>
 
@@ -103,6 +104,11 @@ const Header: React.FC = () => {
             <Link to="/browse" className="font-medium py-2 hover:text-primary" onClick={() => setIsMenuOpen(false)}>
               {t('nav.browse')}
             </Link>
+            {user && (
+              <Link to="/my-business" className="font-medium py-2 hover:text-primary" onClick={() => setIsMenuOpen(false)}>
+                {t('nav.myBusiness')}
+              </Link>
+            )}
             <Link to="/messages" className="font-medium py-2 hover:text-primary" onClick={() => setIsMenuOpen(false)}>
               {t('nav.messages')}
             </Link>
