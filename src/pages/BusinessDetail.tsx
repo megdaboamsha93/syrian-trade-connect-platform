@@ -191,8 +191,24 @@ const BusinessDetail: React.FC = () => {
                       const productDesc = language === 'en' ? product.description_en : product.description_ar;
                       const firstImage = product.image_urls?.[0];
                       
+                      const handleProductClick = async () => {
+                        // Track product view
+                        await supabase
+                          .from('product_views')
+                          .insert({
+                            product_id: product.id,
+                            business_id: id!,
+                            viewer_id: user?.id || null,
+                            referrer: document.referrer,
+                          });
+                      };
+                      
                       return (
-                        <Card key={product.id} className="overflow-hidden">
+                        <Card 
+                          key={product.id} 
+                          className="overflow-hidden cursor-pointer hover:shadow-lg transition-shadow"
+                          onClick={handleProductClick}
+                        >
                           {firstImage && (
                             <div className="h-40 overflow-hidden bg-muted">
                               <img 

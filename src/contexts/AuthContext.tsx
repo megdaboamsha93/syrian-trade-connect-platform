@@ -1,7 +1,6 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
-import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 
 type AuthContextType = {
@@ -27,6 +26,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setSession(session);
         setUser(session?.user ?? null);
         setLoading(false);
+        
+        // Check if email needs verification (only for auto-confirm disabled)
+        if (event === 'SIGNED_IN' && session?.user && !session.user.email_confirmed_at) {
+          // Only redirect to verify if not already on verify page
+          if (!window.location.pathname.includes('/verify-email')) {
+            setTimeout(() => {
+              window.location.href = '/verify-email';
+            }, 0);
+          }
+        }
       }
     );
 
