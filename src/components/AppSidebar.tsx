@@ -74,19 +74,19 @@ export function AppSidebar() {
       onMouseEnter={() => setOpen(true)}
       onMouseLeave={() => setOpen(false)}
     >
-      <SidebarHeader className="border-b border-border px-6 py-4">
-        <div className="flex items-center gap-3">
+      <SidebarHeader className="border-b border-border px-6 py-4 group-data-[collapsible=icon]:px-2 group-data-[collapsible=icon]:py-3">
+        <div className="flex items-center gap-3 group-data-[collapsible=icon]:justify-center">
           <div className="w-10 h-10 rounded-lg bg-primary flex items-center justify-center flex-shrink-0">
             <Store className="h-5 w-5 text-primary-foreground" />
           </div>
-          <span className="font-bold text-lg text-foreground">STC Platform</span>
+          <span className="font-bold text-lg text-foreground group-data-[collapsible=icon]:hidden">STC Platform</span>
         </div>
       </SidebarHeader>
 
-      <SidebarContent className="px-3 py-4">
+      <SidebarContent className="px-3 py-4 group-data-[collapsible=icon]:px-2">
         {/* Explore Section */}
         <SidebarGroup className="mb-6">
-          <SidebarGroupLabel className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">
+          <SidebarGroupLabel className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2 group-data-[collapsible=icon]:hidden">
             Explore
           </SidebarGroupLabel>
           <SidebarGroupContent>
@@ -96,9 +96,9 @@ export function AppSidebar() {
                 return (
                   <SidebarMenuItem key={item.title}>
                     <SidebarMenuButton asChild tooltip={item.title} isActive={isActive(item.url)}>
-                      <NavLink to={item.url} className="flex items-center gap-2">
+                      <NavLink to={item.url} className="flex items-center gap-2 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:gap-0">
                         <item.icon className="h-5 w-5" />
-                        <span>{item.title}</span>
+                        <span className="truncate group-data-[collapsible=icon]:hidden">{item.title}</span>
                       </NavLink>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
@@ -111,7 +111,7 @@ export function AppSidebar() {
         {/* My Business Section - Only show if logged in */}
         {user && (
           <SidebarGroup>
-            <SidebarGroupLabel className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">
+            <SidebarGroupLabel className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2 group-data-[collapsible=icon]:hidden">
               My Business
             </SidebarGroupLabel>
             <SidebarGroupContent>
@@ -119,9 +119,9 @@ export function AppSidebar() {
                 {businessItems.map((item) => (
                   <SidebarMenuItem key={item.title}>
                     <SidebarMenuButton asChild tooltip={item.title} isActive={isActive(item.url)}>
-                      <NavLink to={item.url} className="flex items-center gap-2">
+                      <NavLink to={item.url} className="flex items-center gap-2 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:gap-0">
                         <item.icon className="h-5 w-5" />
-                        <span>{item.title}</span>
+                        <span className="truncate group-data-[collapsible=icon]:hidden">{item.title}</span>
                       </NavLink>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
