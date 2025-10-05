@@ -1,5 +1,5 @@
 import { Building2, BarChart3, Search, Heart, MessageSquare, Home, Plus, Store } from 'lucide-react';
-import { NavLink } from 'react-router-dom';
+import { NavLink, useLocation } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import {
   Sidebar,
@@ -62,6 +62,8 @@ const businessItems = [
 
 export function AppSidebar() {
   const { user } = useAuth();
+  const location = useLocation();
+  const isActive = (path: string) => location.pathname === path;
 
   return (
     <Sidebar collapsible="icon" className="border-r">
@@ -84,18 +86,10 @@ export function AppSidebar() {
             <SidebarMenu>
               {exploreItems.map((item) => {
                 if (item.requiresAuth && !user) return null;
-                
                 return (
                   <SidebarMenuItem key={item.title}>
-                    <SidebarMenuButton asChild tooltip={item.title}>
-                      <NavLink
-                        to={item.url}
-                        className={({ isActive }) =>
-                          isActive
-                            ? 'bg-primary text-primary-foreground hover:bg-primary/90 hover:text-primary-foreground font-medium'
-                            : 'text-foreground hover:bg-accent hover:text-accent-foreground'
-                        }
-                      >
+                    <SidebarMenuButton asChild tooltip={item.title} isActive={isActive(item.url)}>
+                      <NavLink to={item.url} className="flex items-center gap-2">
                         <item.icon className="h-5 w-5" />
                         <span>{item.title}</span>
                       </NavLink>
@@ -117,15 +111,8 @@ export function AppSidebar() {
               <SidebarMenu>
                 {businessItems.map((item) => (
                   <SidebarMenuItem key={item.title}>
-                    <SidebarMenuButton asChild tooltip={item.title}>
-                      <NavLink
-                        to={item.url}
-                        className={({ isActive }) =>
-                          isActive
-                            ? 'bg-primary text-primary-foreground hover:bg-primary/90 hover:text-primary-foreground font-medium'
-                            : 'text-foreground hover:bg-accent hover:text-accent-foreground'
-                        }
-                      >
+                    <SidebarMenuButton asChild tooltip={item.title} isActive={isActive(item.url)}>
+                      <NavLink to={item.url} className="flex items-center gap-2">
                         <item.icon className="h-5 w-5" />
                         <span>{item.title}</span>
                       </NavLink>
