@@ -18,7 +18,7 @@ import {
 
 export function AppSidebar() {
   const { user } = useAuth();
-  const { t } = useLanguage();
+  const { t, dir } = useLanguage();
   const location = useLocation();
   const { setOpen } = useSidebar();
   const isActive = (path: string) => location.pathname === path;
@@ -70,9 +70,9 @@ export function AppSidebar() {
   ];
 
   return (
-    <Sidebar 
-      collapsible="icon" 
-      className="border-r"
+    <Sidebar
+      side={dir === 'rtl' ? 'right' : 'left'}
+      collapsible="icon"
       onMouseEnter={() => setOpen(true)}
       onMouseLeave={() => setOpen(false)}
     >
