@@ -82,6 +82,7 @@ export type Database = {
           founded_year: number | null
           id: string
           industry: string
+          is_example: boolean | null
           is_verified: boolean | null
           location: string
           logo_url: string | null
@@ -102,6 +103,7 @@ export type Database = {
           founded_year?: number | null
           id?: string
           industry: string
+          is_example?: boolean | null
           is_verified?: boolean | null
           location: string
           logo_url?: string | null
@@ -122,6 +124,7 @@ export type Database = {
           founded_year?: number | null
           id?: string
           industry?: string
+          is_example?: boolean | null
           is_verified?: boolean | null
           location?: string
           logo_url?: string | null
