@@ -4,6 +4,9 @@ import { useLanguage } from '../contexts/LanguageContext';
 import { supabase } from '@/integrations/supabase/client';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
+import { Switch } from '@/components/ui/switch';
+import { Label } from '@/components/ui/label';
+import { Badge } from '@/components/ui/badge';
 import {
   Select,
   SelectContent,
@@ -11,20 +14,36 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Search, Loader2 } from 'lucide-react';
+import { Search, Loader2, X, SlidersHorizontal } from 'lucide-react';
 import BusinessGrid from '@/components/BusinessGrid';
 import type { Database } from '@/integrations/supabase/types';
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination";
 
 type Business = Database['public']['Tables']['businesses']['Row'];
+
+const ITEMS_PER_PAGE = 9;
 
 const Browse: React.FC = () => {
   const { t } = useLanguage();
   const [businesses, setBusinesses] = useState<Business[]>([]);
   const [filteredBusinesses, setFilteredBusinesses] = useState<Business[]>([]);
+  const [paginatedBusinesses, setPaginatedBusinesses] = useState<Business[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [industryFilter, setIndustryFilter] = useState('all');
   const [businessTypeFilter, setBusinessTypeFilter] = useState('all');
+  const [locationFilter, setLocationFilter] = useState('all');
+  const [verifiedOnly, setVerifiedOnly] = useState(false);
+  const [sortBy, setSortBy] = useState('newest');
+  const [currentPage, setCurrentPage] = useState(1);
   const [loading, setLoading] = useState(true);
+  const [locations, setLocations] = useState<string[]>([]);
   
   // Fetch businesses from Supabase
   useEffect(() => {
@@ -38,6 +57,10 @@ const Browse: React.FC = () => {
 
         if (error) throw error;
         
+        // Extract unique locations
+        const uniqueLocations = [...new Set((data || []).map(b => b.location))].sort();
+        setLocations(uniqueLocations);
+        
         setBusinesses(data || []);
         setFilteredBusinesses(data || []);
       } catch (error) {
@@ -50,11 +73,11 @@ const Browse: React.FC = () => {
     fetchBusinesses();
   }, []);
 
-  // Filter businesses based on search and filters
+  // Filter and sort businesses
   useEffect(() => {
     let filtered = [...businesses];
 
-    // Search by name
+    // Search by name and description
     if (searchTerm) {
       const lowerSearchTerm = searchTerm.toLowerCase();
       filtered = filtered.filter(
@@ -76,26 +99,100 @@ const Browse: React.FC = () => {
       filtered = filtered.filter(business => business.business_type === businessTypeFilter);
     }
 
+    // Filter by location
+    if (locationFilter !== 'all') {
+      filtered = filtered.filter(business => business.location === locationFilter);
+    }
+
+    // Filter verified only
+    if (verifiedOnly) {
+      filtered = filtered.filter(business => business.is_verified);
+    }
+
+    // Sort businesses
+    switch (sortBy) {
+      case 'newest':
+        filtered.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+        break;
+      case 'oldest':
+        filtered.sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime());
+        break;
+      case 'name-asc':
+        filtered.sort((a, b) => a.name_en.localeCompare(b.name_en));
+        break;
+      case 'name-desc':
+        filtered.sort((a, b) => b.name_en.localeCompare(a.name_en));
+        break;
+    }
+
     setFilteredBusinesses(filtered);
-  }, [searchTerm, industryFilter, businessTypeFilter, businesses]);
+    setCurrentPage(1); // Reset to first page when filters change
+  }, [searchTerm, industryFilter, businessTypeFilter, locationFilter, verifiedOnly, sortBy, businesses]);
+
+  // Paginate businesses
+  useEffect(() => {
+    const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+    const endIndex = startIndex + ITEMS_PER_PAGE;
+    setPaginatedBusinesses(filteredBusinesses.slice(startIndex, endIndex));
+  }, [filteredBusinesses, currentPage]);
+
+  const totalPages = Math.ceil(filteredBusinesses.length / ITEMS_PER_PAGE);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
-    // The search happens automatically through the useEffect
   };
+
+  const resetFilters = () => {
+    setSearchTerm('');
+    setIndustryFilter('all');
+    setBusinessTypeFilter('all');
+    setLocationFilter('all');
+    setVerifiedOnly(false);
+    setSortBy('newest');
+  };
+
+  const activeFiltersCount = [
+    searchTerm,
+    industryFilter !== 'all',
+    businessTypeFilter !== 'all',
+    locationFilter !== 'all',
+    verifiedOnly,
+    sortBy !== 'newest'
+  ].filter(Boolean).length;
 
   const industries = ['manufacturing', 'agriculture', 'textiles', 'materials', 'services'];
   const businessTypes = ['importer', 'exporter', 'both'];
 
   return (
     <div className="container mx-auto px-6 py-8">
-      <h1 className="text-2xl md:text-3xl font-bold mb-6">{t('browse.title')}</h1>
+      <div className="flex items-center justify-between mb-6">
+        <h1 className="text-2xl md:text-3xl font-bold">{t('browse.title')}</h1>
+        {activeFiltersCount > 0 && (
+          <Badge variant="secondary" className="gap-2">
+            <SlidersHorizontal className="h-3 w-3" />
+            {activeFiltersCount} Active
+          </Badge>
+        )}
+      </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
         {/* Filter Sidebar */}
         <div className="lg:col-span-1">
-          <div className="bg-white shadow-sm rounded-lg border p-4">
-            <h2 className="font-medium mb-4">{t('browse.filter')}</h2>
+          <div className="bg-card shadow-sm rounded-lg border p-4 sticky top-4">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="font-medium">{t('browse.filter')}</h2>
+              {activeFiltersCount > 0 && (
+                <Button 
+                  variant="ghost" 
+                  size="sm"
+                  onClick={resetFilters}
+                  className="h-8 text-xs"
+                >
+                  <X className="h-3 w-3 mr-1" />
+                  Clear All
+                </Button>
+              )}
+            </div>
             
             {/* Search Form */}
             <form onSubmit={handleSearch} className="mb-4">
@@ -157,29 +254,130 @@ const Browse: React.FC = () => {
               </Select>
             </div>
 
-            <Button variant="outline" className="w-full" onClick={() => {
-              setSearchTerm('');
-              setIndustryFilter('all');
-              setBusinessTypeFilter('all');
-            }}>
-              Reset Filters
-            </Button>
+            {/* Location Filter */}
+            <div className="mb-4">
+              <label className="text-sm font-medium block mb-2">
+                Location
+              </label>
+              <Select 
+                value={locationFilter}
+                onValueChange={(value) => setLocationFilter(value)}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="All Locations" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Locations</SelectItem>
+                  {locations.map((location) => (
+                    <SelectItem key={location} value={location}>
+                      {location}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Verified Filter */}
+            <div className="mb-4 flex items-center justify-between">
+              <Label htmlFor="verified-only" className="text-sm font-medium">
+                Verified Only
+              </Label>
+              <Switch
+                id="verified-only"
+                checked={verifiedOnly}
+                onCheckedChange={setVerifiedOnly}
+              />
+            </div>
+
+            {/* Sort By */}
+            <div className="mb-4">
+              <label className="text-sm font-medium block mb-2">
+                Sort By
+              </label>
+              <Select 
+                value={sortBy}
+                onValueChange={(value) => setSortBy(value)}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Sort by" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="newest">Newest First</SelectItem>
+                  <SelectItem value="oldest">Oldest First</SelectItem>
+                  <SelectItem value="name-asc">Name (A-Z)</SelectItem>
+                  <SelectItem value="name-desc">Name (Z-A)</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
           </div>
         </div>
 
         {/* Main Content */}
         <div className="lg:col-span-3">
-          <div className="mb-4">
+          <div className="mb-6 flex items-center justify-between">
             <h3 className="text-lg font-medium">
-              {t('browse.results')} ({filteredBusinesses.length})
+              {filteredBusinesses.length} {filteredBusinesses.length === 1 ? 'Result' : 'Results'}
             </h3>
           </div>
+          
           {loading ? (
             <div className="flex justify-center items-center py-20">
               <Loader2 className="h-8 w-8 animate-spin text-primary" />
             </div>
           ) : (
-            <BusinessGrid businesses={filteredBusinesses} />
+            <>
+              <BusinessGrid businesses={paginatedBusinesses} />
+              
+              {totalPages > 1 && (
+                <div className="mt-8">
+                  <Pagination>
+                    <PaginationContent>
+                      <PaginationItem>
+                        <PaginationPrevious 
+                          onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+                          className={currentPage === 1 ? 'pointer-events-none opacity-50' : 'cursor-pointer'}
+                        />
+                      </PaginationItem>
+                      
+                      {[...Array(totalPages)].map((_, i) => {
+                        const pageNum = i + 1;
+                        // Show first page, last page, current page, and pages around current
+                        if (
+                          pageNum === 1 ||
+                          pageNum === totalPages ||
+                          (pageNum >= currentPage - 1 && pageNum <= currentPage + 1)
+                        ) {
+                          return (
+                            <PaginationItem key={pageNum}>
+                              <PaginationLink
+                                onClick={() => setCurrentPage(pageNum)}
+                                isActive={currentPage === pageNum}
+                                className="cursor-pointer"
+                              >
+                                {pageNum}
+                              </PaginationLink>
+                            </PaginationItem>
+                          );
+                        } else if (
+                          pageNum === currentPage - 2 ||
+                          pageNum === currentPage + 2
+                        ) {
+                          return <PaginationItem key={pageNum}>...</PaginationItem>;
+                        }
+                        return null;
+                      })}
+                      
+                      <PaginationItem>
+                        <PaginationNext 
+                          onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+                          className={currentPage === totalPages ? 'pointer-events-none opacity-50' : 'cursor-pointer'}
+                        />
+                      </PaginationItem>
+                    </PaginationContent>
+                  </Pagination>
+                </div>
+              )}
+            </>
           )}
         </div>
       </div>
