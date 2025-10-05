@@ -64,20 +64,22 @@ export function AppSidebar() {
   const { user } = useAuth();
 
   return (
-    <Sidebar collapsible="icon">
-      <SidebarHeader className="border-b px-4 py-3">
-        <div className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0">
-            <Store className="h-4 w-4 text-primary" />
+    <Sidebar collapsible="icon" className="border-r">
+      <SidebarHeader className="border-b border-border px-6 py-4">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-lg bg-primary flex items-center justify-center flex-shrink-0">
+            <Store className="h-5 w-5 text-primary-foreground" />
           </div>
-          <span className="font-bold text-primary">STC Platform</span>
+          <span className="font-bold text-lg text-foreground">STC Platform</span>
         </div>
       </SidebarHeader>
 
-      <SidebarContent>
+      <SidebarContent className="px-3 py-4">
         {/* Explore Section */}
-        <SidebarGroup>
-          <SidebarGroupLabel>Explore</SidebarGroupLabel>
+        <SidebarGroup className="mb-6">
+          <SidebarGroupLabel className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">
+            Explore
+          </SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               {exploreItems.map((item) => {
@@ -90,11 +92,11 @@ export function AppSidebar() {
                         to={item.url}
                         className={({ isActive }) =>
                           isActive
-                            ? 'bg-primary text-primary-foreground hover:bg-primary/90 hover:text-primary-foreground'
-                            : ''
+                            ? 'bg-primary text-primary-foreground hover:bg-primary/90 hover:text-primary-foreground font-medium'
+                            : 'text-foreground hover:bg-accent hover:text-accent-foreground'
                         }
                       >
-                        <item.icon />
+                        <item.icon className="h-5 w-5" />
                         <span>{item.title}</span>
                       </NavLink>
                     </SidebarMenuButton>
@@ -108,7 +110,9 @@ export function AppSidebar() {
         {/* My Business Section - Only show if logged in */}
         {user && (
           <SidebarGroup>
-            <SidebarGroupLabel>My Business</SidebarGroupLabel>
+            <SidebarGroupLabel className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">
+              My Business
+            </SidebarGroupLabel>
             <SidebarGroupContent>
               <SidebarMenu>
                 {businessItems.map((item) => (
@@ -118,11 +122,11 @@ export function AppSidebar() {
                         to={item.url}
                         className={({ isActive }) =>
                           isActive
-                            ? 'bg-primary text-primary-foreground hover:bg-primary/90 hover:text-primary-foreground'
-                            : ''
+                            ? 'bg-primary text-primary-foreground hover:bg-primary/90 hover:text-primary-foreground font-medium'
+                            : 'text-foreground hover:bg-accent hover:text-accent-foreground'
                         }
                       >
-                        <item.icon />
+                        <item.icon className="h-5 w-5" />
                         <span>{item.title}</span>
                       </NavLink>
                     </SidebarMenuButton>
