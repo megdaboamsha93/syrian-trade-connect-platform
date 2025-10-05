@@ -312,10 +312,10 @@ const Messages: React.FC = () => {
   if (!user) return null;
 
   return (
-    <div className="container mx-auto px-6 py-8">
-      <h1 className="text-2xl md:text-3xl font-bold mb-6">{t('messages.title')}</h1>
+    <div className="container mx-auto px-6 py-4 h-screen flex flex-col">
+      <h1 className="text-2xl md:text-3xl font-bold mb-4">{t('messages.title')}</h1>
       
-      <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6 h-[calc(100vh-12rem)]">
+      <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6 flex-1 min-h-0">
         {/* Conversations List */}
         <div className="md:col-span-1 bg-card rounded-lg shadow-sm overflow-hidden flex flex-col">
           <div className="p-4 bg-muted/30 border-b font-medium">
