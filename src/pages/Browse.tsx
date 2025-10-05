@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useLanguage } from '../contexts/LanguageContext';
 import { supabase } from '@/integrations/supabase/client';
@@ -31,7 +30,7 @@ type Business = Database['public']['Tables']['businesses']['Row'];
 const ITEMS_PER_PAGE = 9;
 
 const Browse: React.FC = () => {
-  const { t } = useLanguage();
+  const { t, dir } = useLanguage();
   const [businesses, setBusinesses] = useState<Business[]>([]);
   const [filteredBusinesses, setFilteredBusinesses] = useState<Business[]>([]);
   const [paginatedBusinesses, setPaginatedBusinesses] = useState<Business[]>([]);
@@ -57,7 +56,6 @@ const Browse: React.FC = () => {
 
         if (error) throw error;
         
-        // Extract unique locations
         const uniqueLocations = [...new Set((data || []).map(b => b.location))].sort();
         setLocations(uniqueLocations);
         
@@ -73,11 +71,9 @@ const Browse: React.FC = () => {
     fetchBusinesses();
   }, []);
 
-  // Filter and sort businesses
   useEffect(() => {
     let filtered = [...businesses];
 
-    // Search by name and description
     if (searchTerm) {
       const lowerSearchTerm = searchTerm.toLowerCase();
       filtered = filtered.filter(
@@ -89,27 +85,22 @@ const Browse: React.FC = () => {
       );
     }
 
-    // Filter by industry
     if (industryFilter !== 'all') {
       filtered = filtered.filter(business => business.industry === industryFilter);
     }
 
-    // Filter by business type
     if (businessTypeFilter !== 'all') {
       filtered = filtered.filter(business => business.business_type === businessTypeFilter);
     }
 
-    // Filter by location
     if (locationFilter !== 'all') {
       filtered = filtered.filter(business => business.location === locationFilter);
     }
 
-    // Filter verified only
     if (verifiedOnly) {
       filtered = filtered.filter(business => business.is_verified);
     }
 
-    // Sort businesses
     switch (sortBy) {
       case 'newest':
         filtered.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
@@ -126,10 +117,9 @@ const Browse: React.FC = () => {
     }
 
     setFilteredBusinesses(filtered);
-    setCurrentPage(1); // Reset to first page when filters change
+    setCurrentPage(1);
   }, [searchTerm, industryFilter, businessTypeFilter, locationFilter, verifiedOnly, sortBy, businesses]);
 
-  // Paginate businesses
   useEffect(() => {
     const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
     const endIndex = startIndex + ITEMS_PER_PAGE;
@@ -163,6 +153,206 @@ const Browse: React.FC = () => {
   const industries = ['manufacturing', 'agriculture', 'textiles', 'materials', 'services'];
   const businessTypes = ['importer', 'exporter', 'both'];
 
+  const FilterSidebar = () => (
+    <div className="lg:col-span-1">
+      <div className="bg-card shadow-sm rounded-lg border p-4 sticky top-4">
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="font-medium">{t('browse.filter')}</h2>
+          {activeFiltersCount > 0 && (
+            <Button 
+              variant="ghost" 
+              size="sm"
+              onClick={resetFilters}
+              className="h-8 text-xs"
+            >
+              <X className="h-3 w-3 mr-1" />
+              Clear All
+            </Button>
+          )}
+        </div>
+        
+        <form onSubmit={handleSearch} className="mb-4">
+          <div className="relative">
+            <Search className="absolute top-2.5 left-3 h-4 w-4 text-muted-foreground" />
+            <Input
+              type="text"
+              placeholder={t('browse.search')}
+              className="pl-10"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+          </div>
+        </form>
+
+        <div className="mb-4">
+          <label className="text-sm font-medium block mb-2">
+            {t('browse.industry')}
+          </label>
+          <Select 
+            value={industryFilter}
+            onValueChange={(value) => setIndustryFilter(value)}
+          >
+            <SelectTrigger>
+              <SelectValue placeholder={t('browse.industry')} />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Industries</SelectItem>
+              {industries.map((industry) => (
+                <SelectItem key={industry} value={industry}>
+                  {t(`industry.${industry}`)}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+
+        <div className="mb-4">
+          <label className="text-sm font-medium block mb-2">
+            {t('browse.type')}
+          </label>
+          <Select 
+            value={businessTypeFilter}
+            onValueChange={(value) => setBusinessTypeFilter(value)}
+          >
+            <SelectTrigger>
+              <SelectValue placeholder={t('browse.type')} />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Types</SelectItem>
+              {businessTypes.map((type) => (
+                <SelectItem key={type} value={type}>
+                  {t(`browse.type.${type}`)}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+
+        <div className="mb-4">
+          <label className="text-sm font-medium block mb-2">
+            Location
+          </label>
+          <Select 
+            value={locationFilter}
+            onValueChange={(value) => setLocationFilter(value)}
+          >
+            <SelectTrigger>
+              <SelectValue placeholder="All Locations" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Locations</SelectItem>
+              {locations.map((location) => (
+                <SelectItem key={location} value={location}>
+                  {location}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+
+        <div className="mb-4 flex items-center justify-between">
+          <Label htmlFor="verified-only" className="text-sm font-medium">
+            Verified Only
+          </Label>
+          <Switch
+            id="verified-only"
+            checked={verifiedOnly}
+            onCheckedChange={setVerifiedOnly}
+          />
+        </div>
+
+        <div className="mb-4">
+          <label className="text-sm font-medium block mb-2">
+            Sort By
+          </label>
+          <Select 
+            value={sortBy}
+            onValueChange={(value) => setSortBy(value)}
+          >
+            <SelectTrigger>
+              <SelectValue placeholder="Sort by" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="newest">Newest First</SelectItem>
+              <SelectItem value="oldest">Oldest First</SelectItem>
+              <SelectItem value="name-asc">Name (A-Z)</SelectItem>
+              <SelectItem value="name-desc">Name (Z-A)</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+      </div>
+    </div>
+  );
+
+  const MainContent = () => (
+    <div className="lg:col-span-3">
+      <div className="mb-6 flex items-center justify-between">
+        <h3 className="text-lg font-medium">
+          {filteredBusinesses.length} {filteredBusinesses.length === 1 ? 'Result' : 'Results'}
+        </h3>
+      </div>
+      
+      {loading ? (
+        <div className="flex justify-center items-center py-20">
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        </div>
+      ) : (
+        <>
+          <BusinessGrid businesses={paginatedBusinesses} />
+          
+          {totalPages > 1 && (
+            <div className="mt-8">
+              <Pagination>
+                <PaginationContent>
+                  <PaginationItem>
+                    <PaginationPrevious 
+                      onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+                      className={currentPage === 1 ? 'pointer-events-none opacity-50' : 'cursor-pointer'}
+                    />
+                  </PaginationItem>
+                  
+                  {[...Array(totalPages)].map((_, i) => {
+                    const pageNum = i + 1;
+                    if (
+                      pageNum === 1 ||
+                      pageNum === totalPages ||
+                      (pageNum >= currentPage - 1 && pageNum <= currentPage + 1)
+                    ) {
+                      return (
+                        <PaginationItem key={pageNum}>
+                          <PaginationLink
+                            onClick={() => setCurrentPage(pageNum)}
+                            isActive={currentPage === pageNum}
+                            className="cursor-pointer"
+                          >
+                            {pageNum}
+                          </PaginationLink>
+                        </PaginationItem>
+                      );
+                    } else if (
+                      pageNum === currentPage - 2 ||
+                      pageNum === currentPage + 2
+                    ) {
+                      return <PaginationItem key={pageNum}>...</PaginationItem>;
+                    }
+                    return null;
+                  })}
+                  
+                  <PaginationItem>
+                    <PaginationNext 
+                      onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+                      className={currentPage === totalPages ? 'pointer-events-none opacity-50' : 'cursor-pointer'}
+                    />
+                  </PaginationItem>
+                </PaginationContent>
+              </Pagination>
+            </div>
+          )}
+        </>
+      )}
+    </div>
+  );
+
   return (
     <div className="container mx-auto px-6 py-8">
       <div className="flex items-center justify-between mb-6">
@@ -176,210 +366,17 @@ const Browse: React.FC = () => {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-        {/* Filter Sidebar */}
-        <div className="lg:col-span-1">
-          <div className="bg-card shadow-sm rounded-lg border p-4 sticky top-4">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="font-medium">{t('browse.filter')}</h2>
-              {activeFiltersCount > 0 && (
-                <Button 
-                  variant="ghost" 
-                  size="sm"
-                  onClick={resetFilters}
-                  className="h-8 text-xs"
-                >
-                  <X className="h-3 w-3 mr-1" />
-                  Clear All
-                </Button>
-              )}
-            </div>
-            
-            {/* Search Form */}
-            <form onSubmit={handleSearch} className="mb-4">
-              <div className="relative">
-                <Search className="absolute top-2.5 left-3 h-4 w-4 text-muted-foreground" />
-                <Input
-                  type="text"
-                  placeholder={t('browse.search')}
-                  className="pl-10"
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                />
-              </div>
-            </form>
-
-            {/* Industry Filter */}
-            <div className="mb-4">
-              <label className="text-sm font-medium block mb-2">
-                {t('browse.industry')}
-              </label>
-              <Select 
-                value={industryFilter}
-                onValueChange={(value) => setIndustryFilter(value)}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder={t('browse.industry')} />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Industries</SelectItem>
-                  {industries.map((industry) => (
-                    <SelectItem key={industry} value={industry}>
-                      {t(`industry.${industry}`)}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            {/* Business Type Filter */}
-            <div className="mb-4">
-              <label className="text-sm font-medium block mb-2">
-                {t('browse.type')}
-              </label>
-              <Select 
-                value={businessTypeFilter}
-                onValueChange={(value) => setBusinessTypeFilter(value)}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder={t('browse.type')} />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Types</SelectItem>
-                  {businessTypes.map((type) => (
-                    <SelectItem key={type} value={type}>
-                      {t(`browse.type.${type}`)}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            {/* Location Filter */}
-            <div className="mb-4">
-              <label className="text-sm font-medium block mb-2">
-                Location
-              </label>
-              <Select 
-                value={locationFilter}
-                onValueChange={(value) => setLocationFilter(value)}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="All Locations" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Locations</SelectItem>
-                  {locations.map((location) => (
-                    <SelectItem key={location} value={location}>
-                      {location}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            {/* Verified Filter */}
-            <div className="mb-4 flex items-center justify-between">
-              <Label htmlFor="verified-only" className="text-sm font-medium">
-                Verified Only
-              </Label>
-              <Switch
-                id="verified-only"
-                checked={verifiedOnly}
-                onCheckedChange={setVerifiedOnly}
-              />
-            </div>
-
-            {/* Sort By */}
-            <div className="mb-4">
-              <label className="text-sm font-medium block mb-2">
-                Sort By
-              </label>
-              <Select 
-                value={sortBy}
-                onValueChange={(value) => setSortBy(value)}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Sort by" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="newest">Newest First</SelectItem>
-                  <SelectItem value="oldest">Oldest First</SelectItem>
-                  <SelectItem value="name-asc">Name (A-Z)</SelectItem>
-                  <SelectItem value="name-desc">Name (Z-A)</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-        </div>
-
-        {/* Main Content */}
-        <div className="lg:col-span-3">
-          <div className="mb-6 flex items-center justify-between">
-            <h3 className="text-lg font-medium">
-              {filteredBusinesses.length} {filteredBusinesses.length === 1 ? 'Result' : 'Results'}
-            </h3>
-          </div>
-          
-          {loading ? (
-            <div className="flex justify-center items-center py-20">
-              <Loader2 className="h-8 w-8 animate-spin text-primary" />
-            </div>
-          ) : (
-            <>
-              <BusinessGrid businesses={paginatedBusinesses} />
-              
-              {totalPages > 1 && (
-                <div className="mt-8">
-                  <Pagination>
-                    <PaginationContent>
-                      <PaginationItem>
-                        <PaginationPrevious 
-                          onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
-                          className={currentPage === 1 ? 'pointer-events-none opacity-50' : 'cursor-pointer'}
-                        />
-                      </PaginationItem>
-                      
-                      {[...Array(totalPages)].map((_, i) => {
-                        const pageNum = i + 1;
-                        // Show first page, last page, current page, and pages around current
-                        if (
-                          pageNum === 1 ||
-                          pageNum === totalPages ||
-                          (pageNum >= currentPage - 1 && pageNum <= currentPage + 1)
-                        ) {
-                          return (
-                            <PaginationItem key={pageNum}>
-                              <PaginationLink
-                                onClick={() => setCurrentPage(pageNum)}
-                                isActive={currentPage === pageNum}
-                                className="cursor-pointer"
-                              >
-                                {pageNum}
-                              </PaginationLink>
-                            </PaginationItem>
-                          );
-                        } else if (
-                          pageNum === currentPage - 2 ||
-                          pageNum === currentPage + 2
-                        ) {
-                          return <PaginationItem key={pageNum}>...</PaginationItem>;
-                        }
-                        return null;
-                      })}
-                      
-                      <PaginationItem>
-                        <PaginationNext 
-                          onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
-                          className={currentPage === totalPages ? 'pointer-events-none opacity-50' : 'cursor-pointer'}
-                        />
-                      </PaginationItem>
-                    </PaginationContent>
-                  </Pagination>
-                </div>
-              )}
-            </>
-          )}
-        </div>
+        {dir === 'rtl' ? (
+          <>
+            <MainContent />
+            <FilterSidebar />
+          </>
+        ) : (
+          <>
+            <FilterSidebar />
+            <MainContent />
+          </>
+        )}
       </div>
     </div>
   );
