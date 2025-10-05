@@ -66,7 +66,7 @@ const Register: React.FC = () => {
     if (error) {
       setErrors({ general: error.message || 'Registration failed' });
     } else {
-      navigate('/login');
+      navigate('/complete-profile');
     }
     
     setLoading(false);
