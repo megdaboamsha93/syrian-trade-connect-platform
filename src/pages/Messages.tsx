@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import { useLanguage } from '../contexts/LanguageContext';
 import { useAuth } from '../contexts/AuthContext';
@@ -6,10 +5,11 @@ import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useParams, useNavigate, Link } from 'react-router-dom';
-import { Send, ChevronRight, Loader2 } from 'lucide-react';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Send, Search, MoreVertical, ArrowLeft, User as UserIcon } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Badge } from '@/components/ui/badge';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { ScrollArea } from '@/components/ui/scroll-area';
 import type { Tables } from '@/integrations/supabase/types';
 
 type Conversation = Tables<'conversations'>;
@@ -35,6 +35,7 @@ const Messages: React.FC = () => {
   const [message, setMessage] = useState('');
   const [loading, setLoading] = useState(true);
   const [sending, setSending] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   // Redirect to login if not authenticated
@@ -272,26 +273,20 @@ const Messages: React.FC = () => {
 
   const renderMessageTime = (timestamp: string) => {
     const date = new Date(timestamp);
-    return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-  };
-
-  const messageTemplates = [
-    {
-      id: 'inquiry',
-      title: t('messages.template.inquiry'),
-      content: 'I am interested in your products. Could you please provide more information about availability and pricing?'
-    },
-    {
-      id: 'pricing',
-      title: t('messages.template.pricing'),
-      content: 'I would like to request a price quotation for your products. What are your current rates?'
-    },
-    {
-      id: 'partnership',
-      title: t('messages.template.partnership'),
-      content: 'I am interested in discussing a potential business partnership. When would be a good time to schedule a call?'
+    const now = new Date();
+    const diff = now.getTime() - date.getTime();
+    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+    
+    if (days === 0) {
+      return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    } else if (days === 1) {
+      return 'Yesterday';
+    } else if (days < 7) {
+      return date.toLocaleDateString([], { weekday: 'short' });
+    } else {
+      return date.toLocaleDateString([], { month: 'short', day: 'numeric' });
     }
-  ];
+  };
 
   const getParticipantName = (conv: ConversationWithDetails) => {
     if (conv.otherParticipantBusiness) {
@@ -299,7 +294,12 @@ const Messages: React.FC = () => {
         ? conv.otherParticipantBusiness.name_en 
         : conv.otherParticipantBusiness.name_ar;
     }
-    return conv.otherParticipantProfile?.full_name || 'Unknown';
+    return conv.otherParticipantProfile?.full_name || 'Unknown User';
+  };
+
+  const getParticipantInitials = (conv: ConversationWithDetails) => {
+    const name = getParticipantName(conv);
+    return name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
   };
 
   const getUnreadCount = (conv: Conversation) => {
@@ -309,165 +309,220 @@ const Messages: React.FC = () => {
       : conv.participant_2_unread || 0;
   };
 
+  const filteredConversations = conversations.filter(conv => 
+    getParticipantName(conv).toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
   if (!user) return null;
 
   return (
-    <div className="container mx-auto px-6 py-4 h-screen flex flex-col">
-      <h1 className="text-2xl md:text-3xl font-bold mb-4">{t('messages.title')}</h1>
-      
-      <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6 flex-1 min-h-0">
-        {/* Conversations List */}
-        <div className="md:col-span-1 bg-card rounded-lg shadow-sm overflow-hidden flex flex-col">
-          <div className="p-4 bg-muted/30 border-b font-medium">
-            {t('messages.title')}
+    <div className="flex h-[calc(100vh-3.5rem)] bg-background">
+      {/* Conversations Sidebar */}
+      <div className="w-80 border-r border-border bg-card flex flex-col">
+        {/* Search Header */}
+        <div className="p-4 border-b border-border">
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input
+              placeholder="Search conversations..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-9"
+            />
           </div>
-          <div className="divide-y overflow-y-auto flex-1">
-            {loading ? (
-              <div className="p-6 text-center">
-                <Loader2 className="h-6 w-6 animate-spin mx-auto" />
+        </div>
+
+        {/* Conversations List */}
+        <ScrollArea className="flex-1">
+          {loading ? (
+            <div className="p-8 text-center text-muted-foreground">
+              Loading conversations...
+            </div>
+          ) : filteredConversations.length === 0 ? (
+            <div className="p-8 text-center">
+              <div className="text-muted-foreground mb-4">
+                {searchQuery ? 'No conversations found' : 'No conversations yet'}
               </div>
-            ) : conversations.length === 0 ? (
-              <div className="p-6 text-center text-muted-foreground">
-                No conversations yet
-              </div>
-            ) : (
-              conversations.map((convo) => {
+              {!searchQuery && (
+                <Button asChild size="sm">
+                  <Link to="/browse">Browse Businesses</Link>
+                </Button>
+              )}
+            </div>
+          ) : (
+            <div className="divide-y divide-border">
+              {filteredConversations.map((convo) => {
                 const isActive = selectedConversation?.id === convo.id;
                 const unreadCount = getUnreadCount(convo);
                 
                 return (
                   <div
                     key={convo.id}
-                    className={`p-4 cursor-pointer hover:bg-muted/30 transition-colors ${isActive ? 'bg-muted/30' : ''}`}
                     onClick={() => {
                       navigate('/messages');
                       setSelectedConversation(convo);
                     }}
+                    className={`
+                      flex items-start gap-3 p-4 cursor-pointer transition-colors
+                      ${isActive ? 'bg-muted/50' : 'hover:bg-muted/30'}
+                    `}
                   >
-                    <div className="flex items-center justify-between mb-1">
-                      <div className="font-medium">{getParticipantName(convo)}</div>
-                      {unreadCount > 0 && (
-                        <Badge variant="default" className="ml-2">
-                          {unreadCount}
-                        </Badge>
-                      )}
-                    </div>
-                    <div className="text-sm text-muted-foreground line-clamp-1">
-                      {convo.lastMessage?.content || 'No messages yet'}
-                    </div>
-                    <div className="text-xs text-muted-foreground mt-1">
-                      {convo.lastMessage ? renderMessageTime(convo.lastMessage.created_at) : ''}
+                    <Avatar className="h-12 w-12 flex-shrink-0">
+                      <AvatarFallback className="bg-primary/10 text-primary font-medium">
+                        {getParticipantInitials(convo)}
+                      </AvatarFallback>
+                    </Avatar>
+                    
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center justify-between mb-1">
+                        <h3 className="font-semibold text-sm truncate">
+                          {getParticipantName(convo)}
+                        </h3>
+                        <span className="text-xs text-muted-foreground ml-2 flex-shrink-0">
+                          {convo.lastMessage ? renderMessageTime(convo.lastMessage.created_at) : ''}
+                        </span>
+                      </div>
+                      
+                      <div className="flex items-center justify-between gap-2">
+                        <p className="text-sm text-muted-foreground line-clamp-1">
+                          {convo.lastMessage?.content || 'No messages yet'}
+                        </p>
+                        {unreadCount > 0 && (
+                          <Badge variant="default" className="h-5 min-w-5 px-1.5 flex items-center justify-center text-xs">
+                            {unreadCount}
+                          </Badge>
+                        )}
+                      </div>
                     </div>
                   </div>
                 );
-              })
-            )}
-          </div>
-        </div>
-        
-        {/* Chat Area */}
-        <div className="md:col-span-2 lg:col-span-3 bg-card rounded-lg shadow-sm overflow-hidden flex flex-col">
-          {selectedConversation ? (
-            <>
-              {/* Chat Header */}
-              <div className="p-4 bg-muted/30 border-b">
-                <div className="font-medium">
-                  {getParticipantName(selectedConversation)}
+              })}
+            </div>
+          )}
+        </ScrollArea>
+      </div>
+
+      {/* Chat Area */}
+      <div className="flex-1 flex flex-col bg-background">
+        {selectedConversation ? (
+          <>
+            {/* Chat Header */}
+            <div className="h-16 border-b border-border bg-card px-6 flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="md:hidden"
+                  onClick={() => setSelectedConversation(null)}
+                >
+                  <ArrowLeft className="h-5 w-5" />
+                </Button>
+                
+                <Avatar className="h-10 w-10">
+                  <AvatarFallback className="bg-primary/10 text-primary font-medium">
+                    {getParticipantInitials(selectedConversation)}
+                  </AvatarFallback>
+                </Avatar>
+                
+                <div>
+                  <h2 className="font-semibold">
+                    {getParticipantName(selectedConversation)}
+                  </h2>
+                  {selectedConversation.otherParticipantBusiness && (
+                    <p className="text-xs text-muted-foreground">
+                      Business
+                    </p>
+                  )}
                 </div>
               </div>
               
-              {/* Messages */}
-              <div className="flex-1 overflow-y-auto p-4 space-y-4">
-                {messages.length === 0 ? (
-                  <div className="text-center text-muted-foreground py-8">
-                    No messages yet. Start the conversation!
+              <Button variant="ghost" size="icon">
+                <MoreVertical className="h-5 w-5" />
+              </Button>
+            </div>
+
+            {/* Messages */}
+            <ScrollArea className="flex-1 p-6">
+              {messages.length === 0 ? (
+                <div className="flex flex-col items-center justify-center h-full text-center">
+                  <div className="w-16 h-16 rounded-full bg-muted flex items-center justify-center mb-4">
+                    <UserIcon className="h-8 w-8 text-muted-foreground" />
                   </div>
-                ) : (
-                  messages.map((msg) => {
+                  <h3 className="font-semibold mb-2">Start a conversation</h3>
+                  <p className="text-sm text-muted-foreground max-w-sm">
+                    Send a message to {getParticipantName(selectedConversation)} to begin your conversation.
+                  </p>
+                </div>
+              ) : (
+                <div className="space-y-4 max-w-4xl mx-auto">
+                  {messages.map((msg) => {
                     const isCurrentUser = msg.sender_id === user?.id;
                     
                     return (
                       <div 
                         key={msg.id} 
-                        className={`flex ${isCurrentUser ? 'justify-end' : 'justify-start'}`}
+                        className={`flex gap-3 ${isCurrentUser ? 'flex-row-reverse' : 'flex-row'}`}
                       >
-                        <div 
-                          className={`max-w-[80%] rounded-lg p-3 ${
-                            isCurrentUser ? 'bg-primary text-primary-foreground' : 'bg-muted'
-                          }`}
-                        >
-                          <div className="text-sm whitespace-pre-wrap">{msg.content}</div>
+                        {!isCurrentUser && (
+                          <Avatar className="h-8 w-8 flex-shrink-0">
+                            <AvatarFallback className="bg-primary/10 text-primary text-xs">
+                              {getParticipantInitials(selectedConversation)}
+                            </AvatarFallback>
+                          </Avatar>
+                        )}
+                        
+                        <div className={`flex flex-col gap-1 max-w-[70%] ${isCurrentUser ? 'items-end' : 'items-start'}`}>
                           <div 
-                            className={`text-xs mt-1 ${
-                              isCurrentUser ? 'opacity-70' : 'text-muted-foreground'
+                            className={`rounded-2xl px-4 py-2.5 ${
+                              isCurrentUser 
+                                ? 'bg-primary text-primary-foreground rounded-br-sm' 
+                                : 'bg-muted rounded-bl-sm'
                             }`}
                           >
-                            {renderMessageTime(msg.created_at)}
+                            <p className="text-sm whitespace-pre-wrap break-words">{msg.content}</p>
                           </div>
+                          <span className="text-xs text-muted-foreground px-2">
+                            {renderMessageTime(msg.created_at)}
+                          </span>
                         </div>
                       </div>
                     );
-                  })
-                )}
-                <div ref={messagesEndRef} />
-              </div>
-              
-              {/* Templates Tab */}
-              <div className="bg-muted/30 p-3 border-t">
-                <Tabs defaultValue="message">
-                  <TabsList>
-                    <TabsTrigger value="message">Message</TabsTrigger>
-                    <TabsTrigger value="templates">{t('messages.templates')}</TabsTrigger>
-                  </TabsList>
-                  <TabsContent value="message" className="pt-3">
-                    <form onSubmit={handleSendMessage} className="flex gap-2">
-                      <Input
-                        placeholder={t('messages.writeMessage')}
-                        value={message}
-                        onChange={(e) => setMessage(e.target.value)}
-                        className="flex-1"
-                      />
-                      <Button type="submit" disabled={!message.trim() || sending}>
-                        {sending ? (
-                          <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                        ) : (
-                          <Send className="h-4 w-4 mr-2" />
-                        )}
-                        {t('messages.send')}
-                      </Button>
-                    </form>
-                  </TabsContent>
-                  <TabsContent value="templates" className="pt-3">
-                    <div className="grid grid-cols-1 gap-2">
-                      {messageTemplates.map(template => (
-                        <Button 
-                          key={template.id}
-                          variant="outline" 
-                          className="justify-between"
-                          onClick={() => setMessage(template.content)}
-                        >
-                          <span>{template.title}</span>
-                          <ChevronRight className="h-4 w-4" />
-                        </Button>
-                      ))}
-                    </div>
-                  </TabsContent>
-                </Tabs>
-              </div>
-            </>
-          ) : (
-            <div className="flex flex-col items-center justify-center h-full">
-              <div className="text-muted-foreground">
-                {t('messages.noMessages')}
-              </div>
-              <Button asChild className="mt-4">
-                <Link to="/browse">
-                  {t('browse.title')}
-                </Link>
-              </Button>
+                  })}
+                  <div ref={messagesEndRef} />
+                </div>
+              )}
+            </ScrollArea>
+
+            {/* Message Input */}
+            <div className="border-t border-border bg-card p-4">
+              <form onSubmit={handleSendMessage} className="flex gap-2 max-w-4xl mx-auto">
+                <Input
+                  placeholder="Type a message..."
+                  value={message}
+                  onChange={(e) => setMessage(e.target.value)}
+                  className="flex-1"
+                  disabled={sending}
+                />
+                <Button type="submit" disabled={!message.trim() || sending} size="icon">
+                  <Send className="h-4 w-4" />
+                </Button>
+              </form>
             </div>
-          )}
-        </div>
+          </>
+        ) : (
+          <div className="flex-1 flex flex-col items-center justify-center p-8 text-center">
+            <div className="w-20 h-20 rounded-full bg-muted flex items-center justify-center mb-6">
+              <UserIcon className="h-10 w-10 text-muted-foreground" />
+            </div>
+            <h2 className="text-2xl font-bold mb-2">Your Messages</h2>
+            <p className="text-muted-foreground mb-6 max-w-md">
+              Select a conversation from the sidebar or start a new one by browsing businesses.
+            </p>
+            <Button asChild>
+              <Link to="/browse">Browse Businesses</Link>
+            </Button>
+          </div>
+        )}
       </div>
     </div>
   );
