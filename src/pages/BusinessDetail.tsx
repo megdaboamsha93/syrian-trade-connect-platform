@@ -2,6 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useLanguage } from '../contexts/LanguageContext';
+import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -22,6 +23,7 @@ type Product = Tables<'business_products'>;
 const BusinessDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const { language, t } = useLanguage();
+  const { user } = useAuth();
   const navigate = useNavigate();
   const [business, setBusiness] = useState<Business | null>(null);
   const [products, setProducts] = useState<Product[]>([]);
@@ -48,6 +50,16 @@ const BusinessDetail: React.FC = () => {
       
       setBusiness(businessData);
       
+      // Track business view
+      await supabase
+        .from('business_views')
+        .insert({
+          business_id: id,
+          viewer_id: user?.id || null,
+          referrer: document.referrer,
+          user_agent: navigator.userAgent,
+        });
+      
       // Fetch products
       const { data: productsData, error: productsError } = await supabase
         .from('business_products')
@@ -64,7 +76,7 @@ const BusinessDetail: React.FC = () => {
     };
     
     fetchBusinessData();
-  }, [id, navigate]);
+  }, [id, navigate, user]);
 
   if (loading) {
     return (

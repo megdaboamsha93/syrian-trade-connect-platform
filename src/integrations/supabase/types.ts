@@ -70,6 +70,41 @@ export type Database = {
           },
         ]
       }
+      business_views: {
+        Row: {
+          business_id: string
+          id: string
+          referrer: string | null
+          user_agent: string | null
+          viewed_at: string
+          viewer_id: string | null
+        }
+        Insert: {
+          business_id: string
+          id?: string
+          referrer?: string | null
+          user_agent?: string | null
+          viewed_at?: string
+          viewer_id?: string | null
+        }
+        Update: {
+          business_id?: string
+          id?: string
+          referrer?: string | null
+          user_agent?: string | null
+          viewed_at?: string
+          viewer_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "business_views_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       businesses: {
         Row: {
           business_type: Database["public"]["Enums"]["business_type"]
@@ -212,6 +247,48 @@ export type Database = {
           },
         ]
       }
+      product_views: {
+        Row: {
+          business_id: string
+          id: string
+          product_id: string
+          referrer: string | null
+          viewed_at: string
+          viewer_id: string | null
+        }
+        Insert: {
+          business_id: string
+          id?: string
+          product_id: string
+          referrer?: string | null
+          viewed_at?: string
+          viewer_id?: string | null
+        }
+        Update: {
+          business_id?: string
+          id?: string
+          product_id?: string
+          referrer?: string | null
+          viewed_at?: string
+          viewer_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "product_views_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "product_views_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "business_products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -271,9 +348,25 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      get_business_daily_views: {
+        Args: { _business_id: string; _days?: number }
+        Returns: {
+          date: string
+          view_count: number
+        }[]
+      }
       get_or_create_conversation: {
         Args: { _participant_1_id: string; _participant_2_id: string }
         Returns: string
+      }
+      get_product_engagement: {
+        Args: { _business_id: string; _days?: number }
+        Returns: {
+          product_id: string
+          product_name: string
+          unique_viewers: number
+          view_count: number
+        }[]
       }
       has_role: {
         Args: {

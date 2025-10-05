@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
-import { Loader2, Plus, Building2, Package, CheckCircle2 } from 'lucide-react';
+import { Loader2, Plus, Building2, Package, CheckCircle2, BarChart3 } from 'lucide-react';
 import { toast } from 'sonner';
 import ProductManager from '@/components/ProductManager';
 
@@ -118,10 +118,16 @@ export default function MyBusiness() {
                 : 'Manage your businesses and products'}
             </p>
           </div>
-          <Button onClick={() => navigate('/register-business')}>
-            <Plus className="h-4 w-4 mr-2" />
-            {language === 'ar' ? 'إضافة عمل' : 'Add Business'}
-          </Button>
+          <div className="flex gap-2">
+            <Button variant="outline" onClick={() => navigate('/analytics')}>
+              <BarChart3 className="h-4 w-4 mr-2" />
+              {language === 'ar' ? 'التحليلات' : 'Analytics'}
+            </Button>
+            <Button onClick={() => navigate('/register-business')}>
+              <Plus className="h-4 w-4 mr-2" />
+              {language === 'ar' ? 'إضافة عمل' : 'Add Business'}
+            </Button>
+          </div>
         </div>
 
         {businesses.length > 1 && (
