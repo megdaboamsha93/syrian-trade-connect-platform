@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useLanguage } from '../contexts/LanguageContext';
+import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
 import { ChevronRight, ChevronLeft, Building2, Filter, MessageCircle } from 'lucide-react';
@@ -11,6 +12,7 @@ type Business = Database['public']['Tables']['businesses']['Row'];
 
 const Index: React.FC = () => {
   const { t, dir } = useLanguage();
+  const { user } = useAuth();
   const [featuredBusinesses, setFeaturedBusinesses] = useState<Business[]>([]);
   
   useEffect(() => {
@@ -67,7 +69,7 @@ const Index: React.FC = () => {
                   variant="default"
                   className="bg-white text-primary hover:bg-white/90"
                 >
-                  <Link to="/register">
+                  <Link to={user ? "/register-business" : "/register"}>
                     {t('home.cta.register')}
                   </Link>
                 </Button>
