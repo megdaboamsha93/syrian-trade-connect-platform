@@ -315,13 +315,13 @@ const Messages: React.FC = () => {
     <div className="container mx-auto px-6 py-8">
       <h1 className="text-2xl md:text-3xl font-bold mb-6">{t('messages.title')}</h1>
       
-      <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6 h-[calc(100vh-12rem)]">
         {/* Conversations List */}
-        <div className="md:col-span-1 bg-card rounded-lg shadow-sm overflow-hidden">
+        <div className="md:col-span-1 bg-card rounded-lg shadow-sm overflow-hidden flex flex-col">
           <div className="p-4 bg-muted/30 border-b font-medium">
             {t('messages.title')}
           </div>
-          <div className="divide-y">
+          <div className="divide-y overflow-y-auto flex-1">
             {loading ? (
               <div className="p-6 text-center">
                 <Loader2 className="h-6 w-6 animate-spin mx-auto" />
@@ -366,7 +366,7 @@ const Messages: React.FC = () => {
         </div>
         
         {/* Chat Area */}
-        <div className="md:col-span-2 lg:col-span-3 bg-card rounded-lg shadow-sm overflow-hidden flex flex-col h-[70vh]">
+        <div className="md:col-span-2 lg:col-span-3 bg-card rounded-lg shadow-sm overflow-hidden flex flex-col">
           {selectedConversation ? (
             <>
               {/* Chat Header */}

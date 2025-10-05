@@ -2,19 +2,22 @@ import React from 'react';
 import { useLanguage } from '../contexts/LanguageContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
-import { Globe, Menu, LogOut, User } from 'lucide-react';
+import { Globe, Menu, LogOut, User, Bell } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { Badge } from '@/components/ui/badge';
 import { Link } from 'react-router-dom';
+import { useUnreadMessages } from '@/hooks/useUnreadMessages';
 
 const Header: React.FC = () => {
   const { language, setLanguage, t } = useLanguage();
   const { user, signOut } = useAuth();
   const [isMenuOpen, setIsMenuOpen] = React.useState(false);
+  const unreadCount = useUnreadMessages();
 
   const handleLogout = async () => {
     await signOut();
@@ -67,6 +70,19 @@ const Header: React.FC = () => {
           <div className="hidden md:flex gap-2">
             {user ? (
               <>
+                <Button variant="outline" size="icon" asChild className="relative">
+                  <Link to="/messages">
+                    <Bell className="h-5 w-5" />
+                    {unreadCount > 0 && (
+                      <Badge 
+                        variant="destructive" 
+                        className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center p-0 text-xs"
+                      >
+                        {unreadCount > 9 ? '9+' : unreadCount}
+                      </Badge>
+                    )}
+                  </Link>
+                </Button>
                 <Button variant="outline" size="icon" title="Profile">
                   <User className="h-5 w-5" />
                 </Button>
@@ -109,8 +125,13 @@ const Header: React.FC = () => {
                 {t('nav.myBusiness')}
               </Link>
             )}
-            <Link to="/messages" className="font-medium py-2 hover:text-primary" onClick={() => setIsMenuOpen(false)}>
+            <Link to="/messages" className="font-medium py-2 hover:text-primary flex items-center gap-2" onClick={() => setIsMenuOpen(false)}>
               {t('nav.messages')}
+              {user && unreadCount > 0 && (
+                <Badge variant="destructive" className="h-5 min-w-5 flex items-center justify-center p-1 text-xs">
+                  {unreadCount > 9 ? '9+' : unreadCount}
+                </Badge>
+              )}
             </Link>
             {user ? (
               <div className="flex flex-col gap-2 py-2">
