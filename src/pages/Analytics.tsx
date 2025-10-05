@@ -10,7 +10,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Eye, MessageSquare, Package, TrendingUp, Calendar, Download } from 'lucide-react';
 import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 import { toast } from '@/hooks/use-toast';
-import { BusinessLayout } from '@/layouts/BusinessLayout';
 
 interface DailyView {
   date: string;
@@ -224,38 +223,35 @@ const Analytics: React.FC = () => {
 
   if (loading) {
     return (
-      <BusinessLayout>
-        <div className="container mx-auto px-6 py-8 flex items-center justify-center min-h-[60vh]">
-          <div className="text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
-            <p className="mt-4 text-muted-foreground">Loading analytics...</p>
-          </div>
+      <div className="container mx-auto px-6 py-8 flex items-center justify-center min-h-[60vh]">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
+          <p className="mt-4 text-muted-foreground">Loading analytics...</p>
         </div>
-      </BusinessLayout>
+      </div>
     );
   }
 
   return (
-    <BusinessLayout>
-      <div className="container mx-auto px-6 py-8">
-        <div className="flex items-center justify-between mb-6 flex-wrap gap-4">
-          <div>
-            <h1 className="text-2xl md:text-3xl font-bold">Business Analytics</h1>
-            <p className="text-muted-foreground">Track your business performance</p>
-          </div>
-          
-          <div className="flex items-center gap-2">
-            <Button variant="outline" onClick={exportToCSV} className="gap-2">
-              <Download className="h-4 w-4" />
-              Export CSV
-            </Button>
-            <Tabs value={timeRange} onValueChange={(v) => setTimeRange(v as any)} className="w-auto">
-              <TabsList>
-                <TabsTrigger value="7">7 Days</TabsTrigger>
-                <TabsTrigger value="30">30 Days</TabsTrigger>
-                <TabsTrigger value="90">90 Days</TabsTrigger>
-              </TabsList>
-            </Tabs>
+    <div className="container mx-auto px-6 py-8">
+      <div className="flex items-center justify-between mb-6 flex-wrap gap-4">
+        <div>
+          <h1 className="text-2xl md:text-3xl font-bold">Business Analytics</h1>
+          <p className="text-muted-foreground">Track your business performance</p>
+        </div>
+        
+        <div className="flex items-center gap-2">
+          <Button variant="outline" onClick={exportToCSV} className="gap-2">
+            <Download className="h-4 w-4" />
+            Export CSV
+          </Button>
+          <Tabs value={timeRange} onValueChange={(v) => setTimeRange(v as any)} className="w-auto">
+            <TabsList>
+              <TabsTrigger value="7">7 Days</TabsTrigger>
+              <TabsTrigger value="30">30 Days</TabsTrigger>
+              <TabsTrigger value="90">90 Days</TabsTrigger>
+            </TabsList>
+          </Tabs>
         </div>
       </div>
 
@@ -395,7 +391,6 @@ const Analytics: React.FC = () => {
         </Card>
       )}
     </div>
-    </BusinessLayout>
   );
 };
 

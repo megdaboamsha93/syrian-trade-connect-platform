@@ -10,7 +10,6 @@ import { Badge } from '@/components/ui/badge';
 import { Loader2, Plus, Building2, Package, CheckCircle2 } from 'lucide-react';
 import { toast } from 'sonner';
 import ProductManager from '@/components/ProductManager';
-import { BusinessLayout } from '@/layouts/BusinessLayout';
 
 interface Business {
   id: string;
@@ -77,58 +76,53 @@ export default function MyBusiness() {
 
   if (loading) {
     return (
-      <BusinessLayout>
-        <div className="min-h-screen flex items-center justify-center">
-          <Loader2 className="h-8 w-8 animate-spin" />
-        </div>
-      </BusinessLayout>
+      <div className="min-h-screen flex items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin" />
+      </div>
     );
   }
 
   if (businesses.length === 0) {
     return (
-      <BusinessLayout>
-        <div className="min-h-screen bg-background py-12 px-4">
-          <div className="max-w-2xl mx-auto text-center">
-            <Building2 className="h-16 w-16 mx-auto mb-4 text-muted-foreground" />
-            <h1 className="text-3xl font-bold mb-4">
-              {language === 'ar' ? 'لا توجد أعمال' : 'No Businesses'}
-            </h1>
-            <p className="text-muted-foreground mb-8">
-              {language === 'ar' 
-                ? 'لم تقم بتسجيل أي عمل بعد. ابدأ بتسجيل عملك الأول!' 
-                : "You haven't registered any businesses yet. Start by registering your first business!"}
-            </p>
-            <Button onClick={() => navigate('/register-business')}>
-              <Plus className="h-4 w-4 mr-2" />
-              {language === 'ar' ? 'تسجيل عمل جديد' : 'Register New Business'}
-            </Button>
-          </div>
+      <div className="min-h-screen bg-background py-12 px-4">
+        <div className="max-w-2xl mx-auto text-center">
+          <Building2 className="h-16 w-16 mx-auto mb-4 text-muted-foreground" />
+          <h1 className="text-3xl font-bold mb-4">
+            {language === 'ar' ? 'لا توجد أعمال' : 'No Businesses'}
+          </h1>
+          <p className="text-muted-foreground mb-8">
+            {language === 'ar' 
+              ? 'لم تقم بتسجيل أي عمل بعد. ابدأ بتسجيل عملك الأول!' 
+              : "You haven't registered any businesses yet. Start by registering your first business!"}
+          </p>
+          <Button onClick={() => navigate('/register-business')}>
+            <Plus className="h-4 w-4 mr-2" />
+            {language === 'ar' ? 'تسجيل عمل جديد' : 'Register New Business'}
+          </Button>
         </div>
-      </BusinessLayout>
+      </div>
     );
   }
 
   return (
-    <BusinessLayout>
-      <div className="min-h-screen bg-background py-8 px-4">
-        <div className="max-w-7xl mx-auto">
-          <div className="flex items-center justify-between mb-6">
-            <div>
-              <h1 className="text-3xl font-bold mb-2">
-                {language === 'ar' ? 'إدارة أعمالي' : 'My Businesses'}
-              </h1>
-              <p className="text-muted-foreground">
-                {language === 'ar' 
-                  ? 'إدارة أعمالك ومنتجاتك' 
-                  : 'Manage your businesses and products'}
-              </p>
-            </div>
-            <Button onClick={() => navigate('/register-business')}>
-              <Plus className="h-4 w-4 mr-2" />
-              {language === 'ar' ? 'إضافة عمل' : 'Add Business'}
-            </Button>
+    <div className="min-h-screen bg-background py-8 px-4">
+      <div className="max-w-7xl mx-auto">
+        <div className="flex items-center justify-between mb-6">
+          <div>
+            <h1 className="text-3xl font-bold mb-2">
+              {language === 'ar' ? 'إدارة أعمالي' : 'My Businesses'}
+            </h1>
+            <p className="text-muted-foreground">
+              {language === 'ar' 
+                ? 'إدارة أعمالك ومنتجاتك' 
+                : 'Manage your businesses and products'}
+            </p>
           </div>
+          <Button onClick={() => navigate('/register-business')}>
+            <Plus className="h-4 w-4 mr-2" />
+            {language === 'ar' ? 'إضافة عمل' : 'Add Business'}
+          </Button>
+        </div>
 
         {businesses.length > 1 && (
           <div className="mb-6 flex gap-4 overflow-x-auto pb-2">
@@ -236,6 +230,5 @@ export default function MyBusiness() {
         )}
       </div>
     </div>
-    </BusinessLayout>
   );
 }
