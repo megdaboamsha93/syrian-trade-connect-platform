@@ -1,28 +1,112 @@
-
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useLanguage } from '../contexts/LanguageContext';
+import { useAuth } from '../contexts/AuthContext';
 import type { Database } from '@/integrations/supabase/types';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { CheckCircle, Building2 } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { CheckCircle, Building2, Heart } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { supabase } from '@/integrations/supabase/client';
+import { toast } from 'sonner';
 
 type Business = Database['public']['Tables']['businesses']['Row'];
 
 interface BusinessCardProps {
   business: Business;
+  showFavorite?: boolean;
 }
 
-const BusinessCard: React.FC<BusinessCardProps> = ({ business }) => {
+const BusinessCard: React.FC<BusinessCardProps> = ({ business, showFavorite = true }) => {
   const { language, t } = useLanguage();
+  const { user } = useAuth();
+  const [isFavorite, setIsFavorite] = useState(false);
+  const [loading, setLoading] = useState(false);
   
   const name = language === 'en' ? business.name_en : business.name_ar;
   const description = language === 'en' ? (business.description_en || '') : (business.description_ar || '');
   const shortDesc = description.length > 120 ? description.substring(0, 120) + '...' : description;
 
+  // Check if business is favorited
+  useEffect(() => {
+    if (!user || !showFavorite) return;
+    
+    const checkFavorite = async () => {
+      const { data } = await supabase
+        .from('favorites')
+        .select('id')
+        .eq('user_id', user.id)
+        .eq('business_id', business.id)
+        .maybeSingle();
+      
+      setIsFavorite(!!data);
+    };
+    
+    checkFavorite();
+  }, [user, business.id, showFavorite]);
+
+  const handleFavoriteToggle = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    if (!user) {
+      toast.error('Please login to save favorites');
+      return;
+    }
+    
+    setLoading(true);
+    
+    try {
+      if (isFavorite) {
+        // Remove from favorites
+        const { error } = await supabase
+          .from('favorites')
+          .delete()
+          .eq('user_id', user.id)
+          .eq('business_id', business.id);
+        
+        if (error) throw error;
+        
+        setIsFavorite(false);
+        toast.success('Removed from favorites');
+      } else {
+        // Add to favorites
+        const { error } = await supabase
+          .from('favorites')
+          .insert({
+            user_id: user.id,
+            business_id: business.id,
+          });
+        
+        if (error) throw error;
+        
+        setIsFavorite(true);
+        toast.success('Added to favorites');
+      }
+    } catch (error) {
+      console.error('Error toggling favorite:', error);
+      toast.error('Failed to update favorites');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <Link to={`/business/${business.id}`}>
-      <Card className="h-full hover:shadow-md transition-shadow overflow-hidden">
+      <Card className="h-full hover:shadow-md transition-shadow overflow-hidden relative group">
+        {showFavorite && user && (
+          <Button
+            variant="ghost"
+            size="icon"
+            className={`absolute top-2 right-2 z-10 bg-background/80 backdrop-blur-sm hover:bg-background ${
+              isFavorite ? 'text-red-500 hover:text-red-600' : 'text-muted-foreground hover:text-foreground'
+            }`}
+            onClick={handleFavoriteToggle}
+            disabled={loading}
+          >
+            <Heart className={`h-4 w-4 ${isFavorite ? 'fill-current' : ''}`} />
+          </Button>
+        )}
         <div className="h-32 overflow-hidden bg-muted flex items-center justify-center">
           {business.cover_url ? (
             <img 

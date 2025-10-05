@@ -12,6 +12,7 @@ import Index from "./pages/Index";
 import Browse from "./pages/Browse";
 import BusinessDetail from "./pages/BusinessDetail";
 import Messages from "./pages/Messages";
+import Favorites from "./pages/Favorites";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import ForgotPassword from "./pages/ForgotPassword";
@@ -40,6 +41,7 @@ const App = () => (
                   <Route path="/" element={<Index />} />
                   <Route path="/browse" element={<Browse />} />
                   <Route path="/business/:id" element={<BusinessDetail />} />
+                  <Route path="/favorites" element={<ProtectedRoute><Favorites /></ProtectedRoute>} />
                   <Route path="/messages" element={<ProtectedRoute><Messages /></ProtectedRoute>} />
                   <Route path="/messages/new/:businessId" element={<ProtectedRoute><Messages /></ProtectedRoute>} />
                   <Route path="/login" element={<Login />} />

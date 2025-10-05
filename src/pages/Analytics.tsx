@@ -7,7 +7,7 @@ import { AnalyticsCard } from '@/components/AnalyticsCard';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Eye, MessageSquare, Package, TrendingUp, ArrowLeft, Calendar } from 'lucide-react';
+import { Eye, MessageSquare, Package, TrendingUp, ArrowLeft, Calendar, Download } from 'lucide-react';
 import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 import { toast } from '@/hooks/use-toast';
 
@@ -78,6 +78,65 @@ const Analytics: React.FC = () => {
 
     fetchBusinessAndAnalytics();
   }, [user, timeRange]);
+
+  const exportToCSV = () => {
+    if (!businessId) return;
+
+    // Prepare CSV data
+    const csvRows = [];
+    
+    // Header
+    csvRows.push(['Analytics Export', '']);
+    csvRows.push(['Business ID', businessId]);
+    csvRows.push(['Date Range', `${timeRange} days`]);
+    csvRows.push(['Export Date', new Date().toLocaleDateString()]);
+    csvRows.push([]);
+    
+    // Overview stats
+    csvRows.push(['Overview Statistics']);
+    csvRows.push(['Metric', 'Value']);
+    csvRows.push(['Total Profile Views', totalViews]);
+    csvRows.push(['Total Conversations', messageStats.total_conversations]);
+    csvRows.push(['Total Messages', messageStats.total_messages]);
+    csvRows.push(['Unread Messages', messageStats.unread_messages]);
+    csvRows.push([]);
+    
+    // Daily views
+    csvRows.push(['Daily Profile Views']);
+    csvRows.push(['Date', 'Views']);
+    dailyViews.forEach(view => {
+      csvRows.push([view.date, view.view_count]);
+    });
+    csvRows.push([]);
+    
+    // Product engagement
+    csvRows.push(['Product Engagement']);
+    csvRows.push(['Product Name', 'Total Views', 'Unique Viewers']);
+    productEngagement.forEach(product => {
+      csvRows.push([product.product_name, product.view_count, product.unique_viewers]);
+    });
+    
+    // Convert to CSV string
+    const csvContent = csvRows.map(row => row.join(',')).join('\n');
+    
+    // Create download link
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    
+    link.setAttribute('href', url);
+    link.setAttribute('download', `analytics-export-${new Date().toISOString().split('T')[0]}.csv`);
+    link.style.visibility = 'hidden';
+    
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    
+    toast({
+      title: 'Success',
+      description: 'Analytics exported successfully',
+    });
+  };
 
   const fetchAnalytics = async (bId: string) => {
     const days = parseInt(timeRange);
@@ -163,7 +222,7 @@ const Analytics: React.FC = () => {
 
   return (
     <div className="container mx-auto px-6 py-8">
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex items-center justify-between mb-6 flex-wrap gap-4">
         <div className="flex items-center gap-4">
           <Button variant="ghost" size="icon" onClick={() => navigate('/my-business')}>
             <ArrowLeft className="h-5 w-5" />
@@ -174,13 +233,19 @@ const Analytics: React.FC = () => {
           </div>
         </div>
         
-        <Tabs value={timeRange} onValueChange={(v) => setTimeRange(v as any)} className="w-auto">
-          <TabsList>
-            <TabsTrigger value="7">7 Days</TabsTrigger>
-            <TabsTrigger value="30">30 Days</TabsTrigger>
-            <TabsTrigger value="90">90 Days</TabsTrigger>
-          </TabsList>
-        </Tabs>
+        <div className="flex items-center gap-2">
+          <Button variant="outline" onClick={exportToCSV} className="gap-2">
+            <Download className="h-4 w-4" />
+            Export CSV
+          </Button>
+          <Tabs value={timeRange} onValueChange={(v) => setTimeRange(v as any)} className="w-auto">
+            <TabsList>
+              <TabsTrigger value="7">7 Days</TabsTrigger>
+              <TabsTrigger value="30">30 Days</TabsTrigger>
+              <TabsTrigger value="90">90 Days</TabsTrigger>
+            </TabsList>
+          </Tabs>
+        </div>
       </div>
 
       {/* Overview Cards */}
