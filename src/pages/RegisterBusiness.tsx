@@ -10,7 +10,8 @@ import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2, ArrowLeft, ArrowRight, Check } from 'lucide-react';
+import { useFileUpload } from '@/hooks/useFileUpload';
+import { Loader2, ArrowLeft, ArrowRight, Check, Upload, X } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
 
 const BUSINESS_TYPES = ['importer', 'exporter', 'both'] as const;
@@ -25,6 +26,7 @@ export default function RegisterBusiness() {
   const { user } = useAuth();
   const { language } = useLanguage();
   const { toast } = useToast();
+  const { uploadFile, uploading } = useFileUpload();
   
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
@@ -42,6 +44,8 @@ export default function RegisterBusiness() {
     contactPhone: '',
     websiteUrl: '',
     foundedYear: new Date().getFullYear(),
+    logoUrl: null as string | null,
+    coverUrl: null as string | null,
   });
 
   const totalSteps = 3;
@@ -49,6 +53,23 @@ export default function RegisterBusiness() {
 
   const updateFormData = (field: string, value: any) => {
     setFormData(prev => ({ ...prev, [field]: value }));
+  };
+
+  const handleFileUpload = async (file: File, type: 'logo' | 'cover') => {
+    const bucket = type === 'logo' ? 'business-logos' : 'business-covers';
+    const maxSize = type === 'logo' ? 5 : 10;
+    
+    const url = await uploadFile(file, { bucket, maxSizeMB: maxSize });
+    
+    if (url) {
+      updateFormData(type === 'logo' ? 'logoUrl' : 'coverUrl', url);
+      toast({
+        title: language === 'ar' ? 'تم الرفع بنجاح' : 'Upload successful',
+        description: language === 'ar' 
+          ? `تم رفع ${type === 'logo' ? 'الشعار' : 'صورة الغلاف'} بنجاح` 
+          : `${type === 'logo' ? 'Logo' : 'Cover image'} uploaded successfully`,
+      });
+    }
   };
 
   const validateStep = (currentStep: number): boolean => {
@@ -136,6 +157,8 @@ export default function RegisterBusiness() {
           contact_phone: formData.contactPhone.trim(),
           website_url: formData.websiteUrl.trim() || null,
           founded_year: formData.foundedYear,
+          logo_url: formData.logoUrl,
+          cover_url: formData.coverUrl,
           is_verified: false,
         });
 
@@ -295,6 +318,88 @@ export default function RegisterBusiness() {
                       max={new Date().getFullYear()}
                     />
                   </div>
+
+                  {/* Logo Upload */}
+                  <div className="space-y-2">
+                    <Label>{language === 'ar' ? 'شعار العمل' : 'Business Logo'}</Label>
+                    <div className="flex items-center gap-4">
+                      {formData.logoUrl ? (
+                        <div className="relative">
+                          <img 
+                            src={formData.logoUrl} 
+                            alt="Logo preview" 
+                            className="h-20 w-20 object-cover rounded-lg border"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => updateFormData('logoUrl', null)}
+                            className="absolute -top-2 -right-2 bg-destructive text-destructive-foreground rounded-full p-1"
+                          >
+                            <X className="h-3 w-3" />
+                          </button>
+                        </div>
+                      ) : (
+                        <label className="flex items-center gap-2 cursor-pointer border-2 border-dashed rounded-lg p-4 hover:border-primary transition-colors">
+                          <Upload className="h-5 w-5" />
+                          <span className="text-sm">{language === 'ar' ? 'رفع الشعار' : 'Upload Logo'}</span>
+                          <input
+                            type="file"
+                            accept="image/jpeg,image/png,image/webp"
+                            onChange={(e) => {
+                              const file = e.target.files?.[0];
+                              if (file) handleFileUpload(file, 'logo');
+                            }}
+                            className="hidden"
+                            disabled={uploading}
+                          />
+                        </label>
+                      )}
+                    </div>
+                    <p className="text-xs text-muted-foreground">
+                      {language === 'ar' ? 'صيغ مدعومة: JPG, PNG, WEBP (حد أقصى 5 ميجابايت)' : 'Supported: JPG, PNG, WEBP (max 5MB)'}
+                    </p>
+                  </div>
+
+                  {/* Cover Image Upload */}
+                  <div className="space-y-2">
+                    <Label>{language === 'ar' ? 'صورة الغلاف' : 'Cover Image'}</Label>
+                    <div className="flex items-center gap-4">
+                      {formData.coverUrl ? (
+                        <div className="relative w-full">
+                          <img 
+                            src={formData.coverUrl} 
+                            alt="Cover preview" 
+                            className="h-32 w-full object-cover rounded-lg border"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => updateFormData('coverUrl', null)}
+                            className="absolute -top-2 -right-2 bg-destructive text-destructive-foreground rounded-full p-1"
+                          >
+                            <X className="h-3 w-3" />
+                          </button>
+                        </div>
+                      ) : (
+                        <label className="flex items-center gap-2 cursor-pointer border-2 border-dashed rounded-lg p-4 hover:border-primary transition-colors w-full">
+                          <Upload className="h-5 w-5" />
+                          <span className="text-sm">{language === 'ar' ? 'رفع صورة الغلاف' : 'Upload Cover Image'}</span>
+                          <input
+                            type="file"
+                            accept="image/jpeg,image/png,image/webp"
+                            onChange={(e) => {
+                              const file = e.target.files?.[0];
+                              if (file) handleFileUpload(file, 'cover');
+                            }}
+                            className="hidden"
+                            disabled={uploading}
+                          />
+                        </label>
+                      )}
+                    </div>
+                    <p className="text-xs text-muted-foreground">
+                      {language === 'ar' ? 'صيغ مدعومة: JPG, PNG, WEBP (حد أقصى 10 ميجابايت)' : 'Supported: JPG, PNG, WEBP (max 10MB)'}
+                    </p>
+                  </div>
                 </>
               )}
 
@@ -351,20 +456,20 @@ export default function RegisterBusiness() {
                   type="button"
                   variant="outline"
                   onClick={handleBack}
-                  disabled={step === 1 || loading}
+                  disabled={step === 1 || loading || uploading}
                 >
                   {language === 'ar' ? <ArrowRight className="h-4 w-4" /> : <ArrowLeft className="h-4 w-4" />}
                   {language === 'ar' ? 'السابق' : 'Back'}
                 </Button>
 
                 {step < totalSteps ? (
-                  <Button type="button" onClick={handleNext}>
+                  <Button type="button" onClick={handleNext} disabled={uploading}>
                     {language === 'ar' ? 'التالي' : 'Next'}
                     {language === 'ar' ? <ArrowLeft className="h-4 w-4 ml-2" /> : <ArrowRight className="h-4 w-4 ml-2" />}
                   </Button>
                 ) : (
-                  <Button type="button" onClick={handleSubmit} disabled={loading}>
-                    {loading ? (
+                  <Button type="button" onClick={handleSubmit} disabled={loading || uploading}>
+                    {loading || uploading ? (
                       <Loader2 className="h-4 w-4 animate-spin" />
                     ) : (
                       <>
