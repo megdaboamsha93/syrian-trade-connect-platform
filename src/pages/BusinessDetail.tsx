@@ -1,8 +1,8 @@
 
 import React, { useEffect, useState } from 'react';
-import { useParams, Link, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useLanguage } from '../contexts/LanguageContext';
-import { businesses, Business } from '../data/businesses';
+import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import {
@@ -11,46 +11,102 @@ import {
   TabsList,
   TabsTrigger,
 } from "@/components/ui/tabs";
-import { CheckCircle, Mail, Phone, ChevronLeft, MessageSquare } from 'lucide-react';
+import { CheckCircle, Mail, Phone, ChevronLeft, MessageSquare, Globe, Calendar, Users } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
+import { Skeleton } from '@/components/ui/skeleton';
+import type { Tables } from '@/integrations/supabase/types';
+
+type Business = Tables<'businesses'>;
+type Product = Tables<'business_products'>;
 
 const BusinessDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const { language, t } = useLanguage();
   const navigate = useNavigate();
   const [business, setBusiness] = useState<Business | null>(null);
+  const [products, setProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (id) {
-      const foundBusiness = businesses.find(b => b.id === id);
-      if (foundBusiness) {
-        setBusiness(foundBusiness);
-      } else {
+    const fetchBusinessData = async () => {
+      if (!id) return;
+      
+      setLoading(true);
+      
+      // Fetch business details
+      const { data: businessData, error: businessError } = await supabase
+        .from('businesses')
+        .select('*')
+        .eq('id', id)
+        .maybeSingle();
+      
+      if (businessError || !businessData) {
+        console.error('Error fetching business:', businessError);
         navigate('/browse');
+        return;
       }
-    }
+      
+      setBusiness(businessData);
+      
+      // Fetch products
+      const { data: productsData, error: productsError } = await supabase
+        .from('business_products')
+        .select('*')
+        .eq('business_id', id)
+        .eq('is_active', true)
+        .order('created_at', { ascending: false });
+      
+      if (!productsError && productsData) {
+        setProducts(productsData);
+      }
+      
+      setLoading(false);
+    };
+    
+    fetchBusinessData();
   }, [id, navigate]);
 
-  if (!business) {
+  if (loading) {
     return (
-      <div className="container mx-auto px-6 py-8 text-center">
-        Loading...
+      <div className="min-h-screen bg-muted/20">
+        <Skeleton className="h-48 md:h-64 w-full" />
+        <div className="container mx-auto px-6">
+          <div className="relative -mt-16 mb-6">
+            <Skeleton className="h-48 w-full rounded-lg" />
+          </div>
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div className="lg:col-span-2">
+              <Skeleton className="h-96 w-full rounded-lg" />
+            </div>
+            <div className="lg:col-span-1">
+              <Skeleton className="h-96 w-full rounded-lg" />
+            </div>
+          </div>
+        </div>
       </div>
     );
   }
 
-  const name = language === 'en' ? business.nameEn : business.nameAr;
-  const description = language === 'en' ? business.descriptionEn : business.descriptionAr;
+  if (!business) {
+    return null;
+  }
+
+  const name = language === 'en' ? business.name_en : business.name_ar;
+  const description = language === 'en' ? business.description_en : business.description_ar;
 
   return (
     <div className="min-h-screen bg-muted/20">
       {/* Cover Image */}
-      <div className="h-48 md:h-64 overflow-hidden relative">
-        <img 
-          src={business.coverUrl} 
-          alt={name} 
-          className="w-full h-full object-cover"
-        />
+      <div className="h-48 md:h-64 overflow-hidden relative bg-muted">
+        {business.cover_url ? (
+          <img 
+            src={business.cover_url} 
+            alt={name} 
+            className="w-full h-full object-cover"
+          />
+        ) : (
+          <div className="w-full h-full bg-gradient-to-br from-primary/20 to-primary/5" />
+        )}
         <div className="absolute inset-0 bg-black/30"></div>
         <Button 
           variant="outline"
@@ -70,7 +126,7 @@ const BusinessDetail: React.FC = () => {
               <div>
                 <div className="flex items-center gap-2">
                   <h1 className="text-2xl md:text-3xl font-bold">{name}</h1>
-                  {business.verified && (
+                  {business.is_verified && (
                     <div className="flex items-center text-xs text-blue-600">
                       <CheckCircle className="h-4 w-4 mr-1" />
                       {t('business.verified')}
@@ -79,10 +135,10 @@ const BusinessDetail: React.FC = () => {
                 </div>
                 <div className="flex flex-wrap gap-2 mt-2">
                   <Badge variant="outline" className="capitalize">
-                    {t(`industry.${business.industry}`)}
+                    {business.industry}
                   </Badge>
                   <Badge variant="outline" className="capitalize">
-                    {t(`browse.type.${business.businessType}`)}
+                    {t(`browse.type.${business.business_type}`)}
                   </Badge>
                   <Badge variant="outline">{business.location}</Badge>
                 </div>
@@ -114,28 +170,43 @@ const BusinessDetail: React.FC = () => {
               </TabsContent>
               <TabsContent value="products" className="p-6">
                 <h2 className="font-medium text-lg mb-3">{t('business.products')}</h2>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  {business.products.map(product => {
-                    const productName = language === 'en' ? product.nameEn : product.nameAr;
-                    const productDesc = language === 'en' ? product.descriptionEn : product.descriptionAr;
-                    
-                    return (
-                      <Card key={product.id} className="overflow-hidden">
-                        <div className="h-40 overflow-hidden">
-                          <img 
-                            src={product.image} 
-                            alt={productName} 
-                            className="w-full h-full object-cover"
-                          />
-                        </div>
-                        <CardContent className="p-4">
-                          <h3 className="font-medium mb-2">{productName}</h3>
-                          <p className="text-sm text-muted-foreground">{productDesc}</p>
-                        </CardContent>
-                      </Card>
-                    );
-                  })}
-                </div>
+                {products.length === 0 ? (
+                  <p className="text-muted-foreground text-center py-8">No products listed yet.</p>
+                ) : (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    {products.map(product => {
+                      const productName = language === 'en' ? product.name_en : product.name_ar;
+                      const productDesc = language === 'en' ? product.description_en : product.description_ar;
+                      const firstImage = product.image_urls?.[0];
+                      
+                      return (
+                        <Card key={product.id} className="overflow-hidden">
+                          {firstImage && (
+                            <div className="h-40 overflow-hidden bg-muted">
+                              <img 
+                                src={firstImage} 
+                                alt={productName} 
+                                className="w-full h-full object-cover"
+                              />
+                            </div>
+                          )}
+                          <CardContent className="p-4">
+                            <h3 className="font-medium mb-2">{productName}</h3>
+                            {productDesc && (
+                              <p className="text-sm text-muted-foreground mb-2">{productDesc}</p>
+                            )}
+                            {product.category && (
+                              <Badge variant="secondary" className="text-xs">{product.category}</Badge>
+                            )}
+                            {product.price_range && (
+                              <p className="text-sm text-muted-foreground mt-2">Price: {product.price_range}</p>
+                            )}
+                          </CardContent>
+                        </Card>
+                      );
+                    })}
+                  </div>
+                )}
               </TabsContent>
             </Tabs>
           </div>
@@ -145,17 +216,21 @@ const BusinessDetail: React.FC = () => {
             <div className="bg-card rounded-lg shadow-sm p-6">
               <h2 className="font-medium text-lg mb-4">{t('business.details')}</h2>
               <div className="space-y-4">
-                <div>
-                  <div className="text-sm font-medium">{t('business.founded')}</div>
-                  <div>{business.foundedYear}</div>
-                </div>
-                <div>
-                  <div className="text-sm font-medium">{t('business.employees')}</div>
-                  <div>{business.employeeCount}</div>
-                </div>
-                <div>
-                  <div className="text-sm font-medium">{t('business.type')}</div>
-                  <div className="capitalize">{t(`browse.type.${business.businessType}`)}</div>
+                {business.founded_year && (
+                  <div className="flex items-center gap-2">
+                    <Calendar className="h-4 w-4 text-muted-foreground" />
+                    <div>
+                      <div className="text-sm font-medium">{t('business.founded')}</div>
+                      <div>{business.founded_year}</div>
+                    </div>
+                  </div>
+                )}
+                <div className="flex items-center gap-2">
+                  <Users className="h-4 w-4 text-muted-foreground" />
+                  <div>
+                    <div className="text-sm font-medium">{t('business.type')}</div>
+                    <div className="capitalize">{t(`browse.type.${business.business_type}`)}</div>
+                  </div>
                 </div>
               </div>
 
@@ -164,16 +239,31 @@ const BusinessDetail: React.FC = () => {
                 <div className="space-y-4">
                   <div className="flex items-center gap-2">
                     <Mail className="h-4 w-4 text-muted-foreground" />
-                    <a href={`mailto:${business.contactEmail}`} className="text-primary hover:underline">
-                      {business.contactEmail}
+                    <a href={`mailto:${business.contact_email}`} className="text-primary hover:underline break-all">
+                      {business.contact_email}
                     </a>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <Phone className="h-4 w-4 text-muted-foreground" />
-                    <a href={`tel:${business.contactPhone}`} className="text-primary hover:underline">
-                      {business.contactPhone}
-                    </a>
-                  </div>
+                  {business.contact_phone && (
+                    <div className="flex items-center gap-2">
+                      <Phone className="h-4 w-4 text-muted-foreground" />
+                      <a href={`tel:${business.contact_phone}`} className="text-primary hover:underline">
+                        {business.contact_phone}
+                      </a>
+                    </div>
+                  )}
+                  {business.website_url && (
+                    <div className="flex items-center gap-2">
+                      <Globe className="h-4 w-4 text-muted-foreground" />
+                      <a 
+                        href={business.website_url} 
+                        target="_blank" 
+                        rel="noopener noreferrer" 
+                        className="text-primary hover:underline break-all"
+                      >
+                        {business.website_url}
+                      </a>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
