@@ -1,6 +1,7 @@
 import { Building2, BarChart3, Search, Heart, MessageSquare, Home, Plus, Store } from 'lucide-react';
 import { NavLink, useLocation } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
+import { useLanguage } from '@/contexts/LanguageContext';
 import {
   Sidebar,
   SidebarContent,
@@ -15,57 +16,58 @@ import {
   useSidebar,
 } from '@/components/ui/sidebar';
 
-const exploreItems = [
-  {
-    title: 'Home',
-    url: '/',
-    icon: Home,
-  },
-  {
-    title: 'Browse Businesses',
-    url: '/browse',
-    icon: Search,
-  },
-  {
-    title: 'My Favorites',
-    url: '/favorites',
-    icon: Heart,
-    requiresAuth: true,
-  },
-  {
-    title: 'Messages',
-    url: '/messages',
-    icon: MessageSquare,
-    requiresAuth: true,
-  },
-];
-
-const businessItems = [
-  {
-    title: 'My Businesses',
-    url: '/my-business',
-    icon: Building2,
-    requiresAuth: true,
-  },
-  {
-    title: 'Analytics',
-    url: '/analytics',
-    icon: BarChart3,
-    requiresAuth: true,
-  },
-  {
-    title: 'Register Business',
-    url: '/register-business',
-    icon: Plus,
-    requiresAuth: true,
-  },
-];
-
 export function AppSidebar() {
   const { user } = useAuth();
+  const { t } = useLanguage();
   const location = useLocation();
   const { setOpen } = useSidebar();
   const isActive = (path: string) => location.pathname === path;
+
+  const exploreItems = [
+    {
+      titleKey: 'nav.home',
+      url: '/',
+      icon: Home,
+    },
+    {
+      titleKey: 'nav.browse',
+      url: '/browse',
+      icon: Search,
+    },
+    {
+      titleKey: 'nav.favorites',
+      url: '/favorites',
+      icon: Heart,
+      requiresAuth: true,
+    },
+    {
+      titleKey: 'nav.messages',
+      url: '/messages',
+      icon: MessageSquare,
+      requiresAuth: true,
+    },
+  ];
+
+  const businessItems = [
+    {
+      titleKey: 'nav.myBusinesses',
+      url: '/my-business',
+      icon: Building2,
+      requiresAuth: true,
+    },
+    {
+      titleKey: 'nav.analytics',
+      url: '/analytics',
+      icon: BarChart3,
+      requiresAuth: true,
+    },
+    {
+      titleKey: 'nav.registerBusiness',
+      url: '/register-business',
+      icon: Plus,
+      requiresAuth: true,
+    },
+  ];
 
   return (
     <Sidebar 
@@ -87,18 +89,19 @@ export function AppSidebar() {
         {/* Explore Section */}
         <SidebarGroup className="mb-6">
           <SidebarGroupLabel className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2 group-data-[collapsible=icon]:hidden">
-            Explore
+            {t('nav.home')}
           </SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               {exploreItems.map((item) => {
                 if (item.requiresAuth && !user) return null;
+                const title = t(item.titleKey);
                 return (
-                  <SidebarMenuItem key={item.title} className="group-data-[collapsible=icon]:flex group-data-[collapsible=icon]:justify-center">
-                    <SidebarMenuButton asChild tooltip={item.title} isActive={isActive(item.url)}>
+                  <SidebarMenuItem key={item.titleKey} className="group-data-[collapsible=icon]:flex group-data-[collapsible=icon]:justify-center">
+                    <SidebarMenuButton asChild tooltip={title} isActive={isActive(item.url)}>
                       <NavLink to={item.url} className="flex items-center gap-2 group-data-[collapsible=icon]:!w-10 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:gap-0">
                         <item.icon className="h-5 w-5 group-data-[collapsible=icon]:mx-auto" />
-                        <span className="truncate group-data-[collapsible=icon]:hidden">{item.title}</span>
+                        <span className="truncate group-data-[collapsible=icon]:hidden">{title}</span>
                       </NavLink>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
@@ -112,20 +115,23 @@ export function AppSidebar() {
         {user && (
           <SidebarGroup>
             <SidebarGroupLabel className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2 group-data-[collapsible=icon]:hidden">
-              My Business
+              {t('nav.myBusinesses')}
             </SidebarGroupLabel>
             <SidebarGroupContent>
               <SidebarMenu>
-              {businessItems.map((item) => (
-                  <SidebarMenuItem key={item.title} className="group-data-[collapsible=icon]:flex group-data-[collapsible=icon]:justify-center">
-                    <SidebarMenuButton asChild tooltip={item.title} isActive={isActive(item.url)}>
+              {businessItems.map((item) => {
+                const title = t(item.titleKey);
+                return (
+                  <SidebarMenuItem key={item.titleKey} className="group-data-[collapsible=icon]:flex group-data-[collapsible=icon]:justify-center">
+                    <SidebarMenuButton asChild tooltip={title} isActive={isActive(item.url)}>
                       <NavLink to={item.url} className="flex items-center gap-2 group-data-[collapsible=icon]:!w-10 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:gap-0">
                         <item.icon className="h-5 w-5 group-data-[collapsible=icon]:mx-auto" />
-                        <span className="truncate group-data-[collapsible=icon]:hidden">{item.title}</span>
+                        <span className="truncate group-data-[collapsible=icon]:hidden">{title}</span>
                       </NavLink>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
-                ))}
+                );
+              })}
               </SidebarMenu>
             </SidebarGroupContent>
           </SidebarGroup>
