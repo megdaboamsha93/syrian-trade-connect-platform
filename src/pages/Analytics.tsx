@@ -7,9 +7,10 @@ import { AnalyticsCard } from '@/components/AnalyticsCard';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Eye, MessageSquare, Package, TrendingUp, ArrowLeft, Calendar, Download } from 'lucide-react';
+import { Eye, MessageSquare, Package, TrendingUp, Calendar, Download } from 'lucide-react';
 import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 import { toast } from '@/hooks/use-toast';
+import { BusinessLayout } from '@/layouts/BusinessLayout';
 
 interface DailyView {
   date: string;
@@ -54,26 +55,38 @@ const Analytics: React.FC = () => {
     }
 
     const fetchBusinessAndAnalytics = async () => {
-      // Get user's business
-      const { data: business, error: businessError } = await supabase
-        .from('businesses')
-        .select('id')
-        .eq('owner_id', user.id)
-        .maybeSingle();
+      try {
+        // Get user's business - select first one
+        const { data: businesses, error: businessError } = await supabase
+          .from('businesses')
+          .select('id')
+          .eq('owner_id', user.id)
+          .order('created_at', { ascending: false })
+          .limit(1);
 
-      if (businessError || !business) {
-        toast({
-          title: 'Error',
-          description: 'You need to register a business first',
-          variant: 'destructive',
-        });
-        navigate('/register-business');
-        return;
+        if (businessError) {
+          console.error('Error fetching business:', businessError);
+          throw businessError;
+        }
+
+        if (!businesses || businesses.length === 0) {
+          toast({
+            title: 'No Business Found',
+            description: 'Please register a business first',
+            variant: 'destructive',
+          });
+          navigate('/register-business');
+          return;
+        }
+
+        const business = businesses[0];
+        setBusinessId(business.id);
+        await fetchAnalytics(business.id);
+        setLoading(false);
+      } catch (error) {
+        console.error('Error in fetchBusinessAndAnalytics:', error);
+        setLoading(false);
       }
-
-      setBusinessId(business.id);
-      await fetchAnalytics(business.id);
-      setLoading(false);
     };
 
     fetchBusinessAndAnalytics();
@@ -211,40 +224,38 @@ const Analytics: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="container mx-auto px-6 py-8 flex items-center justify-center min-h-[60vh]">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
-          <p className="mt-4 text-muted-foreground">Loading analytics...</p>
+      <BusinessLayout>
+        <div className="container mx-auto px-6 py-8 flex items-center justify-center min-h-[60vh]">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
+            <p className="mt-4 text-muted-foreground">Loading analytics...</p>
+          </div>
         </div>
-      </div>
+      </BusinessLayout>
     );
   }
 
   return (
-    <div className="container mx-auto px-6 py-8">
-      <div className="flex items-center justify-between mb-6 flex-wrap gap-4">
-        <div className="flex items-center gap-4">
-          <Button variant="ghost" size="icon" onClick={() => navigate('/my-business')}>
-            <ArrowLeft className="h-5 w-5" />
-          </Button>
+    <BusinessLayout>
+      <div className="container mx-auto px-6 py-8">
+        <div className="flex items-center justify-between mb-6 flex-wrap gap-4">
           <div>
             <h1 className="text-2xl md:text-3xl font-bold">Business Analytics</h1>
             <p className="text-muted-foreground">Track your business performance</p>
           </div>
-        </div>
-        
-        <div className="flex items-center gap-2">
-          <Button variant="outline" onClick={exportToCSV} className="gap-2">
-            <Download className="h-4 w-4" />
-            Export CSV
-          </Button>
-          <Tabs value={timeRange} onValueChange={(v) => setTimeRange(v as any)} className="w-auto">
-            <TabsList>
-              <TabsTrigger value="7">7 Days</TabsTrigger>
-              <TabsTrigger value="30">30 Days</TabsTrigger>
-              <TabsTrigger value="90">90 Days</TabsTrigger>
-            </TabsList>
-          </Tabs>
+          
+          <div className="flex items-center gap-2">
+            <Button variant="outline" onClick={exportToCSV} className="gap-2">
+              <Download className="h-4 w-4" />
+              Export CSV
+            </Button>
+            <Tabs value={timeRange} onValueChange={(v) => setTimeRange(v as any)} className="w-auto">
+              <TabsList>
+                <TabsTrigger value="7">7 Days</TabsTrigger>
+                <TabsTrigger value="30">30 Days</TabsTrigger>
+                <TabsTrigger value="90">90 Days</TabsTrigger>
+              </TabsList>
+            </Tabs>
         </div>
       </div>
 
@@ -384,6 +395,7 @@ const Analytics: React.FC = () => {
         </Card>
       )}
     </div>
+    </BusinessLayout>
   );
 };
 
