@@ -94,10 +94,10 @@ export function AppSidebar() {
               {exploreItems.map((item) => {
                 if (item.requiresAuth && !user) return null;
                 return (
-                  <SidebarMenuItem key={item.title}>
+                  <SidebarMenuItem key={item.title} className="group-data-[collapsible=icon]:flex group-data-[collapsible=icon]:justify-center">
                     <SidebarMenuButton asChild tooltip={item.title} isActive={isActive(item.url)}>
-                      <NavLink to={item.url} className="flex items-center gap-2 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:gap-0">
-                        <item.icon className="h-5 w-5" />
+                      <NavLink to={item.url} className="flex items-center gap-2 group-data-[collapsible=icon]:!w-10 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:gap-0">
+                        <item.icon className="h-5 w-5 group-data-[collapsible=icon]:mx-auto" />
                         <span className="truncate group-data-[collapsible=icon]:hidden">{item.title}</span>
                       </NavLink>
                     </SidebarMenuButton>
@@ -116,11 +116,11 @@ export function AppSidebar() {
             </SidebarGroupLabel>
             <SidebarGroupContent>
               <SidebarMenu>
-                {businessItems.map((item) => (
-                  <SidebarMenuItem key={item.title}>
+              {businessItems.map((item) => (
+                  <SidebarMenuItem key={item.title} className="group-data-[collapsible=icon]:flex group-data-[collapsible=icon]:justify-center">
                     <SidebarMenuButton asChild tooltip={item.title} isActive={isActive(item.url)}>
-                      <NavLink to={item.url} className="flex items-center gap-2 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:gap-0">
-                        <item.icon className="h-5 w-5" />
+                      <NavLink to={item.url} className="flex items-center gap-2 group-data-[collapsible=icon]:!w-10 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:gap-0">
+                        <item.icon className="h-5 w-5 group-data-[collapsible=icon]:mx-auto" />
                         <span className="truncate group-data-[collapsible=icon]:hidden">{item.title}</span>
                       </NavLink>
                     </SidebarMenuButton>
