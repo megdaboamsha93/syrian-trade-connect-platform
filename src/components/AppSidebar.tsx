@@ -12,6 +12,7 @@ import {
   SidebarMenuItem,
   SidebarFooter,
   SidebarHeader,
+  useSidebar,
 } from '@/components/ui/sidebar';
 
 const exploreItems = [
@@ -63,10 +64,16 @@ const businessItems = [
 export function AppSidebar() {
   const { user } = useAuth();
   const location = useLocation();
+  const { setOpen } = useSidebar();
   const isActive = (path: string) => location.pathname === path;
 
   return (
-    <Sidebar collapsible="icon" className="border-r">
+    <Sidebar 
+      collapsible="icon" 
+      className="border-r"
+      onMouseEnter={() => setOpen(true)}
+      onMouseLeave={() => setOpen(false)}
+    >
       <SidebarHeader className="border-b border-border px-6 py-4">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-lg bg-primary flex items-center justify-center flex-shrink-0">

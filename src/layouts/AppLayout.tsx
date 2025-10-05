@@ -25,7 +25,7 @@ export function AppLayout({ children }: AppLayoutProps) {
   const unreadCount = useUnreadMessages();
 
   return (
-    <SidebarProvider>
+    <SidebarProvider defaultOpen={false}>
       <div className="flex min-h-screen w-full">
         <AppSidebar />
         <SidebarInset className="flex-1 flex flex-col">
