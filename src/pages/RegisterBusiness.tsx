@@ -131,6 +131,7 @@ export default function RegisterBusiness() {
     if (!validateStep(step)) return;
     
     if (!user?.id) {
+      console.error('❌ RegisterBusiness: No user ID found');
       toast({
         title: language === 'ar' ? 'خطأ' : 'Error',
         description: language === 'ar' ? 'يجب تسجيل الدخول أولاً' : 'You must be logged in',
@@ -139,30 +140,48 @@ export default function RegisterBusiness() {
       return;
     }
 
+    console.log('📝 RegisterBusiness: Starting submission...', {
+      userId: user.id,
+      businessName: formData.nameEn,
+      hasLogo: !!formData.logoUrl,
+      hasCover: !!formData.coverUrl,
+    });
+
     setLoading(true);
 
     try {
-      const { error } = await supabase
-        .from('businesses')
-        .insert({
-          owner_id: user.id,
-          name_en: formData.nameEn.trim(),
-          name_ar: formData.nameAr.trim(),
-          description_en: formData.descriptionEn.trim() || null,
-          description_ar: formData.descriptionAr.trim() || null,
-          business_type: formData.businessType as 'importer' | 'exporter' | 'both',
-          industry: formData.industry,
-          location: formData.location,
-          contact_email: formData.contactEmail.trim(),
-          contact_phone: formData.contactPhone.trim(),
-          website_url: formData.websiteUrl.trim() || null,
-          founded_year: formData.foundedYear,
-          logo_url: formData.logoUrl,
-          cover_url: formData.coverUrl,
-          is_verified: false,
-        });
+      const businessData = {
+        owner_id: user.id,
+        name_en: formData.nameEn.trim(),
+        name_ar: formData.nameAr.trim(),
+        description_en: formData.descriptionEn.trim() || null,
+        description_ar: formData.descriptionAr.trim() || null,
+        business_type: formData.businessType as 'importer' | 'exporter' | 'both',
+        industry: formData.industry,
+        location: formData.location,
+        contact_email: formData.contactEmail.trim(),
+        contact_phone: formData.contactPhone.trim(),
+        website_url: formData.websiteUrl.trim() || null,
+        founded_year: formData.foundedYear,
+        logo_url: formData.logoUrl,
+        cover_url: formData.coverUrl,
+        is_verified: false,
+      };
 
-      if (error) throw error;
+      console.log('📤 RegisterBusiness: Inserting business data...', businessData);
+
+      const { data, error } = await supabase
+        .from('businesses')
+        .insert(businessData)
+        .select()
+        .single();
+
+      if (error) {
+        console.error('❌ RegisterBusiness: Database error:', error);
+        throw error;
+      }
+
+      console.log('✅ RegisterBusiness: Business created successfully!', data);
 
       toast({
         title: language === 'ar' ? 'تم التسجيل بنجاح!' : 'Successfully Registered!',
@@ -173,9 +192,24 @@ export default function RegisterBusiness() {
 
       navigate('/browse');
     } catch (error: any) {
+      console.error('❌ RegisterBusiness: Submission failed:', error);
+      
+      let errorMessage = error.message;
+      
+      // Provide more user-friendly error messages
+      if (error.code === '23505') {
+        errorMessage = language === 'ar' 
+          ? 'يوجد عمل مسجل بهذه المعلومات بالفعل' 
+          : 'A business with these details already exists';
+      } else if (error.code === '23503') {
+        errorMessage = language === 'ar' 
+          ? 'خطأ في الربط مع حساب المستخدم' 
+          : 'Error linking to user account';
+      }
+
       toast({
-        title: language === 'ar' ? 'خطأ' : 'Error',
-        description: error.message,
+        title: language === 'ar' ? 'خطأ في التسجيل' : 'Registration Error',
+        description: errorMessage,
         variant: 'destructive',
       });
     } finally {
