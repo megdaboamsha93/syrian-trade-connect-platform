@@ -87,7 +87,7 @@ const Login: React.FC = () => {
               <div className="flex items-center justify-between">
                 <Label htmlFor="password">{t('auth.password')}</Label>
                 <Link to="/forgot-password" className="text-xs text-primary hover:underline">
-                  Forgot password?
+                  {t('auth.forgotPassword')}
                 </Link>
               </div>
               <Input 

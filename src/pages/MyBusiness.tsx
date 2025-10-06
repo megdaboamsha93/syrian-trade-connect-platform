@@ -50,6 +50,7 @@ export default function MyBusiness() {
         .from('businesses')
         .select('*')
         .eq('owner_id', user.id)
+        .eq('is_example', false)
         .order('created_at', { ascending: false });
 
       if (error) {
