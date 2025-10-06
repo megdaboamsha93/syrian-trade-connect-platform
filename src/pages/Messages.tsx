@@ -115,7 +115,7 @@ const Messages: React.FC = () => {
       // Get business owner
       const { data: business, error: businessError } = await supabase
         .from('businesses')
-        .select('owner_id')
+        .select('owner_id, is_example')
         .eq('id', businessId)
         .maybeSingle();
       
@@ -129,7 +129,18 @@ const Messages: React.FC = () => {
         return;
       }
 
-      // Check if user is trying to message their own business
+      // Block messaging for demo/example businesses
+      if (business.is_example) {
+        toast({
+          title: t('messages.demoMessagingDisabled'),
+          description: t('messages.demoMessagingDisabled'),
+          variant: 'destructive',
+        });
+        navigate('/browse');
+        return;
+      }
+
+      // Check if user is trying to message their own non-demo business
       if (business.owner_id === user.id) {
         toast({
           title: t('messages.cannotMessageOwnBusiness'),

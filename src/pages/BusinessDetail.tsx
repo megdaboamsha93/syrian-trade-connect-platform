@@ -105,6 +105,7 @@ const BusinessDetail: React.FC = () => {
 
   const name = language === 'en' ? business.name_en : business.name_ar;
   const description = language === 'en' ? business.description_en : business.description_ar;
+  const canMessage = !!user && business.owner_id !== user.id && !business.is_example;
 
   return (
     <div className="min-h-screen bg-muted/20">
@@ -155,12 +156,19 @@ const BusinessDetail: React.FC = () => {
                   <Badge variant="outline">{business.location}</Badge>
                 </div>
               </div>
-              <Button className="flex gap-2" asChild>
-                <Link to={`/messages/new/${business.id}`}>
+              {canMessage ? (
+                <Button className="flex gap-2" asChild>
+                  <Link to={`/messages/new/${business.id}`}>
+                    <MessageSquare className="h-4 w-4" />
+                    {t('business.message')}
+                  </Link>
+                </Button>
+              ) : (
+                <Button className="flex gap-2" variant="secondary" disabled>
                   <MessageSquare className="h-4 w-4" />
                   {t('business.message')}
-                </Link>
-              </Button>
+                </Button>
+              )}
             </div>
           </div>
         </div>

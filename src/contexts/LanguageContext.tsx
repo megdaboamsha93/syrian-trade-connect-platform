@@ -101,6 +101,7 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
       'messages.businessNotFound': 'Business not found',
       'messages.failedToCreateConversation': 'Failed to create conversation',
       'messages.failedToSendMessage': 'Failed to send message',
+      'messages.demoMessagingDisabled': 'Messaging is disabled for demo businesses',
       
       // Auth
       'auth.login': 'Login',
@@ -203,6 +204,7 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
       'messages.businessNotFound': 'لم يتم العثور على الشركة',
       'messages.failedToCreateConversation': 'فشل في إنشاء محادثة',
       'messages.failedToSendMessage': 'فشل في إرسال الرسالة',
+      'messages.demoMessagingDisabled': 'المراسلة غير متاحة للشركات التجريبية',
       
       // Auth
       'auth.login': 'تسجيل الدخول',
