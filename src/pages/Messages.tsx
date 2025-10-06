@@ -24,7 +24,7 @@ interface ConversationWithDetails extends Conversation {
 }
 
 const Messages: React.FC = () => {
-  const { t, language } = useLanguage();
+  const { t, language, dir } = useLanguage();
   const { user } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -121,8 +121,19 @@ const Messages: React.FC = () => {
       
       if (businessError || !business) {
         toast({
-          title: 'Error',
-          description: 'Business not found',
+          title: t('messages.businessNotFound'),
+          description: t('messages.businessNotFound'),
+          variant: 'destructive',
+        });
+        navigate('/browse');
+        return;
+      }
+
+      // Check if user is trying to message their own business
+      if (business.owner_id === user.id) {
+        toast({
+          title: t('messages.cannotMessageOwnBusiness'),
+          description: t('messages.cannotMessageOwnBusiness'),
           variant: 'destructive',
         });
         navigate('/browse');
@@ -139,8 +150,8 @@ const Messages: React.FC = () => {
       if (error || !conversationId) {
         console.error('Error creating conversation:', error);
         toast({
-          title: 'Error',
-          description: 'Failed to create conversation',
+          title: t('messages.failedToCreateConversation'),
+          description: t('messages.failedToCreateConversation'),
           variant: 'destructive',
         });
         return;
@@ -261,8 +272,8 @@ const Messages: React.FC = () => {
     if (error) {
       console.error('Error sending message:', error);
       toast({
-        title: 'Error',
-        description: 'Failed to send message',
+        title: t('messages.failedToSendMessage'),
+        description: t('messages.failedToSendMessage'),
         variant: 'destructive',
       });
     }
@@ -278,13 +289,13 @@ const Messages: React.FC = () => {
     const days = Math.floor(diff / (1000 * 60 * 60 * 24));
     
     if (days === 0) {
-      return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      return date.toLocaleTimeString(language === 'ar' ? 'ar-EG' : 'en-US', { hour: '2-digit', minute: '2-digit' });
     } else if (days === 1) {
-      return 'Yesterday';
+      return t('messages.yesterday');
     } else if (days < 7) {
-      return date.toLocaleDateString([], { weekday: 'short' });
+      return date.toLocaleDateString(language === 'ar' ? 'ar-EG' : 'en-US', { weekday: 'short' });
     } else {
-      return date.toLocaleDateString([], { month: 'short', day: 'numeric' });
+      return date.toLocaleDateString(language === 'ar' ? 'ar-EG' : 'en-US', { month: 'short', day: 'numeric' });
     }
   };
 
@@ -316,18 +327,18 @@ const Messages: React.FC = () => {
   if (!user) return null;
 
   return (
-    <div className="flex h-[calc(100vh-3.5rem)] bg-background">
+    <div className={`flex h-[calc(100vh-3.5rem)] bg-background ${dir === 'rtl' ? 'flex-row-reverse' : ''}`}>
       {/* Conversations Sidebar */}
-      <div className="w-80 border-r border-border bg-card flex flex-col">
+      <div className={`w-80 bg-card flex flex-col ${dir === 'rtl' ? 'border-l' : 'border-r'} border-border`}>
         {/* Search Header */}
         <div className="p-4 border-b border-border">
           <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Search className={`absolute top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground ${dir === 'rtl' ? 'right-3' : 'left-3'}`} />
             <Input
-              placeholder="Search conversations..."
+              placeholder={t('messages.search')}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-9"
+              className={dir === 'rtl' ? 'pr-9' : 'pl-9'}
             />
           </div>
         </div>
@@ -336,16 +347,16 @@ const Messages: React.FC = () => {
         <ScrollArea className="flex-1">
           {loading ? (
             <div className="p-8 text-center text-muted-foreground">
-              Loading conversations...
+              {t('messages.loading')}
             </div>
           ) : filteredConversations.length === 0 ? (
             <div className="p-8 text-center">
               <div className="text-muted-foreground mb-4">
-                {searchQuery ? 'No conversations found' : 'No conversations yet'}
+                {searchQuery ? t('messages.noConversationsFound') : t('messages.noConversations')}
               </div>
               {!searchQuery && (
                 <Button asChild size="sm">
-                  <Link to="/browse">Browse Businesses</Link>
+                  <Link to="/browse">{t('messages.browseBusiness')}</Link>
                 </Button>
               )}
             </div>
@@ -385,7 +396,7 @@ const Messages: React.FC = () => {
                       
                       <div className="flex items-center justify-between gap-2">
                         <p className="text-sm text-muted-foreground line-clamp-1">
-                          {convo.lastMessage?.content || 'No messages yet'}
+                          {convo.lastMessage?.content || t('messages.noMessages')}
                         </p>
                         {unreadCount > 0 && (
                           <Badge variant="default" className="h-5 min-w-5 px-1.5 flex items-center justify-center text-xs">
@@ -430,7 +441,7 @@ const Messages: React.FC = () => {
                   </h2>
                   {selectedConversation.otherParticipantBusiness && (
                     <p className="text-xs text-muted-foreground">
-                      Business
+                      {t('messages.business')}
                     </p>
                   )}
                 </div>
@@ -448,9 +459,9 @@ const Messages: React.FC = () => {
                   <div className="w-16 h-16 rounded-full bg-muted flex items-center justify-center mb-4">
                     <UserIcon className="h-8 w-8 text-muted-foreground" />
                   </div>
-                  <h3 className="font-semibold mb-2">Start a conversation</h3>
+                  <h3 className="font-semibold mb-2">{t('messages.startConversation')}</h3>
                   <p className="text-sm text-muted-foreground max-w-sm">
-                    Send a message to {getParticipantName(selectedConversation)} to begin your conversation.
+                    {t('messages.sendMessageTo')} {getParticipantName(selectedConversation)} {t('messages.toBegin')}
                   </p>
                 </div>
               ) : (
@@ -461,7 +472,7 @@ const Messages: React.FC = () => {
                     return (
                       <div 
                         key={msg.id} 
-                        className={`flex gap-3 ${isCurrentUser ? 'flex-row-reverse' : 'flex-row'}`}
+                        className={`flex gap-3 ${isCurrentUser ? (dir === 'rtl' ? 'flex-row' : 'flex-row-reverse') : (dir === 'rtl' ? 'flex-row-reverse' : 'flex-row')}`}
                       >
                         {!isCurrentUser && (
                           <Avatar className="h-8 w-8 flex-shrink-0">
@@ -475,8 +486,8 @@ const Messages: React.FC = () => {
                           <div 
                             className={`rounded-2xl px-4 py-2.5 ${
                               isCurrentUser 
-                                ? 'bg-primary text-primary-foreground rounded-br-sm' 
-                                : 'bg-muted rounded-bl-sm'
+                                ? `bg-primary text-primary-foreground ${dir === 'rtl' ? 'rounded-bl-sm' : 'rounded-br-sm'}` 
+                                : `bg-muted ${dir === 'rtl' ? 'rounded-br-sm' : 'rounded-bl-sm'}`
                             }`}
                           >
                             <p className="text-sm whitespace-pre-wrap break-words">{msg.content}</p>
@@ -497,14 +508,14 @@ const Messages: React.FC = () => {
             <div className="border-t border-border bg-card p-4">
               <form onSubmit={handleSendMessage} className="flex gap-2 max-w-4xl mx-auto">
                 <Input
-                  placeholder="Type a message..."
+                  placeholder={t('messages.writeMessage')}
                   value={message}
                   onChange={(e) => setMessage(e.target.value)}
                   className="flex-1"
                   disabled={sending}
                 />
-                <Button type="submit" disabled={!message.trim() || sending} size="icon">
-                  <Send className="h-4 w-4" />
+                <Button type="submit" size="icon" disabled={!message.trim() || sending}>
+                  <Send className="h-5 w-5" />
                 </Button>
               </form>
             </div>
