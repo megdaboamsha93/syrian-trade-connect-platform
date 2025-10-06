@@ -26,138 +26,12 @@ export function AppLayout({ children }: AppLayoutProps) {
 
   return (
     <SidebarProvider defaultOpen={false}>
-      <div className="flex min-h-screen w-full" dir={dir}>
-        {dir === 'rtl' ? (
-          <>
-            <SidebarInset className="flex-1 flex flex-col">
-              {/* Compact Header with Icons */}
-              <header className="sticky top-0 z-10 flex h-14 shrink-0 items-center gap-2 border-b bg-background px-4">
-                {/* Right side icons */}
-                <div className="flex items-center gap-1">
-                  {user ? (
-                    <>
-                      {/* Messages */}
-                      <Button variant="ghost" size="icon" asChild className="relative">
-                        <Link to="/messages">
-                          <MessageSquare className="h-5 w-5" />
-                          {unreadCount > 0 && (
-                            <Badge 
-                              variant="destructive" 
-                              className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center p-0 text-xs"
-                            >
-                              {unreadCount > 9 ? '9+' : unreadCount}
-                            </Badge>
-                          )}
-                        </Link>
-                      </Button>
-
-                      {/* Notifications */}
-                      <Button variant="ghost" size="icon">
-                        <Bell className="h-5 w-5" />
-                      </Button>
-
-                      {/* Language Switcher */}
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" size="icon">
-                            <Globe className="h-5 w-5" />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          <DropdownMenuItem 
-                            onClick={() => setLanguage('en')}
-                            className={language === 'en' ? 'bg-primary/10' : ''}
-                          >
-                            English
-                          </DropdownMenuItem>
-                          <DropdownMenuItem 
-                            onClick={() => setLanguage('ar')}
-                            className={language === 'ar' ? 'bg-primary/10' : ''}
-                          >
-                            العربية
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-
-                      {/* Profile Menu */}
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" size="icon">
-                            <User className="h-5 w-5" />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end" className="w-48">
-                          <div className="px-2 py-1.5 text-sm text-muted-foreground">
-                            {user.email}
-                          </div>
-                          <DropdownMenuSeparator />
-                          <DropdownMenuItem asChild>
-                            <Link to="/complete-profile" className="cursor-pointer">
-                              <User className="h-4 w-4 mr-2" />
-                              Profile Settings
-                            </Link>
-                          </DropdownMenuItem>
-                          <DropdownMenuSeparator />
-                          <DropdownMenuItem onClick={() => signOut()} className="cursor-pointer text-red-600">
-                            <LogOut className="h-4 w-4 mr-2" />
-                            Logout
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    </>
-                  ) : (
-                    <>
-                      {/* Language Switcher */}
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" size="icon">
-                            <Globe className="h-5 w-5" />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          <DropdownMenuItem 
-                            onClick={() => setLanguage('en')}
-                            className={language === 'en' ? 'bg-primary/10' : ''}
-                          >
-                            English
-                          </DropdownMenuItem>
-                          <DropdownMenuItem 
-                            onClick={() => setLanguage('ar')}
-                            className={language === 'ar' ? 'bg-primary/10' : ''}
-                          >
-                            العربية
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-
-                      <Button variant="ghost" size="sm" asChild>
-                        <Link to="/login">Login</Link>
-                      </Button>
-                      <Button size="sm" asChild>
-                        <Link to="/register">Register</Link>
-                      </Button>
-                    </>
-                  )}
-                </div>
-                
-                <div className="flex-1" />
-                <SidebarTrigger className="-mr-1" />
-              </header>
-
-              {/* Main Content */}
-              <main className="flex-1 overflow-auto">
-                {children}
-              </main>
-            </SidebarInset>
-            <AppSidebar />
-          </>
-        ) : (
-          <>
-            <AppSidebar />
-            <SidebarInset className="flex-1 flex flex-col">
-              {/* Compact Header with Icons */}
-              <header className="sticky top-0 z-10 flex h-14 shrink-0 items-center gap-2 border-b bg-background px-4">
-                <SidebarTrigger className="-ml-1" />
+      <div className="flex min-h-screen w-full">
+        <AppSidebar />
+        <SidebarInset className="flex-1 flex flex-col" dir={dir}>
+          {/* Compact Header with Icons */}
+          <header className="sticky top-0 z-10 flex h-14 shrink-0 items-center gap-2 border-b bg-background px-4">
+            <SidebarTrigger className={dir === 'rtl' ? '-mr-1' : '-ml-1'} />
             
             <div className="flex-1" />
             
@@ -265,18 +139,16 @@ export function AppLayout({ children }: AppLayoutProps) {
                   <Button size="sm" asChild>
                     <Link to="/register">Register</Link>
                   </Button>
-                </>
-              )}
-            </div>
-          </header>
+              </>
+            )}
+          </div>
+        </header>
 
-              {/* Main Content */}
-              <main className="flex-1 overflow-auto">
-                {children}
-              </main>
-            </SidebarInset>
-          </>
-        )}
+        {/* Main Content */}
+        <main className="flex-1 overflow-auto">
+          {children}
+        </main>
+      </SidebarInset>
       </div>
     </SidebarProvider>
   );
