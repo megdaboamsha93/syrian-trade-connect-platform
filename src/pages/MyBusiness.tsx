@@ -134,7 +134,7 @@ export default function MyBusiness() {
         </div>
 
         {businesses.length > 1 && (
-          <div className="mb-6 flex gap-4 overflow-x-auto pb-2">
+          <div className="mb-6 flex gap-4 overflow-x-auto pb-2 px-1">
             {businesses.map((business) => (
               <Card
                 key={business.id}
