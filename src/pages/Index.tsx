@@ -42,7 +42,7 @@ const Index: React.FC = () => {
         <div 
           className="absolute inset-0 opacity-[0.07]"
           style={{
-            backgroundImage: 'url(/images/syrian-pattern.png)',
+            backgroundImage: 'url(/images/syrian-pattern.png?v=2)',
             backgroundSize: '600px 600px',
             backgroundRepeat: 'repeat',
             backgroundPosition: 'center'
