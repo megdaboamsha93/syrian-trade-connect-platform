@@ -155,7 +155,7 @@ const Browse: React.FC = () => {
 
   const FilterSidebar = () => (
     <div className="lg:col-span-1">
-      <div className="bg-card shadow-sm rounded-lg border p-4 sticky top-4">
+      <div className="bg-card shadow-lg rounded-2xl border p-6 sticky top-4 hover:shadow-xl transition-shadow duration-300">
         <div className="flex items-center justify-between mb-4">
           <h2 className="font-medium">{t('browse.filter')}</h2>
           {activeFiltersCount > 0 && (

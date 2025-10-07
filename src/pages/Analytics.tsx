@@ -286,7 +286,7 @@ const Analytics: React.FC = () => {
       {/* Charts */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
         {/* Visitor Trends */}
-        <Card>
+        <Card className="hover:shadow-xl transition-shadow duration-300">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <TrendingUp className="h-5 w-5" />
@@ -323,7 +323,7 @@ const Analytics: React.FC = () => {
         </Card>
 
         {/* Product Engagement */}
-        <Card>
+        <Card className="hover:shadow-xl transition-shadow duration-300">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Package className="h-5 w-5" />
@@ -357,7 +357,7 @@ const Analytics: React.FC = () => {
 
       {/* Detailed Product Table */}
       {productEngagement.length > 0 && (
-        <Card>
+        <Card className="hover:shadow-xl transition-shadow duration-300">
           <CardHeader>
             <CardTitle>Product Performance Details</CardTitle>
             <CardDescription>Complete breakdown of product engagement</CardDescription>

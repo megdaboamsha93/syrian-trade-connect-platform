@@ -63,7 +63,7 @@ const Login: React.FC = () => {
 
   return (
     <div className="container mx-auto px-6 py-8 flex justify-center">
-      <Card className="w-full max-w-md">
+      <Card className="w-full max-w-md shadow-lg hover:shadow-xl transition-shadow duration-300">
         <CardHeader>
           <CardTitle>{t('auth.login')}</CardTitle>
           <CardDescription>

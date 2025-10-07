@@ -96,7 +96,7 @@ export default function CompleteProfile() {
 
   return (
     <div className="min-h-screen bg-background flex items-center justify-center p-4">
-      <Card className="w-full max-w-md">
+      <Card className="w-full max-w-md shadow-lg hover:shadow-xl transition-shadow duration-300">
         <CardHeader>
           <CardTitle className={language === 'ar' ? 'text-right' : ''}>
             {language === 'ar' ? 'أكمل ملفك الشخصي' : 'Complete Your Profile'}

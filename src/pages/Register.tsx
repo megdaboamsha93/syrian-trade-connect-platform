@@ -75,7 +75,7 @@ const Register: React.FC = () => {
   return (
     <div className="container mx-auto px-6 py-8">
       <div className="max-w-2xl mx-auto">
-        <Card>
+        <Card className="shadow-lg hover:shadow-xl transition-shadow duration-300">
           <CardHeader>
             <CardTitle>{t('auth.register')}</CardTitle>
             <CardDescription>

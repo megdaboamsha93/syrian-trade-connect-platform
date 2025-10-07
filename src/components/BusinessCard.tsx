@@ -93,7 +93,7 @@ const BusinessCard: React.FC<BusinessCardProps> = ({ business, showFavorite = tr
 
   return (
     <Link to={`/business/${business.id}`}>
-      <Card className="h-full hover:shadow-md transition-shadow overflow-hidden relative group">
+      <Card className="h-full hover:shadow-xl hover:-translate-y-1 transition-all duration-300 overflow-hidden relative group">
         {showFavorite && user && (
           <Button
             variant="ghost"

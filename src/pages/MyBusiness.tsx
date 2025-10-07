@@ -138,10 +138,10 @@ export default function MyBusiness() {
             {businesses.map((business) => (
               <Card
                 key={business.id}
-                className={`cursor-pointer transition-all min-w-[250px] ${
+                className={`cursor-pointer transition-all duration-300 min-w-[250px] hover:-translate-y-1 ${
                   selectedBusiness?.id === business.id
-                    ? 'ring-2 ring-primary'
-                    : 'hover:border-primary'
+                    ? 'ring-2 ring-primary shadow-lg'
+                    : 'hover:border-primary hover:shadow-md'
                 }`}
                 onClick={() => setSelectedBusiness(business)}
               >
@@ -162,7 +162,7 @@ export default function MyBusiness() {
         )}
 
         {selectedBusiness && (
-          <Card>
+          <Card className="shadow-lg hover:shadow-xl transition-shadow duration-300">
             <CardHeader>
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">

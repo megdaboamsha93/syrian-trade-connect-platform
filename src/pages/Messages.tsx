@@ -340,7 +340,7 @@ const Messages: React.FC = () => {
   return (
     <div className={`flex h-[calc(100vh-3.5rem)] bg-background ${dir === 'rtl' ? 'flex-row-reverse' : ''}`}>
       {/* Conversations Sidebar */}
-      <div className={`w-80 bg-card flex flex-col ${dir === 'rtl' ? 'border-l' : 'border-r'} border-border`}>
+      <div className={`w-80 bg-card flex flex-col ${dir === 'rtl' ? 'border-l' : 'border-r'} border-border shadow-lg`}>
         {/* Search Header */}
         <div className="p-4 border-b border-border">
           <div className="relative">
@@ -378,17 +378,17 @@ const Messages: React.FC = () => {
                 const unreadCount = getUnreadCount(convo);
                 
                 return (
-                  <div
-                    key={convo.id}
-                    onClick={() => {
-                      navigate('/messages');
-                      setSelectedConversation(convo);
-                    }}
-                    className={`
-                      flex items-start gap-3 p-4 cursor-pointer transition-colors
-                      ${isActive ? 'bg-muted/50' : 'hover:bg-muted/30'}
-                    `}
-                  >
+                    <div
+                      key={convo.id}
+                      onClick={() => {
+                        navigate('/messages');
+                        setSelectedConversation(convo);
+                      }}
+                      className={`
+                        flex items-start gap-3 p-4 cursor-pointer transition-all duration-300 rounded-xl mx-2
+                        ${isActive ? 'bg-muted/50 shadow-md' : 'hover:bg-muted/30 hover:shadow-sm'}
+                      `}
+                    >
                     <Avatar className="h-12 w-12 flex-shrink-0">
                       <AvatarFallback className="bg-primary/10 text-primary font-medium">
                         {getParticipantInitials(convo)}
@@ -429,7 +429,7 @@ const Messages: React.FC = () => {
         {selectedConversation ? (
           <>
             {/* Chat Header */}
-            <div className="h-16 border-b border-border bg-card px-6 flex items-center justify-between">
+            <div className="h-16 border-b border-border bg-card px-6 flex items-center justify-between shadow-sm">
               <div className="flex items-center gap-3">
                 <Button
                   variant="ghost"

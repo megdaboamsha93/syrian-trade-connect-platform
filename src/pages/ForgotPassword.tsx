@@ -66,7 +66,7 @@ const ForgotPassword: React.FC = () => {
           {language === 'ar' ? 'العودة إلى تسجيل الدخول' : 'Back to Login'}
         </Button>
 
-        <Card>
+        <Card className="shadow-lg hover:shadow-xl transition-shadow duration-300">
           <CardHeader className="space-y-1">
             <CardTitle className="text-2xl font-bold text-center">
               {language === 'ar' ? 'استعادة كلمة المرور' : 'Forgot Password'}

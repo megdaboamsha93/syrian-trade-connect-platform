@@ -134,7 +134,7 @@ const BusinessDetail: React.FC = () => {
       <div className="container mx-auto px-6">
         {/* Business Header */}
         <div className="relative -mt-16 mb-6">
-          <div className="bg-card rounded-lg shadow-md p-6">
+          <div className="bg-card rounded-2xl shadow-lg p-6 hover:shadow-xl transition-shadow duration-300">
             <div className="flex flex-wrap items-start justify-between gap-4">
               <div>
                 <div className="flex items-center gap-2">
@@ -177,7 +177,7 @@ const BusinessDetail: React.FC = () => {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-12">
           {/* Main Content Area */}
           <div className="lg:col-span-2">
-            <Tabs defaultValue="about" className="w-full bg-card rounded-lg shadow-sm">
+            <Tabs defaultValue="about" className="w-full bg-card rounded-2xl shadow-lg hover:shadow-xl transition-shadow duration-300">
               <TabsList className="border-b w-full justify-start rounded-none px-6 pt-3">
                 <TabsTrigger value="about">{t('business.about')}</TabsTrigger>
                 <TabsTrigger value="products">{t('business.products')}</TabsTrigger>
@@ -214,7 +214,7 @@ const BusinessDetail: React.FC = () => {
                       return (
                         <Card 
                           key={product.id} 
-                          className="overflow-hidden cursor-pointer hover:shadow-lg transition-shadow"
+                          className="overflow-hidden cursor-pointer hover:shadow-xl hover:-translate-y-1 transition-all duration-300 group"
                           onClick={handleProductClick}
                         >
                           {firstImage && (
@@ -249,7 +249,7 @@ const BusinessDetail: React.FC = () => {
 
           {/* Sidebar */}
           <div className="lg:col-span-1">
-            <div className="bg-card rounded-lg shadow-sm p-6">
+            <div className="bg-card rounded-2xl shadow-lg p-6 hover:shadow-xl transition-shadow duration-300">
               <h2 className="font-medium text-lg mb-4">{t('business.details')}</h2>
               <div className="space-y-4">
                 {business.founded_year && (

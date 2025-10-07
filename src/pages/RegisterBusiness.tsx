@@ -229,7 +229,7 @@ export default function RegisterBusiness() {
   return (
     <div className="min-h-screen bg-background py-8 px-4">
       <div className="max-w-2xl mx-auto">
-        <Card>
+        <Card className="shadow-lg hover:shadow-xl transition-shadow duration-300">
           <CardHeader>
             <div className="flex items-center justify-between mb-4">
               <CardTitle className={language === 'ar' ? 'text-right' : ''}>

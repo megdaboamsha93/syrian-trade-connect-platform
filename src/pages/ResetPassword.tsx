@@ -92,7 +92,7 @@ const ResetPassword: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-primary/5 via-background to-secondary/5 flex items-center justify-center p-4">
-      <Card className="w-full max-w-md">
+      <Card className="w-full max-w-md shadow-lg hover:shadow-xl transition-shadow duration-300">
         <CardHeader className="space-y-1">
           <CardTitle className="text-2xl font-bold text-center">
             {language === 'ar' ? 'إعادة تعيين كلمة المرور' : 'Reset Password'}

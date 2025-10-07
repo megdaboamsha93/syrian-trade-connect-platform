@@ -362,7 +362,7 @@ export default function ProductManager({ businessId }: ProductManagerProps) {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {products.map((product) => (
-            <Card key={product.id}>
+            <Card key={product.id} className="hover:shadow-xl hover:-translate-y-1 transition-all duration-300 group overflow-hidden">
               <CardHeader className="p-0">
                 {product.image_urls?.[0] && (
                   <img
