@@ -372,6 +372,101 @@ export type Database = {
         }
         Relationships: []
       }
+      verification_documents: {
+        Row: {
+          business_id: string
+          created_at: string
+          document_name: string
+          document_type: string
+          document_url: string
+          id: string
+          uploaded_at: string
+          verification_request_id: string
+        }
+        Insert: {
+          business_id: string
+          created_at?: string
+          document_name: string
+          document_type: string
+          document_url: string
+          id?: string
+          uploaded_at?: string
+          verification_request_id: string
+        }
+        Update: {
+          business_id?: string
+          created_at?: string
+          document_name?: string
+          document_type?: string
+          document_url?: string
+          id?: string
+          uploaded_at?: string
+          verification_request_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "verification_documents_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "verification_documents_verification_request_id_fkey"
+            columns: ["verification_request_id"]
+            isOneToOne: false
+            referencedRelation: "verification_requests"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      verification_requests: {
+        Row: {
+          business_id: string
+          created_at: string
+          id: string
+          notes: string | null
+          rejection_reason: string | null
+          reviewed_at: string | null
+          reviewed_by: string | null
+          status: string
+          submitted_at: string
+          updated_at: string
+        }
+        Insert: {
+          business_id: string
+          created_at?: string
+          id?: string
+          notes?: string | null
+          rejection_reason?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+          submitted_at?: string
+          updated_at?: string
+        }
+        Update: {
+          business_id?: string
+          created_at?: string
+          id?: string
+          notes?: string | null
+          rejection_reason?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+          submitted_at?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "verification_requests_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never

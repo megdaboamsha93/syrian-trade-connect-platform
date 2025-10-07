@@ -7,17 +7,25 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
-import { Loader2, Plus, Building2, Package, CheckCircle2 } from 'lucide-react';
+import { Loader2, Plus, Building2, Package, CheckCircle2, ShieldCheck } from 'lucide-react';
 import { toast } from 'sonner';
 import ProductManager from '@/components/ProductManager';
+import BusinessEditor from '@/components/BusinessEditor';
+import VerificationManager from '@/components/VerificationManager';
 
 interface Business {
   id: string;
   name_en: string;
   name_ar: string;
+  description_en: string | null;
+  description_ar: string | null;
   business_type: string;
   industry: string;
   location: string;
+  contact_email: string;
+  contact_phone: string | null;
+  website_url: string | null;
+  founded_year: number | null;
   is_verified: boolean;
   logo_url: string | null;
   cover_url: string | null;
@@ -182,6 +190,10 @@ export default function MyBusiness() {
                     </CardDescription>
                   </div>
                 </div>
+                <BusinessEditor 
+                  business={selectedBusiness} 
+                  onUpdate={loadBusinesses}
+                />
               </div>
             </CardHeader>
             <CardContent>
@@ -194,6 +206,10 @@ export default function MyBusiness() {
                   <TabsTrigger value="info" className="gap-2">
                     <Building2 className="h-4 w-4" />
                     {language === 'ar' ? 'معلومات العمل' : 'Business Info'}
+                  </TabsTrigger>
+                  <TabsTrigger value="verification" className="gap-2">
+                    <ShieldCheck className="h-4 w-4" />
+                    {language === 'ar' ? 'التوثيق' : 'Verification'}
                   </TabsTrigger>
                 </TabsList>
 
@@ -224,6 +240,14 @@ export default function MyBusiness() {
                       <p className="text-muted-foreground">{selectedBusiness.industry}</p>
                     </div>
                   </div>
+                </TabsContent>
+
+                <TabsContent value="verification" className="mt-6">
+                  <VerificationManager 
+                    businessId={selectedBusiness.id}
+                    isVerified={selectedBusiness.is_verified}
+                    onVerificationChange={loadBusinesses}
+                  />
                 </TabsContent>
               </Tabs>
             </CardContent>
