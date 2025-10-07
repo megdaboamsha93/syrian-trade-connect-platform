@@ -355,7 +355,7 @@ const Browse: React.FC = () => {
 
   return (
     <div className="container mx-auto px-6 py-8">
-      <div className="flex items-center justify-between mb-6">
+      <div className={`flex items-center ${dir === 'rtl' ? 'flex-row-reverse' : ''} justify-between mb-6`}>
         <h1 className="text-2xl md:text-3xl font-bold">{t('browse.title')}</h1>
         {activeFiltersCount > 0 && (
           <Badge variant="secondary" className="gap-2">

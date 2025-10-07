@@ -25,10 +25,10 @@ export function AppLayout({ children }: AppLayoutProps) {
   const unreadCount = useUnreadMessages();
 
   return (
-    <SidebarProvider defaultOpen={false}>
-      <div className="flex min-h-screen w-full">
+    <SidebarProvider defaultOpen={true}>
+      <div className="flex min-h-screen w-full" dir={dir}>
         <AppSidebar />
-        <SidebarInset className="flex-1 flex flex-col" dir={dir}>
+        <SidebarInset className="flex-1 flex flex-col">
           {/* Compact Header with Icons */}
           <header className="sticky top-0 z-10 flex h-14 shrink-0 items-center gap-2 border-b bg-background px-4">
             <SidebarTrigger className={dir === 'rtl' ? '-mr-1' : '-ml-1'} />
