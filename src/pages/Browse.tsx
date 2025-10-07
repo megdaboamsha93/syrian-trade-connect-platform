@@ -286,7 +286,7 @@ const Browse: React.FC = () => {
 
   const MainContent = () => (
     <div className="lg:col-span-3">
-      <div className="mb-6 flex items-center justify-between">
+      <div className={`mb-6 flex items-center ${dir === 'rtl' ? 'text-right' : ''} justify-between`}>
         <h3 className="text-lg font-medium">
           {filteredBusinesses.length} {filteredBusinesses.length === 1 ? 'Result' : 'Results'}
         </h3>
@@ -355,7 +355,7 @@ const Browse: React.FC = () => {
 
   return (
     <div className="container mx-auto px-6 py-8">
-      <div className={`flex items-center ${dir === 'rtl' ? 'flex-row-reverse' : ''} justify-between mb-6`}>
+      <div className={`flex items-center ${dir === 'rtl' ? 'flex-row-reverse text-right' : ''} justify-between mb-6`}>
         <h1 className="text-2xl md:text-3xl font-bold">{t('browse.title')}</h1>
         {activeFiltersCount > 0 && (
           <Badge variant="secondary" className="gap-2">
