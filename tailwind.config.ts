@@ -64,10 +64,17 @@ export default {
 					ring: 'hsl(var(--sidebar-ring))'
 				}
 			},
+			spacing: {
+				'18': '4.5rem',
+				'88': '22rem',
+			},
 			borderRadius: {
 				lg: 'var(--radius)',
 				md: 'calc(var(--radius) - 2px)',
 				sm: 'calc(var(--radius) - 4px)'
+			},
+			letterSpacing: {
+				tighter: '-0.02em',
 			},
 			keyframes: {
 				'accordion-down': {
