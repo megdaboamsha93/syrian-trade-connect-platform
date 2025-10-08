@@ -17,6 +17,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import type { Tables } from '@/integrations/supabase/types';
 import ReviewSection from '@/components/ReviewSection';
+import { RFQDialog } from '@/components/RFQDialog';
 
 type Business = Tables<'businesses'>;
 type Product = Tables<'business_products'>;
@@ -157,25 +158,34 @@ const BusinessDetail: React.FC = () => {
                   <Badge variant="outline">{business.location}</Badge>
                 </div>
               </div>
-              {canMessage ? (
-                <Button className="flex gap-2" asChild>
-                  <Link to={`/messages/new/${business.id}`}>
-                    <MessageSquare className="h-4 w-4" />
-                    {t('business.message')}
-                  </Link>
-                </Button>
-              ) : (
-                <div className="flex flex-col items-end">
-                  <Button className="flex gap-2" variant="secondary" disabled>
-                    <MessageSquare className="h-4 w-4" />
-                    {t('business.message')}
-                  </Button>
-                  <span className="mt-1 text-xs text-muted-foreground">
-                    {!user ? t('messages.loginToMessage') : t('messages.cannotMessageOwnBusiness')}
-                  </span>
-                </div>
-              )}
-
+              <div className="flex gap-2">
+                {canMessage ? (
+                  <>
+                    <Button className="flex gap-2" asChild>
+                      <Link to={`/messages/new/${business.id}`}>
+                        <MessageSquare className="h-4 w-4" />
+                        {t('business.message')}
+                      </Link>
+                    </Button>
+                    <RFQDialog businessId={business.id} businessName={name} />
+                  </>
+                ) : (
+                  <div className="flex flex-col items-end gap-2">
+                    <div className="flex gap-2">
+                      <Button className="flex gap-2" variant="secondary" disabled>
+                        <MessageSquare className="h-4 w-4" />
+                        {t('business.message')}
+                      </Button>
+                      <Button variant="secondary" disabled>
+                        {language === 'ar' ? 'طلب عرض سعر' : 'Request Quote'}
+                      </Button>
+                    </div>
+                    <span className="text-xs text-muted-foreground">
+                      {!user ? (language === 'ar' ? 'قم بتسجيل الدخول للمراسلة' : 'Login to message') : t('messages.cannotMessageOwnBusiness')}
+                    </span>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         </div>

@@ -168,7 +168,7 @@ const Browse: React.FC = () => {
               className="h-8 text-xs"
             >
               <X className="h-3 w-3 mr-1" />
-              Clear All
+              {t('browse.clearAll')}
             </Button>
           )}
         </div>
@@ -198,7 +198,7 @@ const Browse: React.FC = () => {
               <SelectValue placeholder={t('browse.industry')} />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">All Industries</SelectItem>
+              <SelectItem value="all">{t('browse.allIndustries')}</SelectItem>
               {industries.map((industry) => (
                 <SelectItem key={industry} value={industry}>
                   {t(`industry.${industry}`)}
@@ -220,7 +220,7 @@ const Browse: React.FC = () => {
               <SelectValue placeholder={t('browse.type')} />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">All Types</SelectItem>
+              <SelectItem value="all">{t('browse.allTypes')}</SelectItem>
               {businessTypes.map((type) => (
                 <SelectItem key={type} value={type}>
                   {t(`browse.type.${type}`)}
@@ -232,17 +232,17 @@ const Browse: React.FC = () => {
 
         <div className="mb-4">
           <label className="text-sm font-medium block mb-2">
-            Location
+            {t('browse.location')}
           </label>
           <Select 
             value={locationFilter}
             onValueChange={(value) => setLocationFilter(value)}
           >
             <SelectTrigger>
-              <SelectValue placeholder="All Locations" />
+              <SelectValue placeholder={t('browse.allLocations')} />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">All Locations</SelectItem>
+              <SelectItem value="all">{t('browse.allLocations')}</SelectItem>
               {locations.map((location) => (
                 <SelectItem key={location} value={location}>
                   {location}
@@ -254,7 +254,7 @@ const Browse: React.FC = () => {
 
         <div className="mb-4 flex items-center justify-between">
           <Label htmlFor="verified-only" className="text-sm font-medium">
-            Verified Only
+            {t('browse.verifiedOnly')}
           </Label>
           <Switch
             id="verified-only"
@@ -265,20 +265,20 @@ const Browse: React.FC = () => {
 
         <div className="mb-4">
           <label className="text-sm font-medium block mb-2">
-            Sort By
+            {t('browse.sortBy')}
           </label>
           <Select 
             value={sortBy}
             onValueChange={(value) => setSortBy(value)}
           >
             <SelectTrigger>
-              <SelectValue placeholder="Sort by" />
+              <SelectValue placeholder={t('browse.sortBy')} />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="newest">Newest First</SelectItem>
-              <SelectItem value="oldest">Oldest First</SelectItem>
-              <SelectItem value="name-asc">Name (A-Z)</SelectItem>
-              <SelectItem value="name-desc">Name (Z-A)</SelectItem>
+              <SelectItem value="newest">{t('sort.newest')}</SelectItem>
+              <SelectItem value="oldest">{t('sort.oldest')}</SelectItem>
+              <SelectItem value="name-asc">{t('sort.nameAsc')}</SelectItem>
+              <SelectItem value="name-desc">{t('sort.nameDesc')}</SelectItem>
             </SelectContent>
           </Select>
         </div>
@@ -290,7 +290,7 @@ const Browse: React.FC = () => {
     <div className="lg:col-span-3">
       <div className={`mb-6 flex items-center ${dir === 'rtl' ? 'text-right' : ''} justify-between`}>
         <h3 className="text-lg font-medium">
-          {filteredBusinesses.length} {filteredBusinesses.length === 1 ? 'Result' : 'Results'}
+          {filteredBusinesses.length} {filteredBusinesses.length === 1 ? t('browse.result') : t('browse.results')}
         </h3>
       </div>
       
@@ -362,7 +362,7 @@ const Browse: React.FC = () => {
         {activeFiltersCount > 0 && (
           <Badge variant="secondary" className="gap-2">
             <SlidersHorizontal className="h-3 w-3" />
-            {activeFiltersCount} Active
+            {activeFiltersCount} {t('browse.active')}
           </Badge>
         )}
       </div>

@@ -58,7 +58,6 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
       'browse.type.importer': 'Importer',
       'browse.type.exporter': 'Exporter',
       'browse.type.both': 'Both',
-      'browse.results': 'Results',
       'browse.noResults': 'No businesses found',
       
       // Business Profile
@@ -118,6 +117,21 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
       'auth.firstName': 'First Name',
       'auth.lastName': 'Last Name',
       'auth.fullName': 'Full Name',
+      
+      // Filters & Browse
+      'browse.allIndustries': 'All Industries',
+      'browse.allTypes': 'All Types',
+      'browse.allLocations': 'All Locations',
+      'browse.verifiedOnly': 'Verified Only',
+      'browse.sortBy': 'Sort By',
+      'browse.clearAll': 'Clear All',
+      'browse.result': 'Result',
+      'browse.results': 'Results',
+      'browse.active': 'Active',
+      'sort.newest': 'Newest First',
+      'sort.oldest': 'Oldest First',
+      'sort.nameAsc': 'Name (A-Z)',
+      'sort.nameDesc': 'Name (Z-A)',
     },
     ar: {
       // General
@@ -162,7 +176,6 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
       'browse.type.importer': 'مستورد',
       'browse.type.exporter': 'مصدر',
       'browse.type.both': 'كلاهما',
-      'browse.results': 'النتائج',
       'browse.noResults': 'لم يتم العثور على شركات',
       
       // Business Profile
@@ -222,6 +235,21 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
       'auth.firstName': 'الاسم الأول',
       'auth.lastName': 'اسم العائلة',
       'auth.fullName': 'الاسم الكامل',
+      
+      // Filters & Browse
+      'browse.allIndustries': 'جميع الصناعات',
+      'browse.allTypes': 'جميع الأنواع',
+      'browse.allLocations': 'جميع المواقع',
+      'browse.verifiedOnly': 'موثقة فقط',
+      'browse.sortBy': 'ترتيب حسب',
+      'browse.clearAll': 'مسح الكل',
+      'browse.result': 'نتيجة',
+      'browse.results': 'نتائج',
+      'browse.active': 'نشط',
+      'sort.newest': 'الأحدث أولاً',
+      'sort.oldest': 'الأقدم أولاً',
+      'sort.nameAsc': 'الاسم (أ-ي)',
+      'sort.nameDesc': 'الاسم (ي-أ)',
     }
   };
 

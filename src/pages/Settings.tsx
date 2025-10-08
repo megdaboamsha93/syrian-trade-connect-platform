@@ -83,17 +83,17 @@ export default function Settings() {
       </h1>
 
       <Tabs defaultValue="personal" className="w-full">
-        <TabsList className="grid w-full grid-cols-2 bg-muted p-1">
+        <TabsList className="grid w-full grid-cols-2 bg-muted/50 p-0.5 gap-0.5">
           <TabsTrigger 
             value="personal" 
-            className="flex items-center gap-2 data-[state=active]:bg-background data-[state=active]:shadow-sm"
+            className="flex items-center gap-2 data-[state=active]:bg-background data-[state=active]:shadow-sm rounded-md"
           >
             <User className="w-4 h-4" />
             {language === 'ar' ? 'المعلومات الشخصية' : 'Personal Information'}
           </TabsTrigger>
           <TabsTrigger 
             value="company" 
-            className="flex items-center gap-2 data-[state=active]:bg-background data-[state=active]:shadow-sm"
+            className="flex items-center gap-2 data-[state=active]:bg-background data-[state=active]:shadow-sm rounded-md"
           >
             <Building2 className="w-4 h-4" />
             {language === 'ar' ? 'إعدادات الشركة' : 'Company Settings'}
