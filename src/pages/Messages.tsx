@@ -378,10 +378,9 @@ const Messages: React.FC = () => {
                 const unreadCount = getUnreadCount(convo);
                 
                 return (
-                    <div
+                  <div
                       key={convo.id}
                       onClick={() => {
-                        navigate('/messages');
                         setSelectedConversation(convo);
                       }}
                       className={`
