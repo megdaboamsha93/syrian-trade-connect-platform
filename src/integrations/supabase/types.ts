@@ -184,27 +184,39 @@ export type Database = {
           created_at: string
           id: string
           last_message_at: string
+          participant_1_blocked: boolean | null
           participant_1_id: string
+          participant_1_muted: boolean | null
           participant_1_unread: number | null
+          participant_2_blocked: boolean | null
           participant_2_id: string
+          participant_2_muted: boolean | null
           participant_2_unread: number | null
         }
         Insert: {
           created_at?: string
           id?: string
           last_message_at?: string
+          participant_1_blocked?: boolean | null
           participant_1_id: string
+          participant_1_muted?: boolean | null
           participant_1_unread?: number | null
+          participant_2_blocked?: boolean | null
           participant_2_id: string
+          participant_2_muted?: boolean | null
           participant_2_unread?: number | null
         }
         Update: {
           created_at?: string
           id?: string
           last_message_at?: string
+          participant_1_blocked?: boolean | null
           participant_1_id?: string
+          participant_1_muted?: boolean | null
           participant_1_unread?: number | null
+          participant_2_blocked?: boolean | null
           participant_2_id?: string
+          participant_2_muted?: boolean | null
           participant_2_unread?: number | null
         }
         Relationships: []
@@ -502,6 +514,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      delete_conversation_for_user: {
+        Args: { _conversation_id: string; _user_id: string }
+        Returns: undefined
+      }
       get_business_daily_views: {
         Args: { _business_id: string; _days?: number }
         Returns: {
@@ -531,6 +547,14 @@ export type Database = {
       }
       mark_messages_read: {
         Args: { _conversation_id: string; _user_id: string }
+        Returns: undefined
+      }
+      set_conversation_block: {
+        Args: { _blocked: boolean; _conversation_id: string; _user_id: string }
+        Returns: undefined
+      }
+      set_conversation_mute: {
+        Args: { _conversation_id: string; _muted: boolean; _user_id: string }
         Returns: undefined
       }
     }

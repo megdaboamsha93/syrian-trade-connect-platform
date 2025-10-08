@@ -5,11 +5,28 @@ import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useParams, useNavigate, Link } from 'react-router-dom';
-import { Send, Search, MoreVertical, ArrowLeft, User as UserIcon } from 'lucide-react';
+import { Send, Search, MoreVertical, ArrowLeft, User as UserIcon, Trash2, Ban, BellOff, BellRing } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+  DropdownMenuSeparator,
+} from '@/components/ui/dropdown-menu';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 import type { Tables } from '@/integrations/supabase/types';
 
 type Conversation = Tables<'conversations'>;
@@ -36,6 +53,7 @@ const Messages: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [sending, setSending] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   // Redirect to login if not authenticated
@@ -326,6 +344,143 @@ const Messages: React.FC = () => {
     getParticipantName(conv).toLowerCase().includes(searchQuery.toLowerCase())
   );
 
+  const handleDeleteConversation = async () => {
+    if (!selectedConversation || !user) return;
+    
+    try {
+      const { error } = await supabase.rpc('delete_conversation_for_user', {
+        _conversation_id: selectedConversation.id,
+        _user_id: user.id,
+      });
+      
+      if (error) throw error;
+      
+      toast({
+        title: t('messages.conversationDeleted'),
+        description: t('messages.conversationDeleted'),
+      });
+      
+      setConversations(prev => prev.filter(c => c.id !== selectedConversation.id));
+      setSelectedConversation(null);
+      setShowDeleteDialog(false);
+    } catch (error) {
+      console.error('Error deleting conversation:', error);
+      toast({
+        title: t('messages.failedToDelete'),
+        description: t('messages.failedToDelete'),
+        variant: 'destructive',
+      });
+    }
+  };
+
+  const handleBlockUser = async () => {
+    if (!selectedConversation || !user) return;
+    
+    const isBlocked = selectedConversation.participant_1_id === user.id
+      ? selectedConversation.participant_1_blocked
+      : selectedConversation.participant_2_blocked;
+    
+    try {
+      const { error } = await supabase.rpc('set_conversation_block', {
+        _conversation_id: selectedConversation.id,
+        _user_id: user.id,
+        _blocked: !isBlocked,
+      });
+      
+      if (error) throw error;
+      
+      toast({
+        title: isBlocked ? t('messages.userUnblocked') : t('messages.userBlocked'),
+        description: isBlocked ? t('messages.userUnblocked') : t('messages.userBlocked'),
+      });
+      
+      // Update local state
+      setConversations(prev => prev.map(c => {
+        if (c.id === selectedConversation.id) {
+          if (c.participant_1_id === user.id) {
+            return { ...c, participant_1_blocked: !isBlocked };
+          } else {
+            return { ...c, participant_2_blocked: !isBlocked };
+          }
+        }
+        return c;
+      }));
+      
+      if (selectedConversation.participant_1_id === user.id) {
+        setSelectedConversation({ ...selectedConversation, participant_1_blocked: !isBlocked });
+      } else {
+        setSelectedConversation({ ...selectedConversation, participant_2_blocked: !isBlocked });
+      }
+    } catch (error) {
+      console.error('Error blocking user:', error);
+      toast({
+        title: t('messages.failedToBlock'),
+        description: t('messages.failedToBlock'),
+        variant: 'destructive',
+      });
+    }
+  };
+
+  const handleMuteConversation = async () => {
+    if (!selectedConversation || !user) return;
+    
+    const isMuted = selectedConversation.participant_1_id === user.id
+      ? selectedConversation.participant_1_muted
+      : selectedConversation.participant_2_muted;
+    
+    try {
+      const { error } = await supabase.rpc('set_conversation_mute', {
+        _conversation_id: selectedConversation.id,
+        _user_id: user.id,
+        _muted: !isMuted,
+      });
+      
+      if (error) throw error;
+      
+      toast({
+        title: isMuted ? t('messages.conversationUnmuted') : t('messages.conversationMuted'),
+        description: isMuted ? t('messages.conversationUnmuted') : t('messages.conversationMuted'),
+      });
+      
+      // Update local state
+      setConversations(prev => prev.map(c => {
+        if (c.id === selectedConversation.id) {
+          if (c.participant_1_id === user.id) {
+            return { ...c, participant_1_muted: !isMuted };
+          } else {
+            return { ...c, participant_2_muted: !isMuted };
+          }
+        }
+        return c;
+      }));
+      
+      if (selectedConversation.participant_1_id === user.id) {
+        setSelectedConversation({ ...selectedConversation, participant_1_muted: !isMuted });
+      } else {
+        setSelectedConversation({ ...selectedConversation, participant_2_muted: !isMuted });
+      }
+    } catch (error) {
+      console.error('Error muting conversation:', error);
+      toast({
+        title: t('messages.failedToMute'),
+        description: t('messages.failedToMute'),
+        variant: 'destructive',
+      });
+    }
+  };
+
+  const isBlocked = selectedConversation && user && (
+    selectedConversation.participant_1_id === user.id
+      ? selectedConversation.participant_1_blocked
+      : selectedConversation.participant_2_blocked
+  );
+
+  const isMuted = selectedConversation && user && (
+    selectedConversation.participant_1_id === user.id
+      ? selectedConversation.participant_1_muted
+      : selectedConversation.participant_2_muted
+  );
+
   if (!user) return null;
 
   return (
@@ -448,9 +603,43 @@ const Messages: React.FC = () => {
                 </div>
               </div>
               
-              <Button variant="ghost" size="icon">
-                <MoreVertical className="h-5 w-5" />
-              </Button>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" size="icon">
+                    <MoreVertical className="h-5 w-5" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem onClick={handleMuteConversation}>
+                    {isMuted ? (
+                      <>
+                        <BellRing className="h-4 w-4 mr-2" />
+                        {language === 'ar' ? 'إلغاء كتم الصوت' : 'Unmute'}
+                      </>
+                    ) : (
+                      <>
+                        <BellOff className="h-4 w-4 mr-2" />
+                        {language === 'ar' ? 'كتم الصوت' : 'Mute'}
+                      </>
+                    )}
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={handleBlockUser}>
+                    <Ban className="h-4 w-4 mr-2" />
+                    {isBlocked 
+                      ? (language === 'ar' ? 'إلغاء الحظر' : 'Unblock')
+                      : (language === 'ar' ? 'حظر' : 'Block')
+                    }
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem 
+                    onClick={() => setShowDeleteDialog(true)}
+                    className="text-red-600"
+                  >
+                    <Trash2 className="h-4 w-4 mr-2" />
+                    {language === 'ar' ? 'حذف المحادثة' : 'Delete Conversation'}
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             </div>
 
             {/* Messages */}
@@ -507,19 +696,49 @@ const Messages: React.FC = () => {
 
             {/* Message Input */}
             <div className="border-t border-border bg-card p-4">
-              <form onSubmit={handleSendMessage} className="flex gap-2 max-w-4xl mx-auto">
-                <Input
-                  placeholder={t('messages.writeMessage')}
-                  value={message}
-                  onChange={(e) => setMessage(e.target.value)}
-                  className="flex-1"
-                  disabled={sending}
-                />
-                <Button type="submit" size="icon" disabled={!message.trim() || sending}>
-                  <Send className="h-5 w-5" />
-                </Button>
-              </form>
+              {isBlocked ? (
+                <div className="text-center text-muted-foreground text-sm py-2">
+                  {language === 'ar' ? 'لقد قمت بحظر هذا المستخدم' : 'You have blocked this user'}
+                </div>
+              ) : (
+                <form onSubmit={handleSendMessage} className="flex gap-2 max-w-4xl mx-auto">
+                  <Input
+                    placeholder={t('messages.writeMessage')}
+                    value={message}
+                    onChange={(e) => setMessage(e.target.value)}
+                    className="flex-1"
+                    disabled={sending}
+                  />
+                  <Button type="submit" size="icon" disabled={!message.trim() || sending}>
+                    <Send className="h-5 w-5" />
+                  </Button>
+                </form>
+              )}
             </div>
+            
+            {/* Delete Confirmation Dialog */}
+            <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>
+                    {language === 'ar' ? 'حذف المحادثة' : 'Delete Conversation'}
+                  </AlertDialogTitle>
+                  <AlertDialogDescription>
+                    {language === 'ar'
+                      ? 'هل أنت متأكد من حذف هذه المحادثة؟ سيتم حذف جميع الرسائل ولا يمكن التراجع عن هذا الإجراء.'
+                      : 'Are you sure you want to delete this conversation? All messages will be deleted and this action cannot be undone.'}
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>
+                    {language === 'ar' ? 'إلغاء' : 'Cancel'}
+                  </AlertDialogCancel>
+                  <AlertDialogAction onClick={handleDeleteConversation} className="bg-red-600 hover:bg-red-700">
+                    {language === 'ar' ? 'حذف' : 'Delete'}
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
           </>
         ) : (
           <div className="flex-1 flex flex-col items-center justify-center p-8 text-center">
