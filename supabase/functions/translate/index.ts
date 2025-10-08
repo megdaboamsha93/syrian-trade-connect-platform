@@ -12,7 +12,18 @@ serve(async (req) => {
   }
 
   try {
-    const { text, targetLang, sourceLang = 'en', context } = await req.json();
+    let body;
+    try {
+      body = await req.json();
+    } catch (parseError) {
+      console.error('Failed to parse request body:', parseError);
+      return new Response(
+        JSON.stringify({ error: 'Invalid request body. Expected JSON.' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    const { text, targetLang, sourceLang = 'en', context } = body;
 
     if (!text || !targetLang) {
       return new Response(

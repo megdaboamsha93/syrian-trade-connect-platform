@@ -3,7 +3,7 @@ import { AppSidebar } from '@/components/AppSidebar';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Bell, MessageSquare, User, LogOut, Globe } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useUnreadMessages } from '@/hooks/useUnreadMessages';
@@ -21,17 +21,22 @@ interface AppLayoutProps {
 
 export function AppLayout({ children }: AppLayoutProps) {
   const { user, signOut } = useAuth();
-  const { language, setLanguage, dir } = useLanguage();
+  const { language, setLanguage, dir, t } = useLanguage();
   const unreadCount = useUnreadMessages();
+  const location = useLocation();
+  
+  // Hide sidebar on auth pages
+  const authPages = ['/login', '/register', '/forgot-password', '/reset-password', '/verify-email'];
+  const isAuthPage = authPages.includes(location.pathname);
 
   return (
-    <SidebarProvider defaultOpen={true}>
+    <SidebarProvider defaultOpen={!isAuthPage}>
       <div className="flex min-h-screen w-full" dir={dir}>
-        <AppSidebar />
+        {!isAuthPage && <AppSidebar />}
         <SidebarInset className="flex-1 flex flex-col">
           {/* Compact Header with Icons */}
           <header className="sticky top-0 z-10 flex h-14 shrink-0 items-center gap-2 border-b bg-background px-4">
-            <SidebarTrigger className={dir === 'rtl' ? '-mr-1' : '-ml-1'} />
+            {!isAuthPage && <SidebarTrigger className={dir === 'rtl' ? '-mr-1' : '-ml-1'} />}
             
             <div className="flex-1" />
             
@@ -134,10 +139,10 @@ export function AppLayout({ children }: AppLayoutProps) {
                   </DropdownMenu>
 
                   <Button variant="ghost" size="sm" asChild>
-                    <Link to="/login">Login</Link>
+                    <Link to="/login">{t('auth.login')}</Link>
                   </Button>
                   <Button size="sm" asChild>
-                    <Link to="/register">Register</Link>
+                    <Link to="/register">{t('auth.register')}</Link>
                   </Button>
               </>
             )}
