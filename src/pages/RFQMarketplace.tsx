@@ -6,13 +6,18 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { ClipboardList, Calendar, MapPin, Package, DollarSign, Loader2, Building2, Filter } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from '@/components/ui/dialog';
+import { ClipboardList, Calendar, MapPin, Package, DollarSign, Loader2, Building2, Filter, Save, Bell } from 'lucide-react';
 import { toast } from 'sonner';
 import { formatDistanceToNow } from 'date-fns';
 import { ar } from 'date-fns/locale';
 import type { Database } from '@/integrations/supabase/types';
 
 type RFQRequest = Database['public']['Tables']['rfq_requests']['Row'];
+type FilterPreference = Database['public']['Tables']['rfq_filter_preferences']['Row'];
 
 export default function RFQMarketplace() {
   const { user } = useAuth();
@@ -20,7 +25,18 @@ export default function RFQMarketplace() {
   const [loading, setLoading] = useState(true);
   const [openRFQs, setOpenRFQs] = useState<RFQRequest[]>([]);
   const [governmentalRFQs, setGovernmentalRFQs] = useState<RFQRequest[]>([]);
+  
+  // Filters
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
+  const [selectedLocation, setSelectedLocation] = useState<string>('all');
+  const [minBudget, setMinBudget] = useState<string>('');
+  const [maxBudget, setMaxBudget] = useState<string>('');
+  const [requiredByDate, setRequiredByDate] = useState<string>('');
+  
+  // Save filter dialog
+  const [saveFilterOpen, setSaveFilterOpen] = useState(false);
+  const [filterName, setFilterName] = useState('');
+  const [notifyOnMatch, setNotifyOnMatch] = useState(true);
 
   useEffect(() => {
     loadPublicRFQs();
@@ -90,12 +106,96 @@ export default function RFQMarketplace() {
   };
 
   const getFilteredRFQs = (rfqs: RFQRequest[]) => {
-    if (selectedCategory === 'all') return rfqs;
-    return rfqs.filter(rfq => rfq.product_category === selectedCategory);
+    return rfqs.filter(rfq => {
+      // Category filter
+      if (selectedCategory !== 'all' && rfq.product_category !== selectedCategory) {
+        return false;
+      }
+
+      // Location filter
+      if (selectedLocation !== 'all' && rfq.delivery_location && 
+          !rfq.delivery_location.toLowerCase().includes(selectedLocation.toLowerCase())) {
+        return false;
+      }
+
+      // Budget filter
+      if (minBudget || maxBudget) {
+        const budgetRange = rfq.budget_range;
+        if (budgetRange) {
+          const numbers = budgetRange.match(/\d+/g);
+          if (numbers && numbers.length >= 2) {
+            const rfqMin = parseInt(numbers[0]);
+            const rfqMax = parseInt(numbers[1]);
+            
+            if (minBudget && rfqMax < parseInt(minBudget)) return false;
+            if (maxBudget && rfqMin > parseInt(maxBudget)) return false;
+          }
+        }
+      }
+
+      // Required by date filter
+      if (requiredByDate && rfq.required_by) {
+        const rfqDate = new Date(rfq.required_by);
+        const filterDate = new Date(requiredByDate);
+        if (rfqDate > filterDate) return false;
+      }
+
+      return true;
+    });
+  };
+
+  const handleSaveFilter = async () => {
+    if (!user) {
+      toast.error(t('common.loginRequired'));
+      return;
+    }
+
+    if (!filterName.trim()) {
+      toast.error(t('rfq.filter.nameRequired'));
+      return;
+    }
+
+    try {
+      const { error } = await supabase
+        .from('rfq_filter_preferences')
+        .insert({
+          user_id: user.id,
+          filter_name: filterName,
+          categories: selectedCategory === 'all' ? [] : [selectedCategory],
+          locations: selectedLocation === 'all' ? [] : [selectedLocation],
+          min_budget: minBudget ? parseFloat(minBudget) : null,
+          max_budget: maxBudget ? parseFloat(maxBudget) : null,
+          required_by_end: requiredByDate || null,
+          notify_on_match: notifyOnMatch
+        });
+
+      if (error) throw error;
+
+      toast.success(t('rfq.filter.saved'));
+      setSaveFilterOpen(false);
+      setFilterName('');
+    } catch (error) {
+      console.error('Error saving filter:', error);
+      toast.error(t('rfq.filter.error'));
+    }
+  };
+
+  const clearFilters = () => {
+    setSelectedCategory('all');
+    setSelectedLocation('all');
+    setMinBudget('');
+    setMaxBudget('');
+    setRequiredByDate('');
   };
 
   const categories = Array.from(
     new Set([...openRFQs, ...governmentalRFQs].map(rfq => rfq.product_category))
+  );
+
+  const locations = Array.from(
+    new Set([...openRFQs, ...governmentalRFQs]
+      .map(rfq => rfq.delivery_location)
+      .filter(Boolean) as string[])
   );
 
   const RFQCard = ({ rfq }: { rfq: RFQRequest }) => {
@@ -114,8 +214,8 @@ export default function RFQMarketplace() {
                 <Badge variant={rfq.rfq_type === 'governmental' ? 'default' : 'secondary'}>
                   {rfq.rfq_type === 'governmental' ? t('rfq.type.governmental') : t('rfq.type.open')}
                 </Badge>
-                <Badge variant="outline">{t(`category.${rfq.product_category}`)}</Badge>
               </div>
+              <Badge variant="outline" className="mb-2">{t(`category.${rfq.product_category}`)}</Badge>
               <CardDescription className="text-sm text-muted-foreground">
                 {timeAgo}
               </CardDescription>
@@ -202,29 +302,133 @@ export default function RFQMarketplace() {
           </p>
         </div>
 
-        {/* Category Filter */}
-        {categories.length > 0 && (
-          <div className="mb-6 flex items-center gap-2 overflow-x-auto pb-2">
-            <Filter className="h-4 w-4 text-muted-foreground flex-shrink-0" />
-            <Button
-              variant={selectedCategory === 'all' ? 'default' : 'outline'}
-              size="sm"
-              onClick={() => setSelectedCategory('all')}
-            >
-              {t('common.all')}
-            </Button>
-            {categories.map((category) => (
-              <Button
-                key={category}
-                variant={selectedCategory === category ? 'default' : 'outline'}
-                size="sm"
-                onClick={() => setSelectedCategory(category)}
-              >
-                {t(`category.${category}`)}
+        {/* Advanced Filters */}
+        <Card className="mb-6">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Filter className="h-5 w-5" />
+              {t('rfq.filter.title')}
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
+              <div className="space-y-2">
+                <Label>{t('rfq.filter.category')}</Label>
+                <Select value={selectedCategory} onValueChange={setSelectedCategory}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">{t('common.all')}</SelectItem>
+                    {categories.map((category) => (
+                      <SelectItem key={category} value={category}>
+                        {t(`category.${category}`)}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-2">
+                <Label>{t('rfq.filter.location')}</Label>
+                <Select value={selectedLocation} onValueChange={setSelectedLocation}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">{t('common.all')}</SelectItem>
+                    {locations.map((location) => (
+                      <SelectItem key={location} value={location}>
+                        {location}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-2">
+                <Label>{t('rfq.filter.minBudget')}</Label>
+                <Input
+                  type="number"
+                  placeholder="0"
+                  value={minBudget}
+                  onChange={(e) => setMinBudget(e.target.value)}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label>{t('rfq.filter.maxBudget')}</Label>
+                <Input
+                  type="number"
+                  placeholder="0"
+                  value={maxBudget}
+                  onChange={(e) => setMaxBudget(e.target.value)}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label>{t('rfq.filter.requiredBy')}</Label>
+                <Input
+                  type="date"
+                  value={requiredByDate}
+                  onChange={(e) => setRequiredByDate(e.target.value)}
+                />
+              </div>
+            </div>
+
+            <div className="flex gap-2">
+              <Button variant="outline" onClick={clearFilters}>
+                {t('rfq.filter.clear')}
               </Button>
-            ))}
-          </div>
-        )}
+              {user && (
+                <Dialog open={saveFilterOpen} onOpenChange={setSaveFilterOpen}>
+                  <DialogTrigger asChild>
+                    <Button variant="default" className="gap-2">
+                      <Save className="h-4 w-4" />
+                      {t('rfq.filter.save')}
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent>
+                    <DialogHeader>
+                      <DialogTitle>{t('rfq.filter.saveTitle')}</DialogTitle>
+                      <DialogDescription>
+                        {t('rfq.filter.saveDescription')}
+                      </DialogDescription>
+                    </DialogHeader>
+                    <div className="space-y-4">
+                      <div className="space-y-2">
+                        <Label>{t('rfq.filter.filterName')}</Label>
+                        <Input
+                          value={filterName}
+                          onChange={(e) => setFilterName(e.target.value)}
+                          placeholder={t('rfq.filter.filterNamePlaceholder')}
+                        />
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <input
+                          type="checkbox"
+                          id="notify"
+                          checked={notifyOnMatch}
+                          onChange={(e) => setNotifyOnMatch(e.target.checked)}
+                          className="rounded border-gray-300"
+                        />
+                        <Label htmlFor="notify" className="cursor-pointer">
+                          <Bell className="h-4 w-4 inline mr-2" />
+                          {t('rfq.filter.notifyOnMatch')}
+                        </Label>
+                      </div>
+                    </div>
+                    <DialogFooter>
+                      <Button onClick={handleSaveFilter}>
+                        {t('common.save')}
+                      </Button>
+                    </DialogFooter>
+                  </DialogContent>
+                </Dialog>
+              )}
+            </div>
+          </CardContent>
+        </Card>
 
         <Tabs defaultValue="open" className="space-y-6">
           <TabsList className="grid w-full grid-cols-2">

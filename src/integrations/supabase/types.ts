@@ -559,6 +559,54 @@ export type Database = {
         }
         Relationships: []
       }
+      rfq_filter_preferences: {
+        Row: {
+          categories: string[] | null
+          created_at: string
+          filter_name: string
+          id: string
+          locations: string[] | null
+          max_budget: number | null
+          min_budget: number | null
+          notify_on_match: boolean | null
+          required_by_end: string | null
+          required_by_start: string | null
+          rfq_types: string[] | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          categories?: string[] | null
+          created_at?: string
+          filter_name: string
+          id?: string
+          locations?: string[] | null
+          max_budget?: number | null
+          min_budget?: number | null
+          notify_on_match?: boolean | null
+          required_by_end?: string | null
+          required_by_start?: string | null
+          rfq_types?: string[] | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          categories?: string[] | null
+          created_at?: string
+          filter_name?: string
+          id?: string
+          locations?: string[] | null
+          max_budget?: number | null
+          min_budget?: number | null
+          notify_on_match?: boolean | null
+          required_by_end?: string | null
+          required_by_start?: string | null
+          rfq_types?: string[] | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       rfq_requests: {
         Row: {
           budget_range: string | null

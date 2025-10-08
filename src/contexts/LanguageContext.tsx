@@ -196,6 +196,22 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
       'rfq.errorSending': 'Failed to send RFQ request',
       'rfq.sent': 'Sent',
       'rfq.sentSuccess': 'RFQ request sent successfully',
+      'rfq.filter.title': 'Advanced Filters',
+      'rfq.filter.category': 'Category',
+      'rfq.filter.location': 'Location',
+      'rfq.filter.minBudget': 'Min Budget',
+      'rfq.filter.maxBudget': 'Max Budget',
+      'rfq.filter.requiredBy': 'Required By',
+      'rfq.filter.clear': 'Clear Filters',
+      'rfq.filter.save': 'Save Filter',
+      'rfq.filter.saveTitle': 'Save Filter Preference',
+      'rfq.filter.saveDescription': 'Save this filter and get notified when new RFQs match your criteria',
+      'rfq.filter.filterName': 'Filter Name',
+      'rfq.filter.filterNamePlaceholder': 'e.g., Electronics in Damascus',
+      'rfq.filter.notifyOnMatch': 'Notify me when new RFQs match',
+      'rfq.filter.saved': 'Filter preference saved successfully',
+      'rfq.filter.error': 'Failed to save filter preference',
+      'rfq.filter.nameRequired': 'Filter name is required',
       
       // Common
       'common.loading': 'Loading...',
@@ -207,6 +223,7 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
       'common.cancel': 'Cancel',
       'common.creating': 'Creating...',
       'common.loginRequired': 'Please login to continue',
+      'common.save': 'Save',
       
       // Messaging
       'messages.title': 'Messages',
@@ -444,6 +461,22 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
       'rfq.errorSending': 'فشل في إرسال طلب عرض السعر',
       'rfq.sent': 'تم الإرسال',
       'rfq.sentSuccess': 'تم إرسال طلب عرض السعر بنجاح',
+      'rfq.filter.title': 'مرشحات متقدمة',
+      'rfq.filter.category': 'الفئة',
+      'rfq.filter.location': 'الموقع',
+      'rfq.filter.minBudget': 'الحد الأدنى للميزانية',
+      'rfq.filter.maxBudget': 'الحد الأقصى للميزانية',
+      'rfq.filter.requiredBy': 'مطلوب بتاريخ',
+      'rfq.filter.clear': 'مسح المرشحات',
+      'rfq.filter.save': 'حفظ المرشح',
+      'rfq.filter.saveTitle': 'حفظ تفضيل المرشح',
+      'rfq.filter.saveDescription': 'احفظ هذا المرشح واحصل على إشعارات عندما تتطابق طلبات تسعير جديدة مع معاييرك',
+      'rfq.filter.filterName': 'اسم المرشح',
+      'rfq.filter.filterNamePlaceholder': 'مثال: إلكترونيات في دمشق',
+      'rfq.filter.notifyOnMatch': 'أعلمني عند وجود طلبات تسعير جديدة متطابقة',
+      'rfq.filter.saved': 'تم حفظ تفضيل المرشح بنجاح',
+      'rfq.filter.error': 'فشل في حفظ تفضيل المرشح',
+      'rfq.filter.nameRequired': 'اسم المرشح مطلوب',
       
       // Common
       'common.loading': 'جاري التحميل...',
@@ -455,6 +488,7 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
       'common.cancel': 'إلغاء',
       'common.creating': 'جاري الإنشاء...',
       'common.loginRequired': 'يرجى تسجيل الدخول للمتابعة',
+      'common.save': 'حفظ',
       
       // Messaging
       'messages.title': 'الرسائل',

@@ -209,12 +209,12 @@ const Index: React.FC = () => {
                         : t('rfq.type.open')}
                     </Badge>
                   </div>
-                  <CardDescription>{rfq.product_category}</CardDescription>
+                  <CardDescription>{t(`category.${rfq.product_category}`)}</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-2">
                   <div className="flex justify-between text-sm">
                     <span className="text-muted-foreground">{t('rfq.quantity')}:</span>
-                    <span className="font-medium">{rfq.quantity} {rfq.unit}</span>
+                    <span className="font-medium">{rfq.quantity} {rfq.unit || ''}</span>
                   </div>
                   {rfq.budget_range && (
                     <div className="flex justify-between text-sm">
