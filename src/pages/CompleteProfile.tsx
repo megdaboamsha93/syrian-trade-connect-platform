@@ -20,6 +20,11 @@ export default function CompleteProfile() {
   const [fullName, setFullName] = useState('');
   const [phone, setPhone] = useState('');
   const [location, setLocation] = useState('');
+  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
+  const [selectedIndustries, setSelectedIndustries] = useState<string[]>([]);
+
+  const categories = ['electronics', 'textiles', 'food', 'machinery', 'chemicals'];
+  const industries = ['manufacturing', 'agriculture', 'textiles', 'materials', 'services'];
 
   useEffect(() => {
     if (!user) {
@@ -56,7 +61,7 @@ export default function CompleteProfile() {
     if (!fullName.trim() || !phone.trim() || !location.trim()) {
       toast({
         title: language === 'ar' ? 'خطأ' : 'Error',
-        description: language === 'ar' ? 'يرجى ملء جميع الحقول' : 'Please fill all fields',
+        description: language === 'ar' ? 'يرجى ملء جميع الحقول' : 'Please fill all required fields',
         variant: 'destructive',
       });
       return;
@@ -65,7 +70,8 @@ export default function CompleteProfile() {
     setLoading(true);
 
     try {
-      const { error } = await supabase
+      // Update profile
+      const { error: profileError } = await supabase
         .from('profiles')
         .update({
           full_name: fullName.trim(),
@@ -75,7 +81,20 @@ export default function CompleteProfile() {
         })
         .eq('id', user?.id);
 
-      if (error) throw error;
+      if (profileError) throw profileError;
+
+      // Save interests if any selected
+      if (selectedCategories.length > 0 || selectedIndustries.length > 0) {
+        const { error: interestsError } = await supabase
+          .from('user_interests')
+          .upsert({
+            user_id: user?.id,
+            categories: selectedCategories,
+            industries: selectedIndustries,
+          }, { onConflict: 'user_id' });
+
+        if (interestsError) throw interestsError;
+      }
 
       toast({
         title: language === 'ar' ? 'تم التحديث' : 'Success',
@@ -92,6 +111,22 @@ export default function CompleteProfile() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const toggleCategory = (category: string) => {
+    setSelectedCategories(prev =>
+      prev.includes(category)
+        ? prev.filter(c => c !== category)
+        : [...prev, category]
+    );
+  };
+
+  const toggleIndustry = (industry: string) => {
+    setSelectedIndustries(prev =>
+      prev.includes(industry)
+        ? prev.filter(i => i !== industry)
+        : [...prev, industry]
+    );
   };
 
   return (
@@ -150,6 +185,44 @@ export default function CompleteProfile() {
                 required
                 dir={language === 'ar' ? 'rtl' : 'ltr'}
               />
+            </div>
+
+            <div className="space-y-2">
+              <Label>
+                {language === 'ar' ? 'الفئات المهتمة بها (اختياري)' : 'Interested Categories (Optional)'}
+              </Label>
+              <div className="flex flex-wrap gap-2">
+                {categories.map(cat => (
+                  <Button
+                    key={cat}
+                    type="button"
+                    variant={selectedCategories.includes(cat) ? 'default' : 'outline'}
+                    size="sm"
+                    onClick={() => toggleCategory(cat)}
+                  >
+                    {cat}
+                  </Button>
+                ))}
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label>
+                {language === 'ar' ? 'الصناعات المهتمة بها (اختياري)' : 'Interested Industries (Optional)'}
+              </Label>
+              <div className="flex flex-wrap gap-2">
+                {industries.map(ind => (
+                  <Button
+                    key={ind}
+                    type="button"
+                    variant={selectedIndustries.includes(ind) ? 'default' : 'outline'}
+                    size="sm"
+                    onClick={() => toggleIndustry(ind)}
+                  >
+                    {t(`industry.${ind}`)}
+                  </Button>
+                ))}
+              </div>
             </div>
 
             <Button type="submit" className="w-full" disabled={loading}>

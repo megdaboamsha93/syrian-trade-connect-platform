@@ -12,10 +12,11 @@ import {
   TabsList,
   TabsTrigger,
 } from "@/components/ui/tabs";
-import { CheckCircle, Mail, Phone, ChevronLeft, MessageSquare, Globe, Calendar, Users } from 'lucide-react';
+import { CheckCircle, Mail, Phone, ChevronLeft, MessageSquare, Globe, Calendar, Users, Star } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import type { Tables } from '@/integrations/supabase/types';
+import ReviewSection from '@/components/ReviewSection';
 
 type Business = Tables<'businesses'>;
 type Product = Tables<'business_products'>;
@@ -187,11 +188,30 @@ const BusinessDetail: React.FC = () => {
               <TabsList className="border-b w-full justify-start rounded-none px-6 pt-3">
                 <TabsTrigger value="about">{t('business.about')}</TabsTrigger>
                 <TabsTrigger value="products">{t('business.products')}</TabsTrigger>
+                <TabsTrigger value="reviews">
+                  {language === 'ar' ? 'التقييمات' : 'Reviews'}
+                  {business.review_count ? ` (${business.review_count})` : ''}
+                </TabsTrigger>
               </TabsList>
               <TabsContent value="about" className="p-6">
                 <div>
                   <h2 className="font-medium text-lg mb-3">{t('business.about')}</h2>
                   <p className="text-muted-foreground whitespace-pre-wrap">{description}</p>
+                  
+                  {/* Rating Display */}
+                  {business.review_count > 0 && (
+                    <div className="mt-6 pt-6 border-t">
+                      <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-1">
+                          <Star className="h-5 w-5 fill-yellow-400 text-yellow-400" />
+                          <span className="text-2xl font-bold">{business.average_rating?.toFixed(1)}</span>
+                        </div>
+                        <span className="text-muted-foreground">
+                          ({business.review_count} {business.review_count === 1 ? 'review' : 'reviews'})
+                        </span>
+                      </div>
+                    </div>
+                  )}
                 </div>
               </TabsContent>
               <TabsContent value="products" className="p-6">
@@ -249,6 +269,9 @@ const BusinessDetail: React.FC = () => {
                     })}
                   </div>
                 )}
+              </TabsContent>
+              <TabsContent value="reviews" className="p-6">
+                <ReviewSection businessId={id!} businessOwnerId={business.owner_id} />
               </TabsContent>
             </Tabs>
           </div>

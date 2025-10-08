@@ -70,6 +70,44 @@ export type Database = {
           },
         ]
       }
+      business_reviews: {
+        Row: {
+          business_id: string
+          comment: string | null
+          created_at: string
+          id: string
+          rating: number
+          reviewer_id: string
+          updated_at: string
+        }
+        Insert: {
+          business_id: string
+          comment?: string | null
+          created_at?: string
+          id?: string
+          rating: number
+          reviewer_id: string
+          updated_at?: string
+        }
+        Update: {
+          business_id?: string
+          comment?: string | null
+          created_at?: string
+          id?: string
+          rating?: number
+          reviewer_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "business_reviews_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       business_views: {
         Row: {
           business_id: string
@@ -107,6 +145,7 @@ export type Database = {
       }
       businesses: {
         Row: {
+          average_rating: number | null
           business_type: Database["public"]["Enums"]["business_type"]
           contact_email: string
           contact_phone: string | null
@@ -124,10 +163,12 @@ export type Database = {
           name_ar: string
           name_en: string
           owner_id: string
+          review_count: number | null
           updated_at: string
           website_url: string | null
         }
         Insert: {
+          average_rating?: number | null
           business_type: Database["public"]["Enums"]["business_type"]
           contact_email: string
           contact_phone?: string | null
@@ -145,10 +186,12 @@ export type Database = {
           name_ar: string
           name_en: string
           owner_id: string
+          review_count?: number | null
           updated_at?: string
           website_url?: string | null
         }
         Update: {
+          average_rating?: number | null
           business_type?: Database["public"]["Enums"]["business_type"]
           contact_email?: string
           contact_phone?: string | null
@@ -166,6 +209,7 @@ export type Database = {
           name_ar?: string
           name_en?: string
           owner_id?: string
+          review_count?: number | null
           updated_at?: string
           website_url?: string | null
         }

@@ -49,9 +49,11 @@ const Browse: React.FC = () => {
     const fetchBusinesses = async () => {
       try {
         setLoading(true);
+        // Only show verified businesses or example businesses
         const { data, error } = await supabase
           .from('businesses')
           .select('*')
+          .or('is_verified.eq.true,is_example.eq.true')
           .order('created_at', { ascending: false });
 
         if (error) throw error;

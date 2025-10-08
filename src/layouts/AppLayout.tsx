@@ -2,7 +2,7 @@ import { SidebarProvider, SidebarTrigger, SidebarInset } from '@/components/ui/s
 import { AppSidebar } from '@/components/AppSidebar';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Bell, MessageSquare, User, LogOut, Globe, Settings } from 'lucide-react';
+import { Bell, MessageSquare, User, LogOut, Globe } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { useLanguage } from '@/contexts/LanguageContext';
@@ -15,9 +15,8 @@ import {
   DropdownMenuSeparator,
 } from '@/components/ui/dropdown-menu';
 import { NotificationBell } from '@/components/NotificationBell';
-import { NotificationPreferences } from '@/components/NotificationPreferences';
-import { InterestsManager } from '@/components/InterestsManager';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { supabase } from '@/integrations/supabase/client';
 
 interface AppLayoutProps {
   children: React.ReactNode;
@@ -28,8 +27,6 @@ export function AppLayout({ children }: AppLayoutProps) {
   const { language, setLanguage, dir, t } = useLanguage();
   const unreadCount = useUnreadMessages();
   const location = useLocation();
-  const [showPreferences, setShowPreferences] = useState(false);
-  const [showInterests, setShowInterests] = useState(false);
   
   // Hide sidebar on auth pages
   const authPages = ['/login', '/register', '/forgot-password', '/reset-password', '/verify-email'];
@@ -102,23 +99,19 @@ export function AppLayout({ children }: AppLayoutProps) {
                       </div>
                       <DropdownMenuSeparator />
                       <DropdownMenuItem asChild>
-                        <Link to="/complete-profile" className="cursor-pointer">
-                          <User className="h-4 w-4 mr-2" />
-                          Profile Settings
+                        <Link to="/settings" className="cursor-pointer">
+                          {language === 'ar' ? 'الإعدادات' : 'Settings'}
                         </Link>
                       </DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => setShowPreferences(true)} className="cursor-pointer">
-                        <Bell className="h-4 w-4 mr-2" />
-                        {language === 'ar' ? 'تفضيلات الإشعارات' : 'Notification Preferences'}
-                      </DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => setShowInterests(true)} className="cursor-pointer">
-                        <Settings className="h-4 w-4 mr-2" />
-                        {language === 'ar' ? 'إدارة الاهتمامات' : 'Manage Interests'}
+                      <DropdownMenuItem asChild>
+                        <Link to="/my-business" className="cursor-pointer">
+                          {language === 'ar' ? 'إدارة الأعمال' : 'My Businesses'}
+                        </Link>
                       </DropdownMenuItem>
                       <DropdownMenuSeparator />
                       <DropdownMenuItem onClick={() => signOut()} className="cursor-pointer text-red-600">
                         <LogOut className="h-4 w-4 mr-2" />
-                        Logout
+                        {language === 'ar' ? 'تسجيل الخروج' : 'Logout'}
                       </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
@@ -165,16 +158,6 @@ export function AppLayout({ children }: AppLayoutProps) {
         </main>
       </SidebarInset>
       </div>
-      
-      {/* Notification Modals */}
-      <NotificationPreferences 
-        open={showPreferences} 
-        onOpenChange={setShowPreferences} 
-      />
-      <InterestsManager 
-        open={showInterests} 
-        onOpenChange={setShowInterests} 
-      />
     </SidebarProvider>
   );
 }

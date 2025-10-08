@@ -22,6 +22,7 @@ import CompleteProfile from "./pages/CompleteProfile";
 import RegisterBusiness from "./pages/RegisterBusiness";
 import MyBusiness from "./pages/MyBusiness";
 import Analytics from "./pages/Analytics";
+import Settings from "./pages/Settings";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -51,6 +52,7 @@ const App = () => (
                 <Route path="/register-business" element={<ProtectedRoute><RegisterBusiness /></ProtectedRoute>} />
                 <Route path="/my-business" element={<ProtectedRoute><MyBusiness /></ProtectedRoute>} />
                 <Route path="/analytics" element={<ProtectedRoute><Analytics /></ProtectedRoute>} />
+                <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </AppLayout>
