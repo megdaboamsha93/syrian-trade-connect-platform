@@ -23,6 +23,7 @@ import RegisterBusiness from "./pages/RegisterBusiness";
 import MyBusiness from "./pages/MyBusiness";
 import Analytics from "./pages/Analytics";
 import Settings from "./pages/Settings";
+import RFQBoard from './pages/RFQBoard';
 import RFQs from './pages/RFQs';
 import NotFound from "./pages/NotFound";
 
@@ -55,6 +56,7 @@ const App = () => (
                 <Route path="/analytics" element={<ProtectedRoute><Analytics /></ProtectedRoute>} />
                 <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
                 <Route path="/rfqs" element={<ProtectedRoute><RFQs /></ProtectedRoute>} />
+                <Route path="/rfq-board" element={<RFQBoard />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </AppLayout>

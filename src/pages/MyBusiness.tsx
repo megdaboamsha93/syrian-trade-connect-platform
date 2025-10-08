@@ -49,6 +49,7 @@ export default function MyBusiness() {
   const [loading, setLoading] = useState(true);
   const [businesses, setBusinesses] = useState<Business[]>([]);
   const [selectedBusiness, setSelectedBusiness] = useState<Business | null>(null);
+  const [showVerificationPrompt, setShowVerificationPrompt] = useState(false);
 
   useEffect(() => {
     if (!user) {
@@ -56,6 +57,15 @@ export default function MyBusiness() {
       return;
     }
     loadBusinesses();
+    
+    // Check if we should show verification prompt (from URL param)
+    const params = new URLSearchParams(window.location.search);
+    const verifyId = params.get('verify');
+    if (verifyId) {
+      setShowVerificationPrompt(true);
+      // Clean URL
+      window.history.replaceState({}, '', '/my-business');
+    }
   }, [user, navigate]);
 
   const loadBusinesses = async () => {

@@ -13,6 +13,9 @@ import { useToast } from '@/hooks/use-toast';
 import { useFileUpload } from '@/hooks/useFileUpload';
 import { Loader2, ArrowLeft, ArrowRight, Check, Upload, X } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
+import { PhoneInput } from '@/components/ui/phone-input';
+import { registerBusinessSchema } from '@/lib/validation';
+import { z } from 'zod';
 
 const BUSINESS_TYPES = ['importer', 'exporter', 'both'] as const;
 const INDUSTRIES = [
@@ -73,47 +76,50 @@ export default function RegisterBusiness() {
   };
 
   const validateStep = (currentStep: number): boolean => {
-    switch (currentStep) {
-      case 1:
-        if (!formData.nameEn.trim() || !formData.nameAr.trim()) {
-          toast({
-            title: language === 'ar' ? 'خطأ' : 'Error',
-            description: language === 'ar' ? 'يرجى إدخال اسم العمل بالعربي والإنجليزي' : 'Please enter business name in both English and Arabic',
-            variant: 'destructive',
+    try {
+      switch (currentStep) {
+        case 1:
+          registerBusinessSchema.pick({ 
+            nameEn: true, 
+            nameAr: true, 
+            businessType: true 
+          }).parse({
+            nameEn: formData.nameEn.trim(),
+            nameAr: formData.nameAr.trim(),
+            businessType: formData.businessType,
           });
-          return false;
-        }
-        if (!formData.businessType) {
-          toast({
-            title: language === 'ar' ? 'خطأ' : 'Error',
-            description: language === 'ar' ? 'يرجى اختيار نوع العمل' : 'Please select business type',
-            variant: 'destructive',
+          return true;
+        case 2:
+          registerBusinessSchema.pick({ 
+            industry: true, 
+            location: true 
+          }).parse({
+            industry: formData.industry,
+            location: formData.location,
           });
-          return false;
-        }
-        return true;
-      case 2:
-        if (!formData.industry || !formData.location) {
-          toast({
-            title: language === 'ar' ? 'خطأ' : 'Error',
-            description: language === 'ar' ? 'يرجى ملء جميع الحقول المطلوبة' : 'Please fill all required fields',
-            variant: 'destructive',
+          return true;
+        case 3:
+          registerBusinessSchema.pick({ 
+            contactEmail: true, 
+            contactPhone: true 
+          }).parse({
+            contactEmail: formData.contactEmail.trim(),
+            contactPhone: formData.contactPhone.trim(),
           });
-          return false;
-        }
-        return true;
-      case 3:
-        if (!formData.contactEmail.trim() || !formData.contactPhone.trim()) {
-          toast({
-            title: language === 'ar' ? 'خطأ' : 'Error',
-            description: language === 'ar' ? 'يرجى إدخال البريد الإلكتروني ورقم الهاتف' : 'Please enter email and phone number',
-            variant: 'destructive',
-          });
-          return false;
-        }
-        return true;
-      default:
-        return true;
+          return true;
+        default:
+          return true;
+      }
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        const firstError = error.errors[0];
+        toast({
+          title: language === 'ar' ? 'خطأ في الإدخال' : 'Validation Error',
+          description: firstError.message,
+          variant: 'destructive',
+        });
+      }
+      return false;
     }
   };
 
@@ -190,7 +196,8 @@ export default function RegisterBusiness() {
           : 'Your business has been registered. It will be reviewed soon.',
       });
 
-      navigate('/browse');
+      // Navigate to verification flow
+      navigate(`/my-business?verify=${data.id}`);
     } catch (error: any) {
       console.error('❌ RegisterBusiness: Submission failed:', error);
       
@@ -453,14 +460,10 @@ export default function RegisterBusiness() {
 
                   <div className="space-y-2">
                     <Label htmlFor="contactPhone">{language === 'ar' ? 'رقم الهاتف' : 'Contact Phone'} *</Label>
-                    <Input
-                      id="contactPhone"
-                      type="tel"
+                    <PhoneInput
                       value={formData.contactPhone}
-                      onChange={(e) => updateFormData('contactPhone', e.target.value)}
+                      onChange={(value) => updateFormData('contactPhone', value)}
                       placeholder="+963 XX XXX XXXX"
-                      required
-                      dir="ltr"
                     />
                   </div>
 

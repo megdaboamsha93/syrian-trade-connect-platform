@@ -70,8 +70,8 @@ const Analytics: React.FC = () => {
 
         if (!businesses || businesses.length === 0) {
           toast({
-            title: 'No Business Found',
-            description: 'Please register a business first',
+            title: t('analytics.noBusinessFound'),
+            description: t('analytics.pleaseRegisterFirst'),
             variant: 'destructive',
           });
           navigate('/register-business');
@@ -145,8 +145,8 @@ const Analytics: React.FC = () => {
     document.body.removeChild(link);
     
     toast({
-      title: 'Success',
-      description: 'Analytics exported successfully',
+      title: t('analytics.exportSuccess'),
+      description: t('analytics.exportSuccess'),
     });
   };
 
@@ -226,7 +226,7 @@ const Analytics: React.FC = () => {
       <div className="container mx-auto px-6 py-8 flex items-center justify-center min-h-[60vh]">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
-          <p className="mt-4 text-muted-foreground">Loading analytics...</p>
+          <p className="mt-4 text-muted-foreground">{t('analytics.loading')}</p>
         </div>
       </div>
     );
@@ -236,14 +236,14 @@ const Analytics: React.FC = () => {
     <div className="container mx-auto px-6 py-8">
       <div className="flex items-center justify-between mb-6 flex-wrap gap-4">
         <div>
-          <h1 className="text-2xl md:text-3xl font-bold">Business Analytics</h1>
-          <p className="text-muted-foreground">Track your business performance</p>
+          <h1 className="text-2xl md:text-3xl font-bold">{t('analytics.title')}</h1>
+          <p className="text-muted-foreground">{t('analytics.trackPerformance')}</p>
         </div>
         
         <div className="flex items-center gap-2">
           <Button variant="outline" onClick={exportToCSV} className="gap-2">
             <Download className="h-4 w-4" />
-            Export CSV
+            {t('analytics.exportCSV')}
           </Button>
           <Tabs value={timeRange} onValueChange={(v) => setTimeRange(v as any)} className="w-auto">
             <TabsList>
@@ -258,28 +258,28 @@ const Analytics: React.FC = () => {
       {/* Overview Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
         <AnalyticsCard
-          title="Profile Views"
+          title={t('analytics.profileViews')}
           value={totalViews}
           icon={Eye}
-          description="Total profile visits"
+          description={t('analytics.totalVisits')}
         />
         <AnalyticsCard
-          title="Conversations"
+          title={t('analytics.conversations')}
           value={messageStats.total_conversations}
           icon={MessageSquare}
-          description={`${messageStats.unread_messages} unread messages`}
+          description={`${messageStats.unread_messages} ${t('analytics.unreadMessages')}`}
         />
         <AnalyticsCard
-          title="Total Messages"
+          title={t('analytics.totalMessages')}
           value={messageStats.total_messages}
           icon={MessageSquare}
-          description="All messages received"
+          description={t('analytics.allMessagesReceived')}
         />
         <AnalyticsCard
-          title="Products"
+          title={t('analytics.products')}
           value={productEngagement.length}
           icon={Package}
-          description="Active products"
+          description={t('analytics.activeProducts')}
         />
       </div>
 

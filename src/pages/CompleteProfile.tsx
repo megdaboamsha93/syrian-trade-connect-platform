@@ -9,6 +9,9 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2 } from 'lucide-react';
+import { PhoneInput } from '@/components/ui/phone-input';
+import { completeProfileSchema } from '@/lib/validation';
+import { z } from 'zod';
 
 export default function CompleteProfile() {
   const navigate = useNavigate();
@@ -58,13 +61,23 @@ export default function CompleteProfile() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!fullName.trim() || !phone.trim() || !location.trim()) {
-      toast({
-        title: language === 'ar' ? 'خطأ' : 'Error',
-        description: language === 'ar' ? 'يرجى ملء جميع الحقول' : 'Please fill all required fields',
-        variant: 'destructive',
+    // Validate
+    try {
+      completeProfileSchema.parse({
+        fullName: fullName.trim(),
+        phone: phone.trim(),
+        location: location.trim(),
       });
-      return;
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        const firstError = error.errors[0];
+        toast({
+          title: language === 'ar' ? 'خطأ في الإدخال' : 'Validation Error',
+          description: firstError.message,
+          variant: 'destructive',
+        });
+        return;
+      }
     }
 
     setLoading(true);
@@ -162,14 +175,10 @@ export default function CompleteProfile() {
               <Label htmlFor="phone">
                 {language === 'ar' ? 'رقم الهاتف' : 'Phone Number'}
               </Label>
-              <Input
-                id="phone"
-                type="tel"
+              <PhoneInput
                 value={phone}
-                onChange={(e) => setPhone(e.target.value)}
+                onChange={(value) => setPhone(value)}
                 placeholder={language === 'ar' ? 'أدخل رقم هاتفك' : 'Enter your phone number'}
-                required
-                dir="ltr"
               />
             </div>
 
