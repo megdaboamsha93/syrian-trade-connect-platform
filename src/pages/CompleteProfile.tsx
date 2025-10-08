@@ -25,6 +25,7 @@ export default function CompleteProfile() {
   const [location, setLocation] = useState('');
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [selectedIndustries, setSelectedIndustries] = useState<string[]>([]);
+  const [isGovernment, setIsGovernment] = useState(false);
 
   const categories = ['electronics', 'textiles', 'food', 'machinery', 'chemicals'];
   const industries = ['manufacturing', 'agriculture', 'textiles', 'materials', 'services'];
@@ -91,6 +92,7 @@ export default function CompleteProfile() {
           phone: phone.trim(),
           location: location.trim(),
           preferred_language: language,
+          is_government_account: isGovernment,
         })
         .eq('id', user?.id);
 
@@ -231,6 +233,33 @@ export default function CompleteProfile() {
                     {t(`industry.${ind}`)}
                   </Button>
                 ))}
+              </div>
+            </div>
+
+            <div className="space-y-3 pt-2 border-t">
+              <Label>
+                {language === 'ar' ? 'نوع الحساب' : 'Account Type'}
+              </Label>
+              <div className="flex items-start space-x-3">
+                <input
+                  type="checkbox"
+                  id="isGovernment"
+                  checked={isGovernment}
+                  onChange={(e) => setIsGovernment(e.target.checked)}
+                  className="mt-1 h-4 w-4 rounded border-gray-300"
+                />
+                <div className="flex-1">
+                  <Label htmlFor="isGovernment" className="font-normal cursor-pointer">
+                    {language === 'ar' 
+                      ? 'حساب حكومي أو مرتبط بالحكومة' 
+                      : 'Government or Government-associated Account'}
+                  </Label>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    {language === 'ar'
+                      ? 'سيتيح لك هذا إنشاء طلبات التسعير الحكومية بعد التحقق'
+                      : 'This will allow you to create governmental RFQs after verification'}
+                  </p>
+                </div>
               </div>
             </div>
 

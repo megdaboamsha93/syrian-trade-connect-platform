@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { supabase } from '@/integrations/supabase/client';
@@ -41,6 +41,7 @@ export function OpenRFQDialog() {
   const { language, t } = useLanguage();
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [isGovAccount, setIsGovAccount] = useState(false);
   const [formData, setFormData] = useState({
     rfq_type: 'open' as 'open' | 'governmental',
     product_name: '',
@@ -52,6 +53,24 @@ export function OpenRFQDialog() {
     required_by: '',
     description: '',
   });
+
+  useEffect(() => {
+    const checkGovAccount = async () => {
+      if (!user) return;
+      
+      const { data } = await supabase
+        .from('profiles')
+        .select('is_government_account')
+        .eq('id', user.id)
+        .single();
+      
+      if (data) {
+        setIsGovAccount(data.is_government_account || false);
+      }
+    };
+    
+    checkGovAccount();
+  }, [user]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -119,28 +138,30 @@ export function OpenRFQDialog() {
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="space-y-2">
-            <Label>{t('rfq.type.label')}</Label>
-            <RadioGroup
-              value={formData.rfq_type}
-              onValueChange={(value: 'open' | 'governmental') =>
-                setFormData({ ...formData, rfq_type: value })
-              }
-            >
-              <div className="flex items-center space-x-2">
-                <RadioGroupItem value="open" id="open" />
-                <Label htmlFor="open" className="font-normal cursor-pointer">
-                  {t('rfq.type.open')} - {t('rfq.type.openDesc')}
-                </Label>
-              </div>
-              <div className="flex items-center space-x-2">
-                <RadioGroupItem value="governmental" id="governmental" />
-                <Label htmlFor="governmental" className="font-normal cursor-pointer">
-                  {t('rfq.type.governmental')} - {t('rfq.type.govDesc')}
-                </Label>
-              </div>
-            </RadioGroup>
-          </div>
+          {isGovAccount && (
+            <div className="space-y-2">
+              <Label>{t('rfq.type.label')}</Label>
+              <RadioGroup
+                value={formData.rfq_type}
+                onValueChange={(value: 'open' | 'governmental') =>
+                  setFormData({ ...formData, rfq_type: value })
+                }
+              >
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="open" id="open" />
+                  <Label htmlFor="open" className="font-normal cursor-pointer">
+                    {t('rfq.type.open')} - {t('rfq.type.openDesc')}
+                  </Label>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="governmental" id="governmental" />
+                  <Label htmlFor="governmental" className="font-normal cursor-pointer">
+                    {t('rfq.type.governmental')} - {t('rfq.type.govDesc')}
+                  </Label>
+                </div>
+              </RadioGroup>
+            </div>
+          )}
 
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">

@@ -110,6 +110,11 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
       'rfq.noOpenRFQs': 'No open RFQs at the moment',
       'rfq.noGovRFQs': 'No governmental RFQs at the moment',
       'rfq.create': 'Create',
+      'rfq.category': 'Product Category',
+      'rfq.liveMarketplace': 'Live RFQ Marketplace',
+      'rfq.liveMarketplaceDesc': 'Real-time buying requests from businesses across Syria',
+      'rfq.viewAll': 'View All RFQs',
+      'rfq.viewDetails': 'View Details',
       
       // Browse
       'browse.title': 'Browse Businesses',
@@ -353,6 +358,11 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
       'rfq.noOpenRFQs': 'لا توجد طلبات تسعير مفتوحة في الوقت الحالي',
       'rfq.noGovRFQs': 'لا توجد طلبات تسعير حكومية في الوقت الحالي',
       'rfq.create': 'إنشاء',
+      'rfq.category': 'فئة المنتج',
+      'rfq.liveMarketplace': 'سوق طلبات التسعير المباشر',
+      'rfq.liveMarketplaceDesc': 'طلبات الشراء الفورية من الشركات في جميع أنحاء سوريا',
+      'rfq.viewAll': 'عرض جميع الطلبات',
+      'rfq.viewDetails': 'عرض التفاصيل',
       
       // Browse
       'browse.title': 'تصفح الشركات',

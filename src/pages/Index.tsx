@@ -7,13 +7,17 @@ import { ChevronRight, ChevronLeft, Building2, Filter, MessageCircle, ClipboardL
 import { supabase } from '@/integrations/supabase/client';
 import type { Database } from '@/integrations/supabase/types';
 import BusinessCard from '@/components/BusinessCard';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
 
 type Business = Database['public']['Tables']['businesses']['Row'];
+type RFQ = Database['public']['Tables']['rfq_requests']['Row'];
 
 const Index: React.FC = () => {
-  const { t, dir } = useLanguage();
+  const { t, dir, language } = useLanguage();
   const { user } = useAuth();
   const [featuredBusinesses, setFeaturedBusinesses] = useState<Business[]>([]);
+  const [liveRFQs, setLiveRFQs] = useState<RFQ[]>([]);
   
   useEffect(() => {
     const fetchFeaturedBusinesses = async () => {
@@ -32,6 +36,45 @@ const Index: React.FC = () => {
     };
 
     fetchFeaturedBusinesses();
+
+    const fetchLiveRFQs = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('rfq_requests')
+          .select('*')
+          .eq('is_public', true)
+          .order('created_at', { ascending: false })
+          .limit(6);
+
+        if (error) throw error;
+        setLiveRFQs(data || []);
+      } catch (error) {
+        console.error('Error fetching live RFQs:', error);
+      }
+    };
+
+    fetchLiveRFQs();
+
+    // Subscribe to realtime updates for public RFQs
+    const channel = supabase
+      .channel('public-rfqs')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'rfq_requests',
+          filter: 'is_public=eq.true',
+        },
+        () => {
+          fetchLiveRFQs();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, []);
   
   return (
@@ -131,6 +174,68 @@ const Index: React.FC = () => {
               <h3 className="text-xl font-semibold mb-2">{t('home.feature4.title')}</h3>
               <p className="text-muted-foreground">{t('home.feature4.desc')}</p>
             </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Live Public RFQs */}
+      <section className="py-16 bg-muted/30">
+        <div className="container mx-auto px-6">
+          <div className="flex justify-between items-center mb-8">
+            <div>
+              <h2 className="text-2xl md:text-3xl font-bold mb-2">
+                {t('rfq.liveMarketplace')}
+              </h2>
+              <p className="text-muted-foreground">
+                {t('rfq.liveMarketplaceDesc')}
+              </p>
+            </div>
+            <Button asChild variant="outline">
+              <Link to="/rfq-marketplace">
+                {t('rfq.viewAll')}
+                <ChevronRight className="ml-2 h-4 w-4" />
+              </Link>
+            </Button>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {liveRFQs.map((rfq) => (
+              <Card key={rfq.id} className="hover:shadow-lg transition-shadow">
+                <CardHeader>
+                  <div className="flex justify-between items-start">
+                    <CardTitle className="text-lg">{rfq.product_name}</CardTitle>
+                    <Badge variant={rfq.rfq_type === 'governmental' ? 'default' : 'secondary'}>
+                      {rfq.rfq_type === 'governmental' 
+                        ? t('rfq.type.governmental') 
+                        : t('rfq.type.open')}
+                    </Badge>
+                  </div>
+                  <CardDescription>{rfq.product_category}</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-2">
+                  <div className="flex justify-between text-sm">
+                    <span className="text-muted-foreground">{t('rfq.quantity')}:</span>
+                    <span className="font-medium">{rfq.quantity} {rfq.unit}</span>
+                  </div>
+                  {rfq.budget_range && (
+                    <div className="flex justify-between text-sm">
+                      <span className="text-muted-foreground">{t('rfq.budgetRange')}:</span>
+                      <span className="font-medium">{rfq.budget_range}</span>
+                    </div>
+                  )}
+                  {rfq.delivery_location && (
+                    <div className="flex justify-between text-sm">
+                      <span className="text-muted-foreground">{t('rfq.deliveryLocation')}:</span>
+                      <span className="font-medium">{rfq.delivery_location}</span>
+                    </div>
+                  )}
+                  <Button asChild className="w-full mt-4" size="sm">
+                    <Link to="/rfq-marketplace">
+                      {t('rfq.viewDetails')}
+                    </Link>
+                  </Button>
+                </CardContent>
+              </Card>
+            ))}
           </div>
         </div>
       </section>

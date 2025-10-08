@@ -119,6 +119,7 @@ export type Database = {
           created_at: string
           delivery_terms: string | null
           id: string
+          is_government_verified: boolean | null
           looking_for: string[] | null
           minimum_order_value: number | null
           payment_terms: string | null
@@ -135,6 +136,7 @@ export type Database = {
           created_at?: string
           delivery_terms?: string | null
           id?: string
+          is_government_verified?: boolean | null
           looking_for?: string[] | null
           minimum_order_value?: number | null
           payment_terms?: string | null
@@ -151,6 +153,7 @@ export type Database = {
           created_at?: string
           delivery_terms?: string | null
           id?: string
+          is_government_verified?: boolean | null
           looking_for?: string[] | null
           minimum_order_value?: number | null
           payment_terms?: string | null
@@ -526,6 +529,7 @@ export type Database = {
           created_at: string
           full_name: string
           id: string
+          is_government_account: boolean | null
           location: string | null
           phone: string | null
           preferred_language: string | null
@@ -536,6 +540,7 @@ export type Database = {
           created_at?: string
           full_name: string
           id: string
+          is_government_account?: boolean | null
           location?: string | null
           phone?: string | null
           preferred_language?: string | null
@@ -546,6 +551,7 @@ export type Database = {
           created_at?: string
           full_name?: string
           id?: string
+          is_government_account?: boolean | null
           location?: string | null
           phone?: string | null
           preferred_language?: string | null
