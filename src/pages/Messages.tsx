@@ -55,7 +55,12 @@ const Messages: React.FC = () => {
   const [sending, setSending] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [lastMessageTime, setLastMessageTime] = useState<number>(0);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  // Rate limiting constants
+  const MESSAGE_RATE_LIMIT = 5; // messages per minute
+  const MESSAGE_RATE_WINDOW = 60000; // 1 minute
 
   // Redirect to login if not authenticated
   useEffect(() => {
@@ -280,14 +285,54 @@ const Messages: React.FC = () => {
     e.preventDefault();
     if (!message.trim() || !selectedConversation || !user || sending) return;
 
+    // Input validation
+    const trimmedMessage = message.trim();
+    
+    if (trimmedMessage.length === 0) {
+      toast({
+        title: language === 'ar' ? 'خطأ' : 'Error',
+        description: language === 'ar' ? 'الرسالة فارغة' : 'Message cannot be empty',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    if (trimmedMessage.length > 2000) {
+      toast({
+        title: language === 'ar' ? 'خطأ' : 'Error',
+        description: language === 'ar' 
+          ? 'الرسالة طويلة جدًا (الحد الأقصى 2000 حرف)' 
+          : 'Message too long (max 2000 characters)',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    // Rate limiting check
+    const now = Date.now();
+    const timeSinceLastMessage = now - lastMessageTime;
+    
+    if (timeSinceLastMessage < MESSAGE_RATE_WINDOW / MESSAGE_RATE_LIMIT) {
+      const waitTime = Math.ceil((MESSAGE_RATE_WINDOW / MESSAGE_RATE_LIMIT - timeSinceLastMessage) / 1000);
+      toast({
+        title: language === 'ar' ? 'إبطئ!' : 'Slow down!',
+        description: language === 'ar' 
+          ? `يرجى الانتظار ${waitTime} ثانية قبل إرسال رسالة أخرى`
+          : `Please wait ${waitTime} seconds before sending another message`,
+        variant: 'destructive',
+      });
+      return;
+    }
+
     setSending(true);
+    setLastMessageTime(now);
     
     const { error } = await supabase
       .from('messages')
       .insert({
         conversation_id: selectedConversation.id,
         sender_id: user.id,
-        content: message.trim(),
+        content: trimmedMessage,
       });
     
     if (error) {
@@ -297,6 +342,8 @@ const Messages: React.FC = () => {
         description: t('messages.failedToSendMessage'),
         variant: 'destructive',
       });
+      // Reset rate limit on error
+      setLastMessageTime(lastMessageTime);
     }
     
     setMessage('');
@@ -709,6 +756,7 @@ const Messages: React.FC = () => {
                     onChange={(e) => setMessage(e.target.value)}
                     className="flex-1"
                     disabled={sending}
+                    maxLength={2000}
                   />
                   <Button type="submit" size="icon" disabled={!message.trim() || sending}>
                     <Send className="h-5 w-5" />

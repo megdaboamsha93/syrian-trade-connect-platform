@@ -6,12 +6,43 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
+// Rate limiting: Track requests per user/IP
+const rateLimitMap = new Map<string, { count: number; resetTime: number }>();
+const RATE_LIMIT = 20; // requests per window
+const RATE_WINDOW = 60000; // 1 minute in milliseconds
+
+function checkRateLimit(identifier: string): boolean {
+  const now = Date.now();
+  const record = rateLimitMap.get(identifier);
+
+  if (!record || now > record.resetTime) {
+    rateLimitMap.set(identifier, { count: 1, resetTime: now + RATE_WINDOW });
+    return true;
+  }
+
+  if (record.count >= RATE_LIMIT) {
+    return false;
+  }
+
+  record.count++;
+  return true;
+}
+
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
+    // Rate limiting check
+    const clientIP = req.headers.get('x-forwarded-for') || req.headers.get('x-real-ip') || 'unknown';
+    if (!checkRateLimit(clientIP)) {
+      return new Response(
+        JSON.stringify({ error: 'Rate limit exceeded. Please try again later.' }),
+        { status: 429, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
     let body;
     try {
       body = await req.json();
@@ -25,9 +56,31 @@ serve(async (req) => {
 
     const { text, targetLang, sourceLang = 'en', context } = body;
 
-    if (!text || !targetLang) {
+    // Enhanced input validation
+    if (!text || typeof text !== 'string' || text.trim().length === 0) {
       return new Response(
-        JSON.stringify({ error: 'Missing required fields: text and targetLang' }),
+        JSON.stringify({ error: 'Text is required and must be a non-empty string' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    if (text.length > 5000) {
+      return new Response(
+        JSON.stringify({ error: 'Text exceeds maximum length of 5000 characters' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    if (!targetLang || !['en', 'ar'].includes(targetLang)) {
+      return new Response(
+        JSON.stringify({ error: 'Invalid target language. Must be "en" or "ar"' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    if (sourceLang && !['en', 'ar'].includes(sourceLang)) {
+      return new Response(
+        JSON.stringify({ error: 'Invalid source language. Must be "en" or "ar"' }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
