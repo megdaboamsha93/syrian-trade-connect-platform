@@ -10,6 +10,7 @@ import { useToast } from '@/hooks/use-toast';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { MessageTranslateButton } from '@/components/MessageTranslateButton';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -680,7 +681,7 @@ const Messages: React.FC = () => {
                                 : `bg-muted ${dir === 'rtl' ? 'rounded-br-sm' : 'rounded-bl-sm'}`
                             }`}
                           >
-                            <p className="text-sm whitespace-pre-wrap break-words">{msg.content}</p>
+                            <MessageTranslateButton messageText={msg.content} />
                           </div>
                           <span className="text-xs text-muted-foreground px-2">
                             {renderMessageTime(msg.created_at)}
