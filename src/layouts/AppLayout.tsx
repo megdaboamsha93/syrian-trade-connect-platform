@@ -15,8 +15,6 @@ import {
   DropdownMenuSeparator,
 } from '@/components/ui/dropdown-menu';
 import { NotificationBell } from '@/components/NotificationBell';
-import { useState, useEffect } from 'react';
-import { supabase } from '@/integrations/supabase/client';
 
 interface AppLayoutProps {
   children: React.ReactNode;
