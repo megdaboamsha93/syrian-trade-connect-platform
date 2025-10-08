@@ -217,7 +217,7 @@ const BusinessDetail: React.FC = () => {
                           <span className="text-2xl font-bold">{business.average_rating?.toFixed(1)}</span>
                         </div>
                         <span className="text-muted-foreground">
-                          ({business.review_count} {business.review_count === 1 ? 'review' : 'reviews'})
+                          ({business.review_count} {business.review_count === 1 ? t('common.review') : t('common.reviews')})
                         </span>
                       </div>
                     </div>
@@ -227,7 +227,7 @@ const BusinessDetail: React.FC = () => {
               <TabsContent value="products" className="p-6">
                 <h2 className="font-medium text-lg mb-3">{t('business.products')}</h2>
                 {products.length === 0 ? (
-                  <p className="text-muted-foreground text-center py-8">No products listed yet.</p>
+                  <p className="text-muted-foreground text-center py-8">{t('common.noProductsYet')}</p>
                 ) : (
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     {products.map(product => {
@@ -271,7 +271,7 @@ const BusinessDetail: React.FC = () => {
                               <Badge variant="secondary" className="text-xs">{product.category}</Badge>
                             )}
                             {product.price_range && (
-                              <p className="text-sm text-muted-foreground mt-2">Price: {product.price_range}</p>
+                              <p className="text-sm text-muted-foreground mt-2">{t('common.price')}: {product.price_range}</p>
                             )}
                           </CardContent>
                         </Card>

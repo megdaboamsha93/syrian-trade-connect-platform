@@ -23,9 +23,20 @@ interface RFQRequest {
   requester_id: string;
 }
 
+const CATEGORY_MAP: Record<string, string> = {
+  'Food & Beverages': 'category.foodBeverages',
+  'Electronics & Technology': 'category.electronics',
+  'Textiles & Clothing': 'category.textiles',
+  'Industrial Equipment': 'category.industrial',
+  'Petrochemicals': 'category.petrochemicals',
+  'Crafts & Handmade': 'category.crafts',
+  'Agriculture': 'category.agriculture',
+  'Other': 'category.other',
+};
+
 export default function RFQBoard() {
   const { user } = useAuth();
-  const { language } = useLanguage();
+  const { language, t } = useLanguage();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [rfqs, setRfqs] = useState<RFQRequest[]>([]);
@@ -40,6 +51,7 @@ export default function RFQBoard() {
     'Industrial Equipment',
     'Petrochemicals',
     'Crafts & Handmade',
+    'Agriculture',
     'Other',
   ];
 
@@ -83,12 +95,10 @@ export default function RFQBoard() {
       {/* Header */}
       <div className="mb-8">
         <h1 className="text-3xl font-bold mb-2">
-          {language === 'ar' ? 'لوحة طلبات الأسعار' : 'RFQ Board'}
+          {t('rfq.boardTitle')}
         </h1>
         <p className="text-muted-foreground">
-          {language === 'ar' 
-            ? 'تصفح طلبات الشراء النشطة وقدم عروض الأسعار الخاصة بك' 
-            : 'Browse active buying requests and submit your quotes'}
+          {t('rfq.boardDescription')}
         </p>
       </div>
 
@@ -100,7 +110,7 @@ export default function RFQBoard() {
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
                 <Input
-                  placeholder={language === 'ar' ? 'البحث عن منتجات...' : 'Search products...'}
+                  placeholder={t('rfq.searchPlaceholder')}
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   className="pl-10"
@@ -110,12 +120,14 @@ export default function RFQBoard() {
             
             <Select value={categoryFilter} onValueChange={setCategoryFilter}>
               <SelectTrigger>
-                <SelectValue placeholder={language === 'ar' ? 'جميع الفئات' : 'All Categories'} />
+                <SelectValue placeholder={t('rfq.allCategories')} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">{language === 'ar' ? 'جميع الفئات' : 'All Categories'}</SelectItem>
+                <SelectItem value="all">{t('rfq.allCategories')}</SelectItem>
                 {categories.map((cat) => (
-                  <SelectItem key={cat} value={cat}>{cat}</SelectItem>
+                  <SelectItem key={cat} value={cat}>
+                    {t(CATEGORY_MAP[cat] || 'category.other')}
+                  </SelectItem>
                 ))}
               </SelectContent>
             </Select>
@@ -128,7 +140,7 @@ export default function RFQBoard() {
                 setLocationFilter('all');
               }}
             >
-              {language === 'ar' ? 'مسح الكل' : 'Clear All'}
+              {t('browse.clearAll')}
             </Button>
           </div>
         </CardContent>
@@ -144,12 +156,10 @@ export default function RFQBoard() {
           <CardContent className="text-center py-12">
             <Package className="h-16 w-16 mx-auto mb-4 text-muted-foreground" />
             <h3 className="text-xl font-semibold mb-2">
-              {language === 'ar' ? 'لا توجد طلبات' : 'No Requests Found'}
+              {t('rfq.noRequests')}
             </h3>
             <p className="text-muted-foreground">
-              {language === 'ar' 
-                ? 'لا توجد طلبات عروض أسعار نشطة في الوقت الحالي' 
-                : 'No active RFQ requests at the moment'}
+              {t('rfq.noRequestsDescription')}
             </p>
           </CardContent>
         </Card>
@@ -161,7 +171,9 @@ export default function RFQBoard() {
                 <div className="flex items-start justify-between">
                   <div className="flex-1">
                     <CardTitle className="text-lg mb-2">{rfq.product_name}</CardTitle>
-                    <Badge variant="secondary">{rfq.product_category}</Badge>
+                    <Badge variant="secondary">
+                      {t(CATEGORY_MAP[rfq.product_category] || 'category.other')}
+                    </Badge>
                   </div>
                 </div>
               </CardHeader>
@@ -203,7 +215,7 @@ export default function RFQBoard() {
                     className="w-full mt-4" 
                     onClick={() => navigate(`/rfqs`)}
                   >
-                    {language === 'ar' ? 'قدم عرض سعر' : 'Submit Quote'}
+                    {t('rfq.submitQuote')}
                   </Button>
                 ) : (
                   <Button 
@@ -211,7 +223,7 @@ export default function RFQBoard() {
                     variant="outline"
                     onClick={() => navigate('/login')}
                   >
-                    {language === 'ar' ? 'سجل دخول للعرض' : 'Login to Quote'}
+                    {t('rfq.loginToQuote')}
                   </Button>
                 )}
               </CardContent>

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { supabase } from '@/integrations/supabase/client';
@@ -16,12 +16,31 @@ interface RFQDialogProps {
   businessName: string;
 }
 
+const CATEGORY_MAP: Record<string, string> = {
+  'Food & Beverages': 'category.foodBeverages',
+  'Electronics & Technology': 'category.electronics',
+  'Textiles & Clothing': 'category.textiles',
+  'Industrial Equipment': 'category.industrial',
+  'Petrochemicals': 'category.petrochemicals',
+  'Crafts & Handmade': 'category.crafts',
+  'Agriculture': 'category.agriculture',
+  'Construction Materials': 'category.construction',
+  'Chemicals': 'category.chemicals',
+  'Machinery': 'category.machinery',
+  'Furniture': 'category.furniture',
+  'Pharmaceuticals': 'category.pharmaceuticals',
+  'Automotive': 'category.automotive',
+  'Energy': 'category.energy',
+  'Other': 'category.other',
+};
+
 export const RFQDialog = ({ businessId, businessName }: RFQDialogProps) => {
   const { user } = useAuth();
-  const { language } = useLanguage();
+  const { language, t } = useLanguage();
   const { toast } = useToast();
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [businessCategories, setBusinessCategories] = useState<string[]>([]);
   const [formData, setFormData] = useState({
     product_category: '',
     product_name: '',
@@ -33,15 +52,48 @@ export const RFQDialog = ({ businessId, businessName }: RFQDialogProps) => {
     delivery_location: '',
   });
 
-  const categories = [
+  const allCategories = [
     'Food & Beverages',
     'Electronics & Technology',
     'Textiles & Clothing',
     'Industrial Equipment',
     'Petrochemicals',
     'Crafts & Handmade',
+    'Agriculture',
+    'Construction Materials',
+    'Chemicals',
+    'Machinery',
+    'Furniture',
+    'Pharmaceuticals',
+    'Automotive',
+    'Energy',
     'Other',
   ];
+
+  // Fetch business products to filter categories
+  useEffect(() => {
+    const fetchBusinessCategories = async () => {
+      const { data } = await supabase
+        .from('business_products')
+        .select('category')
+        .eq('business_id', businessId)
+        .eq('is_active', true);
+      
+      if (data && data.length > 0) {
+        const uniqueCategories = Array.from(new Set(data.map(p => p.category).filter(Boolean)));
+        setBusinessCategories(uniqueCategories);
+      } else {
+        // If no products, show all categories
+        setBusinessCategories(allCategories);
+      }
+    };
+    
+    if (open && businessId) {
+      fetchBusinessCategories();
+    }
+  }, [open, businessId]);
+
+  const categories = businessCategories.length > 0 ? businessCategories : allCategories;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -58,16 +110,16 @@ export const RFQDialog = ({ businessId, businessName }: RFQDialogProps) => {
 
     if (error) {
       toast({
-        title: language === 'ar' ? 'خطأ' : 'Error',
-        description: language === 'ar' ? 'فشل في إرسال طلب عرض السعر' : 'Failed to send RFQ request',
+        title: t('rfq.error'),
+        description: t('rfq.errorSending'),
         variant: 'destructive',
       });
       return;
     }
 
     toast({
-      title: language === 'ar' ? 'تم الإرسال' : 'Sent',
-      description: language === 'ar' ? 'تم إرسال طلب عرض السعر بنجاح' : 'RFQ request sent successfully',
+      title: t('rfq.sent'),
+      description: t('rfq.sentSuccess'),
     });
 
     setOpen(false);
@@ -90,38 +142,35 @@ export const RFQDialog = ({ businessId, businessName }: RFQDialogProps) => {
       <DialogTrigger asChild>
         <Button variant="outline" className="gap-2">
           <FileText className="w-4 h-4" />
-          {language === 'ar' ? 'طلب عرض سعر' : 'Request Quote'}
+          {t('rfq.requestQuote')}
         </Button>
       </DialogTrigger>
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>
-            {language === 'ar' ? 'طلب عرض سعر من ' : 'Request Quote from '}
-            {businessName}
+            {t('rfq.requestQuoteFrom')} {businessName}
           </DialogTitle>
           <DialogDescription>
-            {language === 'ar'
-              ? 'املأ التفاصيل أدناه لطلب عرض سعر. سيتم إرسال طلبك مباشرة إلى الشركة.'
-              : 'Fill in the details below to request a quote. Your request will be sent directly to the business.'}
+            {t('rfq.fillDetails')}
           </DialogDescription>
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <Label>{language === 'ar' ? 'فئة المنتج' : 'Product Category'} *</Label>
+              <Label>{t('rfq.productCategory')} *</Label>
               <Select
                 value={formData.product_category}
                 onValueChange={(value) => setFormData(prev => ({ ...prev, product_category: value }))}
                 required
               >
                 <SelectTrigger>
-                  <SelectValue placeholder={language === 'ar' ? 'اختر الفئة' : 'Select category'} />
+                  <SelectValue placeholder={t('rfq.selectCategory')} />
                 </SelectTrigger>
                 <SelectContent>
                   {categories.map(category => (
                     <SelectItem key={category} value={category}>
-                      {category}
+                      {t(CATEGORY_MAP[category] || 'category.other')}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -129,11 +178,11 @@ export const RFQDialog = ({ businessId, businessName }: RFQDialogProps) => {
             </div>
 
             <div>
-              <Label>{language === 'ar' ? 'اسم المنتج' : 'Product Name'} *</Label>
+              <Label>{t('rfq.productName')} *</Label>
               <Input
                 value={formData.product_name}
                 onChange={(e) => setFormData(prev => ({ ...prev, product_name: e.target.value }))}
-                placeholder={language === 'ar' ? 'اسم المنتج' : 'Product name'}
+                placeholder={t('rfq.productName')}
                 required
               />
             </div>
@@ -141,7 +190,7 @@ export const RFQDialog = ({ businessId, businessName }: RFQDialogProps) => {
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <Label>{language === 'ar' ? 'الكمية' : 'Quantity'} *</Label>
+              <Label>{t('rfq.quantity')} *</Label>
               <Input
                 value={formData.quantity}
                 onChange={(e) => setFormData(prev => ({ ...prev, quantity: e.target.value }))}
@@ -151,28 +200,28 @@ export const RFQDialog = ({ businessId, businessName }: RFQDialogProps) => {
             </div>
 
             <div>
-              <Label>{language === 'ar' ? 'الوحدة' : 'Unit'}</Label>
+              <Label>{t('rfq.unit')}</Label>
               <Input
                 value={formData.unit}
                 onChange={(e) => setFormData(prev => ({ ...prev, unit: e.target.value }))}
-                placeholder={language === 'ar' ? 'مثال: كجم، قطعة، صندوق' : 'e.g., kg, pieces, boxes'}
+                placeholder={t('rfq.unitPlaceholder')}
               />
             </div>
           </div>
 
           <div>
-            <Label>{language === 'ar' ? 'الوصف' : 'Description'}</Label>
+            <Label>{t('rfq.description')}</Label>
             <Textarea
               value={formData.description}
               onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
-              placeholder={language === 'ar' ? 'أضف أي تفاصيل إضافية...' : 'Add any additional details...'}
+              placeholder={t('rfq.descriptionPlaceholder')}
               rows={4}
             />
           </div>
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <Label>{language === 'ar' ? 'مطلوب بتاريخ' : 'Required By'}</Label>
+              <Label>{t('rfq.requiredBy')}</Label>
               <Input
                 type="date"
                 value={formData.required_by}
@@ -181,32 +230,30 @@ export const RFQDialog = ({ businessId, businessName }: RFQDialogProps) => {
             </div>
 
             <div>
-              <Label>{language === 'ar' ? 'نطاق الميزانية' : 'Budget Range'}</Label>
+              <Label>{t('rfq.budgetRange')}</Label>
               <Input
                 value={formData.budget_range}
                 onChange={(e) => setFormData(prev => ({ ...prev, budget_range: e.target.value }))}
-                placeholder={language === 'ar' ? 'مثال: $5000-$10000' : 'e.g., $5000-$10000'}
+                placeholder={t('rfq.budgetPlaceholder')}
               />
             </div>
           </div>
 
           <div>
-            <Label>{language === 'ar' ? 'موقع التسليم' : 'Delivery Location'}</Label>
+            <Label>{t('rfq.deliveryLocation')}</Label>
             <Input
               value={formData.delivery_location}
               onChange={(e) => setFormData(prev => ({ ...prev, delivery_location: e.target.value }))}
-              placeholder={language === 'ar' ? 'المدينة، الدولة' : 'City, Country'}
+              placeholder={t('rfq.deliveryPlaceholder')}
             />
           </div>
 
           <div className="flex justify-end gap-2 pt-4">
             <Button type="button" variant="outline" onClick={() => setOpen(false)}>
-              {language === 'ar' ? 'إلغاء' : 'Cancel'}
+              {t('rfq.cancel')}
             </Button>
             <Button type="submit" disabled={loading}>
-              {loading
-                ? (language === 'ar' ? 'جاري الإرسال...' : 'Sending...')
-                : (language === 'ar' ? 'إرسال الطلب' : 'Send Request')}
+              {loading ? t('rfq.sending') : t('rfq.sendRequest')}
             </Button>
           </div>
         </form>

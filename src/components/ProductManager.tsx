@@ -32,12 +32,27 @@ const CATEGORIES = [
   'Automotive', 'Energy', 'Other'
 ];
 
+const CATEGORY_MAP: Record<string, string> = {
+  'Agriculture': 'category.agriculture',
+  'Textiles': 'category.textiles',
+  'Food & Beverages': 'category.foodBeverages',
+  'Construction Materials': 'category.construction',
+  'Chemicals': 'category.chemicals',
+  'Electronics': 'category.electronics',
+  'Machinery': 'category.machinery',
+  'Furniture': 'category.furniture',
+  'Pharmaceuticals': 'category.pharmaceuticals',
+  'Automotive': 'category.automotive',
+  'Energy': 'category.energy',
+  'Other': 'category.other',
+};
+
 interface ProductManagerProps {
   businessId: string;
 }
 
 export default function ProductManager({ businessId }: ProductManagerProps) {
-  const { language } = useLanguage();
+  const { language, t } = useLanguage();
   const { uploadFile, uploading } = useFileUpload();
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
@@ -261,7 +276,9 @@ export default function ProductManager({ businessId }: ProductManagerProps) {
                   </SelectTrigger>
                   <SelectContent>
                     {CATEGORIES.map(cat => (
-                      <SelectItem key={cat} value={cat}>{cat}</SelectItem>
+                      <SelectItem key={cat} value={cat}>
+                        {t(CATEGORY_MAP[cat] || 'category.other')}
+                      </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>

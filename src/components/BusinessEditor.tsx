@@ -23,6 +23,22 @@ const INDUSTRIES = [
   'Automotive', 'Energy', 'Services', 'Other'
 ];
 
+const INDUSTRY_MAP: Record<string, string> = {
+  'Agriculture': 'category.agriculture',
+  'Textiles': 'category.textiles',
+  'Food & Beverages': 'category.foodBeverages',
+  'Construction Materials': 'category.construction',
+  'Chemicals': 'category.chemicals',
+  'Electronics': 'category.electronics',
+  'Machinery': 'category.machinery',
+  'Furniture': 'category.furniture',
+  'Pharmaceuticals': 'category.pharmaceuticals',
+  'Automotive': 'category.automotive',
+  'Energy': 'category.energy',
+  'Services': 'industry.services',
+  'Other': 'category.other',
+};
+
 interface Business {
   id: string;
   name_en: string;
@@ -293,7 +309,9 @@ export default function BusinessEditor({ business, onUpdate }: BusinessEditorPro
                     </SelectTrigger>
                     <SelectContent>
                       {INDUSTRIES.map(industry => (
-                        <SelectItem key={industry} value={industry}>{industry}</SelectItem>
+                        <SelectItem key={industry} value={industry}>
+                          {t(INDUSTRY_MAP[industry] || 'category.other')}
+                        </SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
