@@ -1,4 +1,4 @@
-import { Building2, BarChart3, Search, Heart, MessageSquare, Home, Plus, Store } from 'lucide-react';
+import { Building2, BarChart3, Search, Heart, MessageSquare, Home, Plus, Store, FileText } from 'lucide-react';
 import { NavLink, useLocation } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { useLanguage } from '@/contexts/LanguageContext';
@@ -44,6 +44,12 @@ export function AppSidebar() {
       titleKey: 'nav.messages',
       url: '/messages',
       icon: MessageSquare,
+      requiresAuth: true,
+    },
+    {
+      titleKey: 'nav.rfqs',
+      url: '/rfqs',
+      icon: FileText,
       requiresAuth: true,
     },
   ];

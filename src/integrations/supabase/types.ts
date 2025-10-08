@@ -76,6 +76,7 @@ export type Database = {
           comment: string | null
           created_at: string
           id: string
+          media_urls: string[] | null
           rating: number
           reviewer_id: string
           updated_at: string
@@ -85,6 +86,7 @@ export type Database = {
           comment?: string | null
           created_at?: string
           id?: string
+          media_urls?: string[] | null
           rating: number
           reviewer_id: string
           updated_at?: string
@@ -94,6 +96,7 @@ export type Database = {
           comment?: string | null
           created_at?: string
           id?: string
+          media_urls?: string[] | null
           rating?: number
           reviewer_id?: string
           updated_at?: string
@@ -103,6 +106,65 @@ export type Database = {
             foreignKeyName: "business_reviews_business_id_fkey"
             columns: ["business_id"]
             isOneToOne: false
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      business_settings: {
+        Row: {
+          accept_messages: boolean | null
+          accept_rfqs: boolean | null
+          business_id: string
+          created_at: string
+          delivery_terms: string | null
+          id: string
+          looking_for: string[] | null
+          minimum_order_value: number | null
+          payment_terms: string | null
+          platform_contact_email: string | null
+          platform_contact_name: string | null
+          platform_contact_phone: string | null
+          sales_method: string | null
+          updated_at: string
+        }
+        Insert: {
+          accept_messages?: boolean | null
+          accept_rfqs?: boolean | null
+          business_id: string
+          created_at?: string
+          delivery_terms?: string | null
+          id?: string
+          looking_for?: string[] | null
+          minimum_order_value?: number | null
+          payment_terms?: string | null
+          platform_contact_email?: string | null
+          platform_contact_name?: string | null
+          platform_contact_phone?: string | null
+          sales_method?: string | null
+          updated_at?: string
+        }
+        Update: {
+          accept_messages?: boolean | null
+          accept_rfqs?: boolean | null
+          business_id?: string
+          created_at?: string
+          delivery_terms?: string | null
+          id?: string
+          looking_for?: string[] | null
+          minimum_order_value?: number | null
+          payment_terms?: string | null
+          platform_contact_email?: string | null
+          platform_contact_name?: string | null
+          platform_contact_phone?: string | null
+          sales_method?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "business_settings_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: true
             referencedRelation: "businesses"
             referencedColumns: ["id"]
           },
@@ -481,6 +543,122 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      rfq_requests: {
+        Row: {
+          budget_range: string | null
+          created_at: string
+          delivery_location: string | null
+          description: string | null
+          id: string
+          product_category: string
+          product_name: string
+          quantity: string
+          requester_id: string
+          required_by: string | null
+          status: string
+          target_business_id: string
+          unit: string | null
+          updated_at: string
+        }
+        Insert: {
+          budget_range?: string | null
+          created_at?: string
+          delivery_location?: string | null
+          description?: string | null
+          id?: string
+          product_category: string
+          product_name: string
+          quantity: string
+          requester_id: string
+          required_by?: string | null
+          status?: string
+          target_business_id: string
+          unit?: string | null
+          updated_at?: string
+        }
+        Update: {
+          budget_range?: string | null
+          created_at?: string
+          delivery_location?: string | null
+          description?: string | null
+          id?: string
+          product_category?: string
+          product_name?: string
+          quantity?: string
+          requester_id?: string
+          required_by?: string | null
+          status?: string
+          target_business_id?: string
+          unit?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "rfq_requests_target_business_id_fkey"
+            columns: ["target_business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      rfq_responses: {
+        Row: {
+          business_id: string
+          created_at: string
+          currency: string | null
+          id: string
+          lead_time: string | null
+          notes: string | null
+          quoted_price: number
+          rfq_request_id: string
+          unit_price: number | null
+          updated_at: string
+          validity_period: string | null
+        }
+        Insert: {
+          business_id: string
+          created_at?: string
+          currency?: string | null
+          id?: string
+          lead_time?: string | null
+          notes?: string | null
+          quoted_price: number
+          rfq_request_id: string
+          unit_price?: number | null
+          updated_at?: string
+          validity_period?: string | null
+        }
+        Update: {
+          business_id?: string
+          created_at?: string
+          currency?: string | null
+          id?: string
+          lead_time?: string | null
+          notes?: string | null
+          quoted_price?: number
+          rfq_request_id?: string
+          unit_price?: number | null
+          updated_at?: string
+          validity_period?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "rfq_responses_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "rfq_responses_rfq_request_id_fkey"
+            columns: ["rfq_request_id"]
+            isOneToOne: false
+            referencedRelation: "rfq_requests"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       translations: {
         Row: {

@@ -3,11 +3,14 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent } from '@/components/ui/card';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
-import { Star, Loader2 } from 'lucide-react';
+import { Star, Loader2, Upload, X, Play } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { useFileUpload } from '@/hooks/useFileUpload';
 import type { Tables } from '@/integrations/supabase/types';
 
 type Review = Tables<'business_reviews'>;
@@ -21,6 +24,7 @@ export default function ReviewSection({ businessId, businessOwnerId }: ReviewSec
   const { user } = useAuth();
   const { language } = useLanguage();
   const { toast } = useToast();
+  const { uploadFile, uploading } = useFileUpload();
   const [reviews, setReviews] = useState<Review[]>([]);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
@@ -29,6 +33,8 @@ export default function ReviewSection({ businessId, businessOwnerId }: ReviewSec
   const [comment, setComment] = useState('');
   const [userReview, setUserReview] = useState<Review | null>(null);
   const [editMode, setEditMode] = useState(false);
+  const [mediaFiles, setMediaFiles] = useState<File[]>([]);
+  const [mediaPreviews, setMediaPreviews] = useState<string[]>([]);
 
   useEffect(() => {
     loadReviews();
@@ -50,10 +56,35 @@ export default function ReviewSection({ businessId, businessOwnerId }: ReviewSec
           setUserReview(myReview);
           setRating(myReview.rating);
           setComment(myReview.comment || '');
+          setMediaPreviews(myReview.media_urls || []);
         }
       }
     }
     setLoading(false);
+  };
+
+  const handleMediaChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files || []);
+    const validFiles = files.filter(file => {
+      const isImage = file.type.startsWith('image/');
+      const isVideo = file.type.startsWith('video/');
+      return isImage || isVideo;
+    });
+
+    setMediaFiles(prev => [...prev, ...validFiles]);
+
+    validFiles.forEach(file => {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setMediaPreviews(prev => [...prev, reader.result as string]);
+      };
+      reader.readAsDataURL(file);
+    });
+  };
+
+  const removeMedia = (index: number) => {
+    setMediaFiles(prev => prev.filter((_, i) => i !== index));
+    setMediaPreviews(prev => prev.filter((_, i) => i !== index));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -80,13 +111,26 @@ export default function ReviewSection({ businessId, businessOwnerId }: ReviewSec
     setSubmitting(true);
 
     try {
+      // Upload new media files
+      const newMediaUrls: string[] = [];
+      for (const file of mediaFiles) {
+        const url = await uploadFile(file, {
+          bucket: 'review-media',
+          allowedTypes: ['image/jpeg', 'image/png', 'image/webp', 'image/gif', 'video/mp4', 'video/webm', 'video/quicktime'],
+          maxSizeMB: 50,
+        });
+        if (url) newMediaUrls.push(url);
+      }
+
       if (userReview) {
         // Update existing review
+        const updatedMediaUrls = [...(userReview.media_urls || []), ...newMediaUrls];
         const { error } = await supabase
           .from('business_reviews')
           .update({
             rating,
             comment: comment.trim() || null,
+            media_urls: updatedMediaUrls,
           })
           .eq('id', userReview.id);
 
@@ -105,6 +149,7 @@ export default function ReviewSection({ businessId, businessOwnerId }: ReviewSec
             reviewer_id: user.id,
             rating,
             comment: comment.trim() || null,
+            media_urls: newMediaUrls,
           });
 
         if (error) throw error;
@@ -116,6 +161,8 @@ export default function ReviewSection({ businessId, businessOwnerId }: ReviewSec
       }
 
       setEditMode(false);
+      setMediaFiles([]);
+      setMediaPreviews([]);
       loadReviews();
     } catch (error: any) {
       toast({
@@ -147,6 +194,8 @@ export default function ReviewSection({ businessId, businessOwnerId }: ReviewSec
       setUserReview(null);
       setRating(0);
       setComment('');
+      setMediaFiles([]);
+      setMediaPreviews([]);
       loadReviews();
     } catch (error: any) {
       toast({
@@ -209,10 +258,50 @@ export default function ReviewSection({ businessId, businessOwnerId }: ReviewSec
                 />
               </div>
 
+              <div className="space-y-2">
+                <Label className="flex items-center gap-2">
+                  <Upload className="w-4 h-4" />
+                  {language === 'ar' ? 'إضافة صور أو فيديوهات' : 'Add Photos or Videos'}
+                </Label>
+                <Input
+                  type="file"
+                  accept="image/*,video/*"
+                  multiple
+                  onChange={handleMediaChange}
+                  disabled={uploading}
+                />
+                {mediaPreviews.length > 0 && (
+                  <div className="grid grid-cols-3 gap-2 mt-2">
+                    {mediaPreviews.map((preview, index) => (
+                      <div key={index} className="relative group">
+                        {preview.startsWith('data:video') || preview.includes('.mp4') || preview.includes('.webm') ? (
+                          <div className="relative aspect-video bg-muted rounded-lg overflow-hidden">
+                            <video src={preview} className="w-full h-full object-cover" />
+                            <Play className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-8 h-8 text-white" />
+                          </div>
+                        ) : (
+                          <img src={preview} alt="" className="w-full aspect-square object-cover rounded-lg" />
+                        )}
+                        <button
+                          type="button"
+                          onClick={() => removeMedia(index)}
+                          className="absolute top-1 right-1 p-1 bg-destructive text-destructive-foreground rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                        >
+                          <X className="w-3 h-3" />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
               <div className="flex gap-2">
-                <Button type="submit" disabled={submitting || rating === 0}>
+                <Button type="submit" disabled={submitting || rating === 0 || uploading}>
+                  {uploading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                   {submitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                  {userReview
+                  {uploading
+                    ? (language === 'ar' ? 'جاري الرفع...' : 'Uploading...')
+                    : userReview
                     ? (language === 'ar' ? 'تحديث التقييم' : 'Update Review')
                     : (language === 'ar' ? 'إضافة تقييم' : 'Submit Review')}
                 </Button>
@@ -224,6 +313,8 @@ export default function ReviewSection({ businessId, businessOwnerId }: ReviewSec
                       setEditMode(false);
                       setRating(userReview?.rating || 0);
                       setComment(userReview?.comment || '');
+                      setMediaFiles([]);
+                      setMediaPreviews(userReview?.media_urls || []);
                     }}
                   >
                     {language === 'ar' ? 'إلغاء' : 'Cancel'}
@@ -272,6 +363,19 @@ export default function ReviewSection({ businessId, businessOwnerId }: ReviewSec
             {userReview.comment && (
               <p className="text-sm text-muted-foreground mt-2">{userReview.comment}</p>
             )}
+            {userReview.media_urls && userReview.media_urls.length > 0 && (
+              <div className="grid grid-cols-3 gap-2 mt-3">
+                {userReview.media_urls.map((url, index) => (
+                  <div key={index} className="relative aspect-square">
+                    {url.includes('.mp4') || url.includes('.webm') || url.includes('.mov') ? (
+                      <video src={url} controls className="w-full h-full object-cover rounded-lg" />
+                    ) : (
+                      <img src={url} alt="" className="w-full h-full object-cover rounded-lg" />
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
             <p className="text-xs text-muted-foreground mt-2">
               {language === 'ar' ? 'تقييمك' : 'Your Review'}
             </p>
@@ -315,6 +419,24 @@ export default function ReviewSection({ businessId, businessOwnerId }: ReviewSec
                     </div>
                     {review.comment && (
                       <p className="text-sm text-muted-foreground">{review.comment}</p>
+                    )}
+                    {review.media_urls && review.media_urls.length > 0 && (
+                      <div className="grid grid-cols-3 gap-2 mt-3">
+                        {review.media_urls.map((url, index) => (
+                          <div key={index} className="relative aspect-square">
+                            {url.includes('.mp4') || url.includes('.webm') || url.includes('.mov') ? (
+                              <video src={url} controls className="w-full h-full object-cover rounded-lg" />
+                            ) : (
+                              <img 
+                                src={url} 
+                                alt="" 
+                                className="w-full h-full object-cover rounded-lg cursor-pointer" 
+                                onClick={() => window.open(url, '_blank')}
+                              />
+                            )}
+                          </div>
+                        ))}
+                      </div>
                     )}
                     <p className="text-xs text-muted-foreground mt-2">
                       {new Date(review.created_at).toLocaleDateString(
