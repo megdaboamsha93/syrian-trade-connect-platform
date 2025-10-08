@@ -7,11 +7,22 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
-import { Loader2, Plus, Building2, Package, CheckCircle2, ShieldCheck } from 'lucide-react';
+import { Loader2, Plus, Building2, Package, CheckCircle2, ShieldCheck, Trash2 } from 'lucide-react';
 import { toast } from 'sonner';
 import ProductManager from '@/components/ProductManager';
 import BusinessEditor from '@/components/BusinessEditor';
 import VerificationManager from '@/components/VerificationManager';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@/components/ui/alert-dialog';
 
 interface Business {
   id: string;
@@ -80,6 +91,34 @@ export default function MyBusiness() {
       );
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleDeleteBusiness = async () => {
+    if (!selectedBusiness) return;
+
+    try {
+      const { error } = await supabase
+        .from('businesses')
+        .delete()
+        .eq('id', selectedBusiness.id);
+
+      if (error) throw error;
+
+      toast.success(
+        language === 'ar' 
+          ? 'تم حذف العمل بنجاح' 
+          : 'Business deleted successfully'
+      );
+
+      await loadBusinesses();
+    } catch (error: any) {
+      console.error('Error deleting business:', error);
+      toast.error(
+        language === 'ar' 
+          ? 'خطأ في حذف العمل' 
+          : 'Error deleting business'
+      );
     }
   };
 
@@ -190,10 +229,39 @@ export default function MyBusiness() {
                     </CardDescription>
                   </div>
                 </div>
-                <BusinessEditor 
-                  business={selectedBusiness} 
-                  onUpdate={loadBusinesses}
-                />
+                <div className="flex gap-2">
+                  <BusinessEditor 
+                    business={selectedBusiness} 
+                    onUpdate={loadBusinesses}
+                  />
+                  <AlertDialog>
+                    <AlertDialogTrigger asChild>
+                      <Button variant="destructive" size="icon">
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent>
+                      <AlertDialogHeader>
+                        <AlertDialogTitle>
+                          {language === 'ar' ? 'حذف العمل' : 'Delete Business'}
+                        </AlertDialogTitle>
+                        <AlertDialogDescription>
+                          {language === 'ar' 
+                            ? 'هل أنت متأكد من حذف هذا العمل؟ هذا الإجراء لا يمكن التراجع عنه وسيتم حذف جميع المنتجات والبيانات المرتبطة.' 
+                            : 'Are you sure you want to delete this business? This action cannot be undone and will delete all associated products and data.'}
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <AlertDialogFooter>
+                        <AlertDialogCancel>
+                          {language === 'ar' ? 'إلغاء' : 'Cancel'}
+                        </AlertDialogCancel>
+                        <AlertDialogAction onClick={handleDeleteBusiness}>
+                          {language === 'ar' ? 'حذف' : 'Delete'}
+                        </AlertDialogAction>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
+                </div>
               </div>
             </CardHeader>
             <CardContent>

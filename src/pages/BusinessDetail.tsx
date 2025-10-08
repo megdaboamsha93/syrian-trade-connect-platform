@@ -158,7 +158,7 @@ const BusinessDetail: React.FC = () => {
               </div>
               {canMessage ? (
                 <Button className="flex gap-2" asChild>
-                  <Link to={`/messages/${business.id}`}>
+                  <Link to={`/messages/new/${business.id}`}>
                     <MessageSquare className="h-4 w-4" />
                     {t('business.message')}
                   </Link>

@@ -445,12 +445,12 @@ const Messages: React.FC = () => {
                   </AvatarFallback>
                 </Avatar>
                 
-                <div>
-                  <h2 className="font-semibold">
+                <div className="flex-1 min-w-0">
+                  <h2 className="text-base font-semibold truncate">
                     {getParticipantName(selectedConversation)}
                   </h2>
                   {selectedConversation.otherParticipantBusiness && (
-                    <p className="text-xs text-muted-foreground">
+                    <p className="text-xs text-muted-foreground truncate">
                       {t('messages.business')}
                     </p>
                   )}
