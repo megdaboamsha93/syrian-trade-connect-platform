@@ -132,7 +132,7 @@ const Messages: React.FC = () => {
       // Messaging now allowed for all businesses except your own (handled below)
 
       // Check if user is trying to message their own non-demo business
-      if (business.owner_id === user.id) {
+      if (business.owner_id === user.id && !business.is_example) {
         toast({
           title: t('messages.cannotMessageOwnBusiness'),
           description: t('messages.cannotMessageOwnBusiness'),

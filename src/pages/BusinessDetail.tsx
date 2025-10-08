@@ -105,7 +105,7 @@ const BusinessDetail: React.FC = () => {
 
   const name = language === 'en' ? business.name_en : business.name_ar;
   const description = language === 'en' ? business.description_en : business.description_ar;
-  const canMessage = !!user && business.owner_id !== user.id;
+  const canMessage = !!user && (business.owner_id !== user.id || business.is_example);
 
   return (
     <div className="min-h-screen bg-muted/20">
