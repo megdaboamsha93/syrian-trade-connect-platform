@@ -93,6 +93,24 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
     'home.feature4.title': 'Open RFQ Marketplace',
     'home.feature4.desc': 'Post buying requests and receive competitive quotes from verified suppliers',
       
+      // RFQ Marketplace
+      'rfq.marketplace.title': 'RFQ Marketplace',
+      'rfq.marketplace.description': 'Browse open and governmental RFQs from buyers looking for products and services',
+      'rfq.createOpen': 'Create Open RFQ',
+      'rfq.createOpenDesc': 'Post a public buying request to all suppliers on the platform',
+      'rfq.type.label': 'RFQ Type',
+      'rfq.type.open': 'Open RFQ',
+      'rfq.type.openDesc': 'Public request to all suppliers',
+      'rfq.type.governmental': 'Governmental RFQ',
+      'rfq.type.govDesc': 'Government tender with transparent process',
+      'rfq.created': 'RFQ created successfully',
+      'rfq.error.create': 'Failed to create RFQ',
+      'rfq.error.loading': 'Failed to load RFQs',
+      'rfq.sendQuote': 'Send Quote',
+      'rfq.noOpenRFQs': 'No open RFQs at the moment',
+      'rfq.noGovRFQs': 'No governmental RFQs at the moment',
+      'rfq.create': 'Create',
+      
       // Browse
       'browse.title': 'Browse Businesses',
       'browse.filter': 'Filter',
@@ -313,6 +331,26 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
       'home.feature3.desc': 'تواصل مباشرة مع شركاء تجاريين محتملين',
       'home.feature4.title': 'سوق طلبات التسعير المفتوح',
       'home.feature4.desc': 'انشر طلبات الشراء واحصل على عروض أسعار تنافسية من موردين معتمدين',
+      
+      // RFQ Marketplace
+      'rfq.marketplace.title': 'سوق طلبات التسعير',
+      'rfq.marketplace.description': 'تصفح طلبات التسعير المفتوحة والحكومية من المشترين الذين يبحثون عن منتجات وخدمات',
+      'rfq.createOpen': 'إنشاء طلب تسعير مفتوح',
+      'rfq.createOpenDesc': 'انشر طلب شراء عام لجميع الموردين على المنصة',
+      'rfq.type.label': 'نوع طلب التسعير',
+      'rfq.type.open': 'طلب تسعير مفتوح',
+      'rfq.type.openDesc': 'طلب عام لجميع الموردين',
+      'rfq.type.governmental': 'طلب تسعير حكومي',
+      'rfq.type.govDesc': 'مناقصة حكومية بعملية شفافة',
+      'rfq.created': 'تم إنشاء طلب التسعير بنجاح',
+      'rfq.error.create': 'فشل إنشاء طلب التسعير',
+      'rfq.error.loading': 'فشل تحميل طلبات التسعير',
+      'rfq.sendQuote': 'إرسال عرض سعر',
+      'rfq.noOpenRFQs': 'لا توجد طلبات تسعير مفتوحة في الوقت الحالي',
+      'rfq.noGovRFQs': 'لا توجد طلبات تسعير حكومية في الوقت الحالي',
+      'rfq.create': 'إنشاء',
+      
+      // Browse
       
       // Browse
       'browse.title': 'تصفح الشركات',

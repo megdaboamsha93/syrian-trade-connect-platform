@@ -403,6 +403,9 @@ export type Database = {
           email_on_new_business: boolean | null
           email_on_new_product: boolean | null
           email_on_verification: boolean | null
+          notify_rfq_categories: string[] | null
+          notify_rfq_governmental: boolean | null
+          notify_rfq_open: boolean | null
           updated_at: string | null
           user_id: string
         }
@@ -414,6 +417,9 @@ export type Database = {
           email_on_new_business?: boolean | null
           email_on_new_product?: boolean | null
           email_on_verification?: boolean | null
+          notify_rfq_categories?: string[] | null
+          notify_rfq_governmental?: boolean | null
+          notify_rfq_open?: boolean | null
           updated_at?: string | null
           user_id: string
         }
@@ -425,6 +431,9 @@ export type Database = {
           email_on_new_business?: boolean | null
           email_on_new_product?: boolean | null
           email_on_verification?: boolean | null
+          notify_rfq_categories?: string[] | null
+          notify_rfq_governmental?: boolean | null
+          notify_rfq_open?: boolean | null
           updated_at?: string | null
           user_id?: string
         }
@@ -551,13 +560,15 @@ export type Database = {
           delivery_location: string | null
           description: string | null
           id: string
+          is_public: boolean | null
           product_category: string
           product_name: string
           quantity: string
           requester_id: string
           required_by: string | null
+          rfq_type: string
           status: string
-          target_business_id: string
+          target_business_id: string | null
           unit: string | null
           updated_at: string
         }
@@ -567,13 +578,15 @@ export type Database = {
           delivery_location?: string | null
           description?: string | null
           id?: string
+          is_public?: boolean | null
           product_category: string
           product_name: string
           quantity: string
           requester_id: string
           required_by?: string | null
+          rfq_type?: string
           status?: string
-          target_business_id: string
+          target_business_id?: string | null
           unit?: string | null
           updated_at?: string
         }
@@ -583,13 +596,15 @@ export type Database = {
           delivery_location?: string | null
           description?: string | null
           id?: string
+          is_public?: boolean | null
           product_category?: string
           product_name?: string
           quantity?: string
           requester_id?: string
           required_by?: string | null
+          rfq_type?: string
           status?: string
-          target_business_id?: string
+          target_business_id?: string | null
           unit?: string | null
           updated_at?: string
         }

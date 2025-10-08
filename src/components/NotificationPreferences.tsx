@@ -13,7 +13,19 @@ import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
+import { Checkbox } from '@/components/ui/checkbox';
 import type { Database } from '@/integrations/supabase/types';
+
+const PRODUCT_CATEGORIES = [
+  'Electronics',
+  'Food & Agriculture',
+  'Textiles & Apparel',
+  'Petrochemicals',
+  'Industrial Equipment',
+  'Dates',
+  'Technology',
+  'Crafts & Handicrafts',
+];
 
 type NotificationPreferences = Database['public']['Tables']['notification_preferences']['Row'];
 
@@ -37,7 +49,11 @@ export const NotificationPreferences = ({
     email_on_new_product: false,
     email_on_inquiry: true,
     email_on_favorite: false,
+    notify_rfq_open: true,
+    notify_rfq_governmental: true,
+    notify_rfq_categories: [],
   });
+  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
 
   useEffect(() => {
     if (open && user) {
@@ -57,6 +73,7 @@ export const NotificationPreferences = ({
 
       if (data) {
         setPreferences(data);
+        setSelectedCategories(data.notify_rfq_categories || []);
       }
     } catch (error) {
       console.error('Error fetching preferences:', error);
@@ -72,6 +89,7 @@ export const NotificationPreferences = ({
         .upsert({
           user_id: user!.id,
           ...preferences,
+          notify_rfq_categories: selectedCategories,
         });
 
       if (error) throw error;
@@ -139,7 +157,29 @@ export const NotificationPreferences = ({
         ? 'إشعار عند تحديث الأعمال المفضلة'
         : 'Notify when your favorite businesses are updated',
     },
+    {
+      key: 'notify_rfq_open' as const,
+      label: language === 'ar' ? 'طلبات التسعير المفتوحة' : 'Open RFQs',
+      description: language === 'ar'
+        ? 'إشعار عند نشر طلبات تسعير مفتوحة جديدة'
+        : 'Notify when new open RFQs are posted',
+    },
+    {
+      key: 'notify_rfq_governmental' as const,
+      label: language === 'ar' ? 'طلبات التسعير الحكومية' : 'Governmental RFQs',
+      description: language === 'ar'
+        ? 'إشعار عند نشر طلبات تسعير حكومية جديدة'
+        : 'Notify when new governmental RFQs are posted',
+    },
   ];
+
+  const toggleCategory = (category: string) => {
+    setSelectedCategories(prev =>
+      prev.includes(category)
+        ? prev.filter(c => c !== category)
+        : [...prev, category]
+    );
+  };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -178,6 +218,31 @@ export const NotificationPreferences = ({
                 />
               </div>
             ))}
+
+            <div className="pt-4 border-t">
+              <h3 className="font-medium mb-3">
+                {language === 'ar' ? 'فئات طلبات التسعير المهتمة بها' : 'Interested RFQ Categories'}
+              </h3>
+              <p className="text-sm text-muted-foreground mb-3">
+                {language === 'ar'
+                  ? 'اختر الفئات التي تريد تلقي إشعارات عنها (ترك الخيار فارغاً يعني كل الفئات)'
+                  : 'Select categories to be notified about (leave empty for all categories)'}
+              </p>
+              <div className="grid grid-cols-2 gap-3">
+                {PRODUCT_CATEGORIES.map((category) => (
+                  <div key={category} className="flex items-center space-x-2">
+                    <Checkbox
+                      id={category}
+                      checked={selectedCategories.includes(category)}
+                      onCheckedChange={() => toggleCategory(category)}
+                    />
+                    <Label htmlFor={category} className="text-sm font-normal cursor-pointer">
+                      {language === 'ar' ? `فئة ${category}` : category}
+                    </Label>
+                  </div>
+                ))}
+              </div>
+            </div>
 
             <div className="flex justify-end gap-2 pt-4">
               <Button variant="outline" onClick={() => onOpenChange(false)}>

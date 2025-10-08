@@ -1,4 +1,4 @@
-import { Building2, BarChart3, Search, Heart, MessageSquare, Home, Plus, Store, FileText } from 'lucide-react';
+import { Building2, BarChart3, Search, Heart, MessageSquare, Home, Plus, Store, FileText, ClipboardList } from 'lucide-react';
 import { NavLink, useLocation } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { useLanguage } from '@/contexts/LanguageContext';
@@ -33,6 +33,11 @@ export function AppSidebar() {
       titleKey: 'nav.browse',
       url: '/browse',
       icon: Search,
+    },
+    {
+      titleKey: 'rfq.marketplace.title',
+      url: '/rfq-marketplace',
+      icon: ClipboardList,
     },
     {
       titleKey: 'nav.favorites',

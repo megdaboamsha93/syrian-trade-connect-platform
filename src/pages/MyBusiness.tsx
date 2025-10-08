@@ -7,11 +7,12 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
-import { Loader2, Plus, Building2, Package, CheckCircle2, ShieldCheck, Trash2 } from 'lucide-react';
+import { Loader2, Plus, Building2, Package, CheckCircle2, ShieldCheck, Trash2, ClipboardList } from 'lucide-react';
 import { toast } from 'sonner';
 import ProductManager from '@/components/ProductManager';
 import BusinessEditor from '@/components/BusinessEditor';
 import VerificationManager from '@/components/VerificationManager';
+import { OpenRFQDialog } from '@/components/OpenRFQDialog';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -176,10 +177,13 @@ export default function MyBusiness() {
                 : 'Manage your businesses and products'}
             </p>
           </div>
-          <Button onClick={() => navigate('/register-business')}>
-            <Plus className="h-4 w-4 mr-2" />
-            {language === 'ar' ? 'إضافة عمل' : 'Add Business'}
-          </Button>
+          <div className="flex gap-2">
+            <OpenRFQDialog />
+            <Button onClick={() => navigate('/register-business')}>
+              <Plus className="h-4 w-4 mr-2" />
+              {language === 'ar' ? 'إضافة عمل' : 'Add Business'}
+            </Button>
+          </div>
         </div>
 
         {businesses.length > 1 && (

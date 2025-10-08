@@ -25,6 +25,7 @@ import Analytics from "./pages/Analytics";
 import Settings from "./pages/Settings";
 import RFQBoard from './pages/RFQBoard';
 import RFQs from './pages/RFQs';
+import RFQMarketplace from './pages/RFQMarketplace';
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -57,6 +58,7 @@ const App = () => (
                 <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
                 <Route path="/rfqs" element={<ProtectedRoute><RFQs /></ProtectedRoute>} />
                 <Route path="/rfq-board" element={<RFQBoard />} />
+                <Route path="/rfq-marketplace" element={<RFQMarketplace />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </AppLayout>
