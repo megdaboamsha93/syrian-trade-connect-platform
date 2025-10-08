@@ -88,8 +88,10 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
       'home.feature1.desc': 'Connect with legitimate and verified Syrian businesses',
       'home.feature2.title': 'Industry Categorization',
       'home.feature2.desc': 'Find partners in your specific industry segment',
-      'home.feature3.title': 'Direct Messaging',
-      'home.feature3.desc': 'Communicate directly with potential trade partners',
+    'home.feature3.title': 'Direct Messaging',
+    'home.feature3.desc': 'Communicate directly with potential trade partners',
+    'home.feature4.title': 'Open RFQ Marketplace',
+    'home.feature4.desc': 'Post buying requests and receive competitive quotes from verified suppliers',
       
       // Browse
       'browse.title': 'Browse Businesses',
@@ -309,6 +311,8 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
       'home.feature2.desc': 'ابحث عن شركاء في قطاع صناعتك المحدد',
       'home.feature3.title': 'مراسلة مباشرة',
       'home.feature3.desc': 'تواصل مباشرة مع شركاء تجاريين محتملين',
+      'home.feature4.title': 'سوق طلبات التسعير المفتوح',
+      'home.feature4.desc': 'انشر طلبات الشراء واحصل على عروض أسعار تنافسية من موردين معتمدين',
       
       // Browse
       'browse.title': 'تصفح الشركات',

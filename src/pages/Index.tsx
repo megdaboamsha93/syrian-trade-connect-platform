@@ -3,7 +3,7 @@ import { useLanguage } from '../contexts/LanguageContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
-import { ChevronRight, ChevronLeft, Building2, Filter, MessageCircle } from 'lucide-react';
+import { ChevronRight, ChevronLeft, Building2, Filter, MessageCircle, ClipboardList } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import type { Database } from '@/integrations/supabase/types';
 import BusinessCard from '@/components/BusinessCard';
@@ -99,7 +99,7 @@ const Index: React.FC = () => {
           <h2 className="text-2xl md:text-3xl font-bold text-center mb-12">
             {t('home.features.title')}
           </h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
             <div className="bg-card p-8 rounded-2xl border border-border hover:shadow-lg transition-all duration-300 hover:-translate-y-1 group">
               <div className="bg-primary/10 w-14 h-14 rounded-2xl flex items-center justify-center mb-4 group-hover:bg-primary/20 transition-colors">
                 <Building2 className="h-7 w-7 text-primary" />
@@ -122,6 +122,14 @@ const Index: React.FC = () => {
               </div>
               <h3 className="text-xl font-semibold mb-2">{t('home.feature3.title')}</h3>
               <p className="text-muted-foreground">{t('home.feature3.desc')}</p>
+            </div>
+
+            <div className="bg-card p-8 rounded-2xl border border-border hover:shadow-lg transition-all duration-300 hover:-translate-y-1 group">
+              <div className="bg-primary/10 w-14 h-14 rounded-2xl flex items-center justify-center mb-4 group-hover:bg-primary/20 transition-colors">
+                <ClipboardList className="h-7 w-7 text-primary" />
+              </div>
+              <h3 className="text-xl font-semibold mb-2">{t('home.feature4.title')}</h3>
+              <p className="text-muted-foreground">{t('home.feature4.desc')}</p>
             </div>
           </div>
         </div>
