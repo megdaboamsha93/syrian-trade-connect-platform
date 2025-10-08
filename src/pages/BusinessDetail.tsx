@@ -105,7 +105,7 @@ const BusinessDetail: React.FC = () => {
 
   const name = language === 'en' ? business.name_en : business.name_ar;
   const description = language === 'en' ? business.description_en : business.description_ar;
-  const canMessage = !!user && business.owner_id !== user.id && !business.is_example;
+  const canMessage = !!user && business.owner_id !== user.id;
 
   return (
     <div className="min-h-screen bg-muted/20">
@@ -164,11 +164,17 @@ const BusinessDetail: React.FC = () => {
                   </Link>
                 </Button>
               ) : (
-                <Button className="flex gap-2" variant="secondary" disabled>
-                  <MessageSquare className="h-4 w-4" />
-                  {t('business.message')}
-                </Button>
+                <div className="flex flex-col items-end">
+                  <Button className="flex gap-2" variant="secondary" disabled>
+                    <MessageSquare className="h-4 w-4" />
+                    {t('business.message')}
+                  </Button>
+                  <span className="mt-1 text-xs text-muted-foreground">
+                    {!user ? t('messages.loginToMessage') : t('messages.cannotMessageOwnBusiness')}
+                  </span>
+                </div>
               )}
+
             </div>
           </div>
         </div>
