@@ -198,6 +198,10 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
       'common.review': 'review',
       'common.reviews': 'reviews',
       'common.price': 'Price',
+      'common.all': 'All',
+      'common.cancel': 'Cancel',
+      'common.creating': 'Creating...',
+      'common.loginRequired': 'Please login to continue',
       
       // Messaging
       'messages.title': 'Messages',
@@ -351,8 +355,6 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
       'rfq.create': 'إنشاء',
       
       // Browse
-      
-      // Browse
       'browse.title': 'تصفح الشركات',
       'browse.filter': 'تصفية',
       'browse.search': 'البحث عن شركات...',
@@ -439,6 +441,10 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
       'common.review': 'تقييم',
       'common.reviews': 'تقييمات',
       'common.price': 'السعر',
+      'common.all': 'الكل',
+      'common.cancel': 'إلغاء',
+      'common.creating': 'جاري الإنشاء...',
+      'common.loginRequired': 'يرجى تسجيل الدخول للمتابعة',
       
       // Messaging
       'messages.title': 'الرسائل',
