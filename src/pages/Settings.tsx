@@ -10,8 +10,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2, User, Building2 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { NotificationPreferences } from '@/components/NotificationPreferences';
-import { InterestsManager } from '@/components/InterestsManager';
 import { CompanySettings } from '@/components/CompanySettings';
 
 export default function Settings() {
@@ -85,12 +83,18 @@ export default function Settings() {
       </h1>
 
       <Tabs defaultValue="personal" className="w-full">
-        <TabsList className="grid w-full grid-cols-2">
-          <TabsTrigger value="personal" className="flex items-center gap-2">
+        <TabsList className="grid w-full grid-cols-2 bg-muted p-1">
+          <TabsTrigger 
+            value="personal" 
+            className="flex items-center gap-2 data-[state=active]:bg-background data-[state=active]:shadow-sm"
+          >
             <User className="w-4 h-4" />
             {language === 'ar' ? 'المعلومات الشخصية' : 'Personal Information'}
           </TabsTrigger>
-          <TabsTrigger value="company" className="flex items-center gap-2">
+          <TabsTrigger 
+            value="company" 
+            className="flex items-center gap-2 data-[state=active]:bg-background data-[state=active]:shadow-sm"
+          >
             <Building2 className="w-4 h-4" />
             {language === 'ar' ? 'إعدادات الشركة' : 'Company Settings'}
           </TabsTrigger>
@@ -137,7 +141,7 @@ export default function Settings() {
             </CardContent>
           </Card>
 
-          {/* Notification Preferences */}
+          {/* Coming Soon Cards */}
           <Card>
             <CardHeader>
               <CardTitle>{language === 'ar' ? 'تفضيلات الإشعارات' : 'Notification Preferences'}</CardTitle>
@@ -146,7 +150,9 @@ export default function Settings() {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <NotificationPreferences />
+              <p className="text-muted-foreground text-sm">
+                {language === 'ar' ? 'قريباً - إدارة تفضيلات الإشعارات' : 'Coming soon - Manage your notification preferences'}
+              </p>
             </CardContent>
           </Card>
 
@@ -161,7 +167,9 @@ export default function Settings() {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <InterestsManager />
+              <p className="text-muted-foreground text-sm">
+                {language === 'ar' ? 'قريباً - حدد اهتماماتك' : 'Coming soon - Select your interests'}
+              </p>
             </CardContent>
           </Card>
         </TabsContent>

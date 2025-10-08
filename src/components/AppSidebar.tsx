@@ -67,12 +67,6 @@ export function AppSidebar() {
       icon: BarChart3,
       requiresAuth: true,
     },
-    {
-      titleKey: 'nav.registerBusiness',
-      url: '/register-business',
-      icon: Plus,
-      requiresAuth: true,
-    },
   ];
 
   return (
@@ -83,12 +77,12 @@ export function AppSidebar() {
       onMouseLeave={() => setOpen(false)}
     >
       <SidebarHeader className="px-6 py-4 group-data-[collapsible=icon]:px-2 group-data-[collapsible=icon]:py-3">
-        <div className="flex items-center gap-3 group-data-[collapsible=icon]:justify-center">
+        <NavLink to="/" className="flex items-center gap-3 group-data-[collapsible=icon]:justify-center hover:opacity-80 transition-opacity">
           <div className="w-10 h-10 rounded-lg bg-primary flex items-center justify-center flex-shrink-0">
             <Store className="h-5 w-5 text-primary-foreground" />
           </div>
           <span className="font-bold text-lg text-foreground group-data-[collapsible=icon]:hidden">STC Platform</span>
-        </div>
+        </NavLink>
       </SidebarHeader>
 
       <SidebarContent className="px-3 py-4 group-data-[collapsible=icon]:px-2">
