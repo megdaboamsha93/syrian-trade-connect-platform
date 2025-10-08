@@ -288,6 +288,81 @@ export type Database = {
           },
         ]
       }
+      notification_preferences: {
+        Row: {
+          created_at: string | null
+          email_on_favorite: boolean | null
+          email_on_inquiry: boolean | null
+          email_on_message: boolean | null
+          email_on_new_business: boolean | null
+          email_on_new_product: boolean | null
+          email_on_verification: boolean | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          email_on_favorite?: boolean | null
+          email_on_inquiry?: boolean | null
+          email_on_message?: boolean | null
+          email_on_new_business?: boolean | null
+          email_on_new_product?: boolean | null
+          email_on_verification?: boolean | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          email_on_favorite?: boolean | null
+          email_on_inquiry?: boolean | null
+          email_on_message?: boolean | null
+          email_on_new_business?: boolean | null
+          email_on_new_product?: boolean | null
+          email_on_verification?: boolean | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      notifications: {
+        Row: {
+          content_ar: string
+          content_en: string
+          created_at: string | null
+          id: string
+          is_read: boolean | null
+          link: string | null
+          title_ar: string
+          title_en: string
+          type: string
+          user_id: string
+        }
+        Insert: {
+          content_ar: string
+          content_en: string
+          created_at?: string | null
+          id?: string
+          is_read?: boolean | null
+          link?: string | null
+          title_ar: string
+          title_en: string
+          type: string
+          user_id: string
+        }
+        Update: {
+          content_ar?: string
+          content_en?: string
+          created_at?: string | null
+          id?: string
+          is_read?: boolean | null
+          link?: string | null
+          title_ar?: string
+          title_en?: string
+          type?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       product_views: {
         Row: {
           business_id: string
@@ -390,6 +465,33 @@ export type Database = {
           source_text?: string
           target_lang?: string
           translated_text?: string
+        }
+        Relationships: []
+      }
+      user_interests: {
+        Row: {
+          business_types: string[] | null
+          categories: string[] | null
+          created_at: string | null
+          industries: string[] | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          business_types?: string[] | null
+          categories?: string[] | null
+          created_at?: string | null
+          industries?: string[] | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          business_types?: string[] | null
+          categories?: string[] | null
+          created_at?: string | null
+          industries?: string[] | null
+          updated_at?: string | null
+          user_id?: string
         }
         Relationships: []
       }
@@ -514,6 +616,18 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      create_notification: {
+        Args: {
+          _content_ar: string
+          _content_en: string
+          _link?: string
+          _title_ar: string
+          _title_en: string
+          _type: string
+          _user_id: string
+        }
+        Returns: string
+      }
       delete_conversation_for_user: {
         Args: { _conversation_id: string; _user_id: string }
         Returns: undefined
@@ -538,6 +652,10 @@ export type Database = {
           view_count: number
         }[]
       }
+      get_unread_notification_count: {
+        Args: { _user_id: string }
+        Returns: number
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -545,8 +663,16 @@ export type Database = {
         }
         Returns: boolean
       }
+      mark_all_notifications_read: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
       mark_messages_read: {
         Args: { _conversation_id: string; _user_id: string }
+        Returns: undefined
+      }
+      mark_notifications_read: {
+        Args: { _notification_ids: string[] }
         Returns: undefined
       }
       set_conversation_block: {
