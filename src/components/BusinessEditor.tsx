@@ -7,10 +7,14 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { PhoneInput } from '@/components/ui/phone-input';
 import { useFileUpload } from '@/hooks/useFileUpload';
 import { toast } from 'sonner';
-import { Edit, Upload, X, Loader2, Save } from 'lucide-react';
+import { Edit, Upload, X, Loader2, Save, AlertTriangle } from 'lucide-react';
 import { Card } from '@/components/ui/card';
+import { registerBusinessSchema } from '@/lib/validation';
+import { z } from 'zod';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 
 const BUSINESS_TYPES = ['importer', 'exporter', 'both'] as const;
 const INDUSTRIES = [
@@ -34,6 +38,7 @@ interface Business {
   founded_year: number | null;
   logo_url: string | null;
   cover_url: string | null;
+  is_verified: boolean;
 }
 
 interface BusinessEditorProps {
@@ -42,10 +47,11 @@ interface BusinessEditorProps {
 }
 
 export default function BusinessEditor({ business, onUpdate }: BusinessEditorProps) {
-  const { language } = useLanguage();
+  const { language, t } = useLanguage();
   const { uploadFile, uploading } = useFileUpload();
   const [open, setOpen] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
 
   const [formData, setFormData] = useState({
     nameEn: business.name_en,
@@ -79,16 +85,67 @@ export default function BusinessEditor({ business, onUpdate }: BusinessEditorPro
     }
   };
 
+  const translateValidationError = (error: string): string => {
+    if (error.includes('Arabic text')) return t('validation.arabicRequired');
+    if (error.includes('English text')) return t('validation.englishRequired');
+    if (error.includes('Invalid email')) return t('validation.emailInvalid');
+    if (error.includes('Email too long')) return t('validation.emailTooLong');
+    if (error.includes('Phone')) return t('validation.phoneFormat');
+    if (error.includes('too short')) return t('validation.fieldTooShort');
+    if (error.includes('too long')) return t('validation.fieldTooLong');
+    if (error.includes('Invalid URL')) return t('validation.invalidUrl');
+    return error;
+  };
+
   const handleSubmit = async () => {
-    if (!formData.nameEn.trim() || !formData.nameAr.trim()) {
-      toast.error(language === 'ar' ? 'يرجى ملء الحقول المطلوبة' : 'Please fill required fields');
-      return;
+    setValidationErrors({});
+
+    // Validate form data
+    try {
+      registerBusinessSchema.parse({
+        nameEn: formData.nameEn.trim(),
+        nameAr: formData.nameAr.trim(),
+        descriptionEn: formData.descriptionEn.trim() || undefined,
+        descriptionAr: formData.descriptionAr.trim() || undefined,
+        businessType: formData.businessType,
+        industry: formData.industry,
+        location: formData.location,
+        contactEmail: formData.contactEmail.trim(),
+        contactPhone: formData.contactPhone.trim(),
+        websiteUrl: formData.websiteUrl.trim() || '',
+        foundedYear: formData.foundedYear,
+      });
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        const errors: Record<string, string> = {};
+        error.errors.forEach((err) => {
+          const field = err.path[0] as string;
+          errors[field] = translateValidationError(err.message);
+        });
+        setValidationErrors(errors);
+        toast.error(language === 'ar' ? 'يرجى تصحيح الأخطاء' : 'Please fix the errors');
+        return;
+      }
     }
 
     console.log('💾 BusinessEditor: Updating business...', { businessId: business.id });
     setSaving(true);
 
     try {
+      // Check if major fields changed (trigger re-verification)
+      const majorFields = ['name_en', 'name_ar', 'business_type', 'industry', 'location'];
+      const hasMajorChanges = majorFields.some(field => {
+        const currentValue = business[field as keyof Business];
+        const newValue = {
+          name_en: formData.nameEn.trim(),
+          name_ar: formData.nameAr.trim(),
+          business_type: formData.businessType,
+          industry: formData.industry,
+          location: formData.location,
+        }[field];
+        return currentValue !== newValue;
+      });
+
       const updateData = {
         name_en: formData.nameEn.trim(),
         name_ar: formData.nameAr.trim(),
@@ -103,6 +160,8 @@ export default function BusinessEditor({ business, onUpdate }: BusinessEditorPro
         founded_year: formData.foundedYear,
         logo_url: formData.logoUrl,
         cover_url: formData.coverUrl,
+        // Invalidate verification if major fields changed
+        ...(hasMajorChanges && business.is_verified ? { is_verified: false } : {}),
       };
 
       const { error } = await supabase
@@ -113,7 +172,18 @@ export default function BusinessEditor({ business, onUpdate }: BusinessEditorPro
       if (error) throw error;
 
       console.log('✅ BusinessEditor: Business updated successfully');
-      toast.success(language === 'ar' ? 'تم تحديث معلومات العمل' : 'Business information updated');
+      
+      if (hasMajorChanges && business.is_verified) {
+        toast.success(
+          language === 'ar' 
+            ? 'تم تحديث المعلومات. يجب إعادة التحقق من العمل.' 
+            : 'Information updated. Business requires re-verification.',
+          { duration: 5000 }
+        );
+      } else {
+        toast.success(language === 'ar' ? 'تم تحديث معلومات العمل' : 'Business information updated');
+      }
+      
       setOpen(false);
       onUpdate();
     } catch (error: any) {
@@ -149,6 +219,18 @@ export default function BusinessEditor({ business, onUpdate }: BusinessEditorPro
         </DialogHeader>
 
         <div className="space-y-6">
+          {/* Warning about re-verification */}
+          {business.is_verified && (
+            <Alert>
+              <AlertTriangle className="h-4 w-4" />
+              <AlertDescription>
+                {language === 'ar'
+                  ? 'تعديل المعلومات الأساسية (الاسم، النوع، القطاع، الموقع) سيتطلب إعادة التحقق من العمل.'
+                  : 'Editing basic information (name, type, industry, location) will require business re-verification.'}
+              </AlertDescription>
+            </Alert>
+          )}
+
           {/* Basic Information */}
           <Card className="p-4">
             <h3 className="font-semibold mb-4">
@@ -160,16 +242,30 @@ export default function BusinessEditor({ business, onUpdate }: BusinessEditorPro
                   <Label>{language === 'ar' ? 'اسم العمل (إنجليزي)' : 'Business Name (English)'} *</Label>
                   <Input
                     value={formData.nameEn}
-                    onChange={(e) => updateFormData('nameEn', e.target.value)}
+                    onChange={(e) => {
+                      updateFormData('nameEn', e.target.value);
+                      setValidationErrors(prev => ({ ...prev, nameEn: '' }));
+                    }}
+                    className={validationErrors.nameEn ? 'border-destructive' : ''}
                   />
+                  {validationErrors.nameEn && (
+                    <p className="text-xs text-destructive mt-1">{validationErrors.nameEn}</p>
+                  )}
                 </div>
                 <div>
                   <Label>{language === 'ar' ? 'اسم العمل (عربي)' : 'Business Name (Arabic)'} *</Label>
                   <Input
                     value={formData.nameAr}
-                    onChange={(e) => updateFormData('nameAr', e.target.value)}
+                    onChange={(e) => {
+                      updateFormData('nameAr', e.target.value);
+                      setValidationErrors(prev => ({ ...prev, nameAr: '' }));
+                    }}
                     dir="rtl"
+                    className={validationErrors.nameAr ? 'border-destructive' : ''}
                   />
+                  {validationErrors.nameAr && (
+                    <p className="text-xs text-destructive mt-1">{validationErrors.nameAr}</p>
+                  )}
                 </div>
               </div>
 
@@ -264,14 +360,25 @@ export default function BusinessEditor({ business, onUpdate }: BusinessEditorPro
                   <Input
                     type="email"
                     value={formData.contactEmail}
-                    onChange={(e) => updateFormData('contactEmail', e.target.value)}
+                    onChange={(e) => {
+                      updateFormData('contactEmail', e.target.value);
+                      setValidationErrors(prev => ({ ...prev, contactEmail: '' }));
+                    }}
+                    className={validationErrors.contactEmail ? 'border-destructive' : ''}
                   />
+                  {validationErrors.contactEmail && (
+                    <p className="text-xs text-destructive mt-1">{validationErrors.contactEmail}</p>
+                  )}
                 </div>
                 <div>
-                  <Label>{language === 'ar' ? 'رقم الهاتف' : 'Phone'}</Label>
-                  <Input
+                  <Label>{language === 'ar' ? 'رقم الهاتف' : 'Phone'} *</Label>
+                  <PhoneInput
                     value={formData.contactPhone}
-                    onChange={(e) => updateFormData('contactPhone', e.target.value)}
+                    onChange={(value) => {
+                      updateFormData('contactPhone', value);
+                      setValidationErrors(prev => ({ ...prev, contactPhone: '' }));
+                    }}
+                    error={validationErrors.contactPhone}
                   />
                 </div>
               </div>
