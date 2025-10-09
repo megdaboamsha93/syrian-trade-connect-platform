@@ -42,13 +42,13 @@ export const NotificationBell = () => {
         <Button variant="ghost" size="icon" className="relative">
           <Bell className="h-5 w-5" />
           {unreadCount > 0 && (
-            <div className="absolute -top-1 -right-1 h-2.5 w-2.5 rounded-full bg-green-500" />
+            <div className="absolute -top-1 -right-1 h-2 w-2 rounded-full bg-primary" />
           )}
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-80">
-        <div className="flex items-center justify-between px-4 py-2">
-          <h3 className="font-semibold">
+        <div className="flex items-center justify-between px-4 py-2 border-b">
+          <h3 className="font-semibold text-sm">
             {language === 'ar' ? 'الإشعارات' : 'Notifications'}
           </h3>
           {unreadCount > 0 && (
@@ -56,16 +56,15 @@ export const NotificationBell = () => {
               variant="ghost"
               size="sm"
               onClick={markAllAsRead}
-              className="h-auto py-1 px-2 text-xs"
+              className="h-auto py-1 px-2 text-xs hover:bg-transparent hover:text-primary"
             >
               {language === 'ar' ? 'تحديد الكل كمقروء' : 'Mark all read'}
             </Button>
           )}
         </div>
-        <DropdownMenuSeparator />
         <ScrollArea className="h-96">
           {notifications.length === 0 ? (
-            <div className="px-4 py-8 text-center text-muted-foreground">
+            <div className="px-4 py-8 text-center text-muted-foreground text-sm">
               {language === 'ar' ? 'لا توجد إشعارات' : 'No notifications'}
             </div>
           ) : (
@@ -73,18 +72,20 @@ export const NotificationBell = () => {
               <DropdownMenuItem
                 key={notification.id}
                 onClick={() => handleNotificationClick(notification)}
-                className="flex flex-col items-start gap-1 px-4 py-3 cursor-pointer hover:bg-accent/50 transition-colors"
+                className={`flex flex-col items-start gap-1.5 px-4 py-3 cursor-pointer transition-colors border-b last:border-b-0 ${
+                  !notification.is_read ? 'bg-accent/20' : ''
+                }`}
               >
                 <div className="flex items-start justify-between w-full gap-2">
                   <p className="font-medium text-sm">{getTitle(notification)}</p>
                   {!notification.is_read && (
-                    <div className="h-2 w-2 rounded-full bg-green-500 flex-shrink-0 mt-1" />
+                    <div className="h-1.5 w-1.5 rounded-full bg-primary flex-shrink-0 mt-1.5" />
                   )}
                 </div>
                 <p className="text-xs text-muted-foreground line-clamp-2">
                   {getContent(notification)}
                 </p>
-                <p className="text-xs text-muted-foreground">
+                <p className="text-xs text-muted-foreground/60">
                   {formatDistanceToNow(new Date(notification.created_at), {
                     addSuffix: true,
                   })}

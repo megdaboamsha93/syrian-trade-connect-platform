@@ -70,10 +70,7 @@ export default function RFQMarketplace() {
       // Fetch open RFQs
       const { data: openData, error: openError } = await supabase
         .from('rfq_requests')
-        .select(`
-          *,
-          profiles:requester_id(full_name)
-        `)
+        .select('*')
         .eq('is_public', true)
         .eq('rfq_type', 'open')
         .eq('status', 'pending')
@@ -84,10 +81,7 @@ export default function RFQMarketplace() {
       // Fetch governmental RFQs
       const { data: govData, error: govError } = await supabase
         .from('rfq_requests')
-        .select(`
-          *,
-          profiles:requester_id(full_name)
-        `)
+        .select('*')
         .eq('is_public', true)
         .eq('rfq_type', 'governmental')
         .eq('status', 'pending')
