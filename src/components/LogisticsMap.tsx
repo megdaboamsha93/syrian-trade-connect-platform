@@ -41,6 +41,25 @@ const portCoordinates: Record<string, [number, number]> = {
   'Singapore': [1.2644, 103.8220], // Singapore Port
 };
 
+// Land/city coordinates for land, air, and rail routes
+const cityCoordinates: Record<string, [number, number]> = {
+  'Syria': [33.5138, 36.2765], // Damascus
+  'Lebanon': [33.8886, 35.4955], // Beirut
+  'Turkey': [39.9334, 32.8597], // Ankara
+  'Iraq': [33.3152, 44.3661], // Baghdad
+  'Jordan': [31.9454, 35.9284], // Amman
+  'Egypt': [30.0444, 31.2357], // Cairo
+  'UAE': [25.2048, 55.2708], // Dubai
+  'Saudi Arabia': [24.7136, 46.6753], // Riyadh
+  'Germany': [52.5200, 13.4050], // Berlin
+  'France': [48.8566, 2.3522], // Paris
+  'Italy': [41.9028, 12.4964], // Rome
+  'Greece': [37.9838, 23.7275], // Athens
+  'Cyprus': [35.1856, 33.3823], // Nicosia
+  'Russia': [55.7558, 37.6173], // Moscow
+  'China': [39.9042, 116.4074], // Beijing
+};
+
 // Key waypoints for realistic sea routes (avoiding land)
 const seaWaypoints: Record<string, [number, number][]> = {
   // Mediterranean routes
@@ -158,8 +177,14 @@ export function LogisticsMap({ providers, selectedProvider }: LogisticsMapProps)
 
         {/* Draw routes */}
         {displayedRoutes.map((route, index) => {
-          const originCoords = portCoordinates[route.origin_country];
-          const destCoords = portCoordinates[route.destination_country];
+          // Use port coords for sea routes, city coords for others
+          const originCoords = route.service_type === 'sea' 
+            ? portCoordinates[route.origin_country]
+            : cityCoordinates[route.origin_country] || portCoordinates[route.origin_country];
+          
+          const destCoords = route.service_type === 'sea'
+            ? portCoordinates[route.destination_country]
+            : cityCoordinates[route.destination_country] || portCoordinates[route.destination_country];
 
           if (!originCoords || !destCoords) return null;
 

@@ -41,20 +41,35 @@ export default function LogisticsMarketplace() {
       const { data, error } = await query;
       if (error) throw error;
       
-      // Filter by region on the client side since we need to check service_areas
+      // Filter by region on the client side since we need to check shipping routes OR service areas
       if (regionFilter !== 'all' && data) {
-        return data.filter(provider => 
-          provider.service_areas?.some((area: any) => {
-            if (regionFilter === 'middle-east') {
-              return ['Syria', 'Lebanon', 'Turkey', 'Iraq', 'Jordan', 'Egypt', 'UAE', 'Saudi Arabia'].includes(area.country);
-            } else if (regionFilter === 'europe') {
-              return ['Germany', 'France', 'Italy', 'Greece', 'Cyprus', 'Spain', 'Netherlands'].includes(area.country);
-            } else if (regionFilter === 'asia') {
-              return ['China', 'India', 'Singapore', 'Russia'].includes(area.country);
-            }
-            return false;
-          })
-        );
+        return data.filter(provider => {
+          const middleEastCountries = ['Syria', 'Lebanon', 'Turkey', 'Iraq', 'Jordan', 'Egypt', 'UAE', 'Saudi Arabia', 'Palestine', 'Kuwait', 'Bahrain', 'Qatar', 'Oman', 'Yemen'];
+          const europeCountries = ['Germany', 'France', 'Italy', 'Greece', 'Cyprus', 'Spain', 'Netherlands', 'Belgium', 'Austria', 'Switzerland', 'UK', 'Poland'];
+          const asiaCountries = ['China', 'India', 'Singapore', 'Russia', 'Japan', 'South Korea', 'Thailand', 'Malaysia', 'Vietnam'];
+          
+          let countriesInRegion: string[] = [];
+          if (regionFilter === 'middle-east') {
+            countriesInRegion = middleEastCountries;
+          } else if (regionFilter === 'europe') {
+            countriesInRegion = europeCountries;
+          } else if (regionFilter === 'asia') {
+            countriesInRegion = asiaCountries;
+          }
+          
+          // Check if provider has routes to/from the region
+          const hasRouteInRegion = provider.shipping_routes?.some((route: any) => 
+            countriesInRegion.includes(route.origin_country) || 
+            countriesInRegion.includes(route.destination_country)
+          );
+          
+          // Check if provider has service areas in the region
+          const hasServiceAreaInRegion = provider.service_areas?.some((area: any) => 
+            countriesInRegion.includes(area.country)
+          );
+          
+          return hasRouteInRegion || hasServiceAreaInRegion;
+        });
       }
       
       return data;
