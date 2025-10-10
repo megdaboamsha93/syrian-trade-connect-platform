@@ -4,6 +4,7 @@ import { MapContainer, TileLayer, Marker, Popup, Polyline, useMap } from 'react-
 import { useLanguage } from '@/contexts/LanguageContext';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
+import { computeGreatCircle, computeSeaPath } from '@/utils/logistics-routing';
 
 // Fix for default marker icons in React Leaflet
 delete (L.Icon.Default.prototype as any)._getIconUrl;
@@ -83,6 +84,7 @@ const seaWaypoints: Record<string, [number, number][]> = {
 interface LogisticsMapProps {
   providers: any[];
   selectedProvider: string | null;
+  serviceFilter?: string;
   onProviderSelect: (id: string | null) => void;
 }
 
@@ -96,7 +98,7 @@ function MapUpdater({ center }: { center: [number, number] }) {
   return null;
 }
 
-export function LogisticsMap({ providers, selectedProvider }: LogisticsMapProps) {
+export function LogisticsMap({ providers, selectedProvider, serviceFilter = 'all' }: LogisticsMapProps) {
   const { language } = useLanguage();
 
   // Center on Syria by default
@@ -111,10 +113,14 @@ export function LogisticsMap({ providers, selectedProvider }: LogisticsMapProps)
     })) || []
   );
 
-  // Filter routes if a provider is selected
-  const displayedRoutes = selectedProvider
+  // Filter routes by selected provider and service type
+  const filteredByProvider = selectedProvider
     ? allRoutes.filter(route => route.provider_id === selectedProvider)
     : allRoutes;
+
+  const displayedRoutes = serviceFilter !== 'all'
+    ? filteredByProvider.filter((r: any) => r.service_type === serviceFilter)
+    : filteredByProvider;
 
   // Get route color based on service type
   const getRouteColor = (serviceType: string) => {
@@ -127,36 +133,23 @@ export function LogisticsMap({ providers, selectedProvider }: LogisticsMapProps)
     }
   };
 
-  // Calculate realistic route with waypoints
+  // Calculate realistic route using robust strategies per service type
   const calculateRoute = (
     origin: [number, number],
     dest: [number, number],
     serviceType: string
   ): [number, number][] => {
     if (serviceType === 'air') {
-      // Air routes can be direct
-      return [origin, dest];
+      // Great-circle arc for flights
+      return computeGreatCircle(origin, dest, 64);
     }
 
     if (serviceType === 'sea') {
-      // Add waypoints for sea routes to follow coastlines
-      const route: [number, number][] = [origin];
-      
-      // If route crosses Mediterranean
-      if (origin[1] < 40 && dest[1] < 40 && Math.abs(origin[1] - dest[1]) > 10) {
-        route.push(...seaWaypoints['med-east-west']);
-      }
-      
-      // If route involves Gulf region
-      if ((origin[1] > 45 && origin[1] < 60) || (dest[1] > 45 && dest[1] < 60)) {
-        route.push(...seaWaypoints['gulf']);
-      }
-      
-      route.push(dest);
-      return route;
+      // Path through curated maritime waypoint network to avoid land
+      return computeSeaPath(origin, dest);
     }
 
-    // Land and rail routes - direct for now
+    // Land and rail: keep simple straight line for now
     return [origin, dest];
   };
 

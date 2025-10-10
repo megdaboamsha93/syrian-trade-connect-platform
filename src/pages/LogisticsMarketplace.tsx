@@ -167,6 +167,7 @@ export default function LogisticsMarketplace() {
                 <LogisticsMap 
                   providers={providers || []} 
                   selectedProvider={selectedProvider}
+                  serviceFilter={serviceTypeFilter}
                   onProviderSelect={setSelectedProvider}
                 />
               </CardContent>
