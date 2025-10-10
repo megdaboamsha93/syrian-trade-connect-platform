@@ -538,6 +538,115 @@ export type Database = {
         }
         Relationships: []
       }
+      orders: {
+        Row: {
+          actual_delivery_date: string | null
+          agreed_price: number
+          buyer_id: string
+          cancellation_reason: string | null
+          cancelled_at: string | null
+          completed_at: string | null
+          confirmed_at: string | null
+          created_at: string
+          currency: string | null
+          delivery_location: string
+          expected_delivery_date: string | null
+          id: string
+          notes: string | null
+          order_number: string
+          payment_status: string | null
+          payment_terms: string | null
+          product_category: string
+          product_name: string
+          quantity: string
+          rfq_request_id: string
+          rfq_response_id: string | null
+          seller_business_id: string
+          status: string
+          terms_and_conditions: string | null
+          unit: string | null
+          updated_at: string
+        }
+        Insert: {
+          actual_delivery_date?: string | null
+          agreed_price: number
+          buyer_id: string
+          cancellation_reason?: string | null
+          cancelled_at?: string | null
+          completed_at?: string | null
+          confirmed_at?: string | null
+          created_at?: string
+          currency?: string | null
+          delivery_location: string
+          expected_delivery_date?: string | null
+          id?: string
+          notes?: string | null
+          order_number: string
+          payment_status?: string | null
+          payment_terms?: string | null
+          product_category: string
+          product_name: string
+          quantity: string
+          rfq_request_id: string
+          rfq_response_id?: string | null
+          seller_business_id: string
+          status?: string
+          terms_and_conditions?: string | null
+          unit?: string | null
+          updated_at?: string
+        }
+        Update: {
+          actual_delivery_date?: string | null
+          agreed_price?: number
+          buyer_id?: string
+          cancellation_reason?: string | null
+          cancelled_at?: string | null
+          completed_at?: string | null
+          confirmed_at?: string | null
+          created_at?: string
+          currency?: string | null
+          delivery_location?: string
+          expected_delivery_date?: string | null
+          id?: string
+          notes?: string | null
+          order_number?: string
+          payment_status?: string | null
+          payment_terms?: string | null
+          product_category?: string
+          product_name?: string
+          quantity?: string
+          rfq_request_id?: string
+          rfq_response_id?: string | null
+          seller_business_id?: string
+          status?: string
+          terms_and_conditions?: string | null
+          unit?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "orders_rfq_request_id_fkey"
+            columns: ["rfq_request_id"]
+            isOneToOne: false
+            referencedRelation: "rfq_requests"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "orders_rfq_response_id_fkey"
+            columns: ["rfq_response_id"]
+            isOneToOne: false
+            referencedRelation: "rfq_responses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "orders_seller_business_id_fkey"
+            columns: ["seller_business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       product_views: {
         Row: {
           business_id: string
@@ -1142,6 +1251,10 @@ export type Database = {
       delete_conversation_for_user: {
         Args: { _conversation_id: string; _user_id: string }
         Returns: undefined
+      }
+      generate_order_number: {
+        Args: Record<PropertyKey, never>
+        Returns: string
       }
       get_business_daily_views: {
         Args: { _business_id: string; _days?: number }

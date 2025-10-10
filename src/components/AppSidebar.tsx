@@ -78,6 +78,12 @@ export function AppSidebar() {
       requiresAuth: true,
     },
     {
+      titleKey: 'nav.orders',
+      url: '/orders',
+      icon: ClipboardList,
+      requiresAuth: true,
+    },
+    {
       titleKey: 'nav.favorites',
       url: '/favorites',
       icon: Heart,

@@ -26,6 +26,7 @@ import Settings from "./pages/Settings";
 import RFQBoard from './pages/RFQBoard';
 import RFQs from './pages/RFQs';
 import RFQMarketplace from './pages/RFQMarketplace';
+import Orders from './pages/Orders';
 import LogisticsMarketplace from './pages/LogisticsMarketplace';
 import MyLogistics from './pages/MyLogistics';
 import NotFound from "./pages/NotFound";
@@ -61,6 +62,7 @@ const App = () => (
                 <Route path="/rfqs" element={<ProtectedRoute><RFQs /></ProtectedRoute>} />
                 <Route path="/rfq-board" element={<RFQBoard />} />
                 <Route path="/rfq-marketplace" element={<RFQMarketplace />} />
+                <Route path="/orders" element={<ProtectedRoute><Orders /></ProtectedRoute>} />
                 <Route path="/logistics" element={<LogisticsMarketplace />} />
                 <Route path="/my-logistics" element={<ProtectedRoute><MyLogistics /></ProtectedRoute>} />
                 <Route path="*" element={<NotFound />} />

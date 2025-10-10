@@ -46,6 +46,11 @@ interface RFQResponse {
   validity_period: string | null;
   notes: string | null;
   created_at: string;
+  business_id: string;
+  businesses?: {
+    name_en: string;
+    name_ar: string;
+  };
 }
 
 export default function RFQs() {
@@ -54,9 +59,12 @@ export default function RFQs() {
   const { toast } = useToast();
   const [sentRequests, setSentRequests] = useState<RFQRequest[]>([]);
   const [receivedRequests, setReceivedRequests] = useState<RFQRequest[]>([]);
+  const [sentQuotes, setSentQuotes] = useState<Record<string, RFQResponse[]>>({});
   const [loading, setLoading] = useState(true);
   const [selectedRFQ, setSelectedRFQ] = useState<RFQRequest | null>(null);
   const [showResponseDialog, setShowResponseDialog] = useState(false);
+  const [showQuotesDialog, setShowQuotesDialog] = useState(false);
+  const [selectedQuotes, setSelectedQuotes] = useState<RFQResponse[]>([]);
   const [responseForm, setResponseForm] = useState({
     quoted_price: '',
     unit_price: '',
@@ -83,6 +91,27 @@ export default function RFQs() {
       `)
       .eq('requester_id', user?.id)
       .order('created_at', { ascending: false });
+
+    // Load quotes for sent requests
+    if (sent && sent.length > 0) {
+      const sentIds = sent.map(r => r.id);
+      const { data: quotes } = await supabase
+        .from('rfq_responses')
+        .select(`
+          *,
+          businesses (name_en, name_ar)
+        `)
+        .in('rfq_request_id', sentIds);
+
+      const quotesMap: Record<string, RFQResponse[]> = {};
+      quotes?.forEach((quote: any) => {
+        if (!quotesMap[quote.rfq_request_id]) {
+          quotesMap[quote.rfq_request_id] = [];
+        }
+        quotesMap[quote.rfq_request_id].push(quote);
+      });
+      setSentQuotes(quotesMap);
+    }
 
     // Load received requests (for user's businesses)
     const { data: businesses } = await supabase
@@ -155,6 +184,60 @@ export default function RFQs() {
       validity_period: '',
       notes: '',
     });
+    loadRFQs();
+  };
+
+  const viewQuotes = (rfqId: string) => {
+    const quotes = sentQuotes[rfqId] || [];
+    setSelectedQuotes(quotes);
+    setSelectedRFQ(sentRequests.find(r => r.id === rfqId) || null);
+    setShowQuotesDialog(true);
+  };
+
+  const acceptQuote = async (quote: RFQResponse) => {
+    if (!selectedRFQ) return;
+
+    // Generate order number
+    const { data: orderNumber } = await supabase.rpc('generate_order_number');
+
+    // Create order
+    const { error } = await supabase.from('orders').insert({
+      rfq_request_id: selectedRFQ.id,
+      rfq_response_id: quote.id,
+      buyer_id: user?.id,
+      seller_business_id: quote.business_id,
+      order_number: orderNumber,
+      product_name: selectedRFQ.product_name,
+      product_category: selectedRFQ.product_category,
+      quantity: selectedRFQ.quantity,
+      unit: selectedRFQ.unit,
+      agreed_price: quote.quoted_price,
+      currency: quote.currency,
+      delivery_location: selectedRFQ.delivery_location || '',
+      payment_terms: quote.validity_period,
+    });
+
+    if (error) {
+      toast({
+        title: language === 'ar' ? 'خطأ' : 'Error',
+        description: language === 'ar' ? 'فشل في إنشاء الطلب' : 'Failed to create order',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    // Update RFQ status
+    await supabase
+      .from('rfq_requests')
+      .update({ status: 'accepted' })
+      .eq('id', selectedRFQ.id);
+
+    toast({
+      title: language === 'ar' ? 'تم القبول' : 'Accepted',
+      description: language === 'ar' ? 'تم قبول العرض وإنشاء الطلب' : 'Quote accepted and order created',
+    });
+
+    setShowQuotesDialog(false);
     loadRFQs();
   };
 
@@ -237,6 +320,12 @@ export default function RFQs() {
         {!isSent && rfq.status === 'pending' && (
           <Button onClick={() => handleRespondToRFQ(rfq.id)} className="w-full">
             {language === 'ar' ? 'الرد بعرض سعر' : 'Respond with Quote'}
+          </Button>
+        )}
+
+        {isSent && sentQuotes[rfq.id] && sentQuotes[rfq.id].length > 0 && (
+          <Button onClick={() => viewQuotes(rfq.id)} variant="outline" className="w-full">
+            {language === 'ar' ? `عرض العروض (${sentQuotes[rfq.id].length})` : `View Quotes (${sentQuotes[rfq.id].length})`}
           </Button>
         )}
       </CardContent>
@@ -356,6 +445,71 @@ export default function RFQs() {
                 {language === 'ar' ? 'إرسال عرض السعر' : 'Send Quote'}
               </Button>
             </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={showQuotesDialog} onOpenChange={setShowQuotesDialog}>
+        <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>
+              {language === 'ar' ? 'العروض المستلمة' : 'Received Quotes'}
+            </DialogTitle>
+          </DialogHeader>
+
+          <div className="space-y-4">
+            {selectedQuotes.map((quote) => (
+              <Card key={quote.id}>
+                <CardHeader>
+                  <CardTitle className="text-lg">
+                    {language === 'ar' ? quote.businesses?.name_ar : quote.businesses?.name_en}
+                  </CardTitle>
+                  <CardDescription>
+                    {format(new Date(quote.created_at), 'MMM dd, yyyy HH:mm')}
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <p className="text-sm text-muted-foreground">{language === 'ar' ? 'السعر الإجمالي' : 'Total Price'}</p>
+                      <p className="text-lg font-semibold">{quote.quoted_price} {quote.currency}</p>
+                    </div>
+                    {quote.unit_price && (
+                      <div>
+                        <p className="text-sm text-muted-foreground">{language === 'ar' ? 'سعر الوحدة' : 'Unit Price'}</p>
+                        <p className="text-lg font-semibold">{quote.unit_price} {quote.currency}</p>
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4">
+                    {quote.lead_time && (
+                      <div>
+                        <p className="text-sm text-muted-foreground">{language === 'ar' ? 'مدة التسليم' : 'Lead Time'}</p>
+                        <p className="font-medium">{quote.lead_time}</p>
+                      </div>
+                    )}
+                    {quote.validity_period && (
+                      <div>
+                        <p className="text-sm text-muted-foreground">{language === 'ar' ? 'فترة الصلاحية' : 'Validity'}</p>
+                        <p className="font-medium">{quote.validity_period}</p>
+                      </div>
+                    )}
+                  </div>
+
+                  {quote.notes && (
+                    <div>
+                      <p className="text-sm text-muted-foreground">{language === 'ar' ? 'ملاحظات' : 'Notes'}</p>
+                      <p className="text-sm">{quote.notes}</p>
+                    </div>
+                  )}
+
+                  <Button onClick={() => acceptQuote(quote)} className="w-full">
+                    {language === 'ar' ? 'قبول العرض' : 'Accept Quote'}
+                  </Button>
+                </CardContent>
+              </Card>
+            ))}
           </div>
         </DialogContent>
       </Dialog>
