@@ -664,6 +664,66 @@ export type Database = {
         }
         Relationships: []
       }
+      rfq_logistics_responses: {
+        Row: {
+          created_at: string
+          currency: string | null
+          estimated_transit_days: number | null
+          id: string
+          notes: string | null
+          provider_id: string
+          quoted_price: number
+          rfq_request_id: string
+          route_details: string | null
+          service_type: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          currency?: string | null
+          estimated_transit_days?: number | null
+          id?: string
+          notes?: string | null
+          provider_id: string
+          quoted_price: number
+          rfq_request_id: string
+          route_details?: string | null
+          service_type: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          currency?: string | null
+          estimated_transit_days?: number | null
+          id?: string
+          notes?: string | null
+          provider_id?: string
+          quoted_price?: number
+          rfq_request_id?: string
+          route_details?: string | null
+          service_type?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "rfq_logistics_responses_provider_id_fkey"
+            columns: ["provider_id"]
+            isOneToOne: false
+            referencedRelation: "logistics_providers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "rfq_logistics_responses_rfq_request_id_fkey"
+            columns: ["rfq_request_id"]
+            isOneToOne: false
+            referencedRelation: "rfq_requests"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       rfq_requests: {
         Row: {
           budget_range: string | null
@@ -672,12 +732,15 @@ export type Database = {
           description: string | null
           id: string
           is_public: boolean | null
+          needs_logistics: boolean | null
+          preferred_service_type: string | null
           product_category: string
           product_name: string
           quantity: string
           requester_id: string
           required_by: string | null
           rfq_type: string
+          shipping_origin: string | null
           status: string
           target_business_id: string | null
           unit: string | null
@@ -690,12 +753,15 @@ export type Database = {
           description?: string | null
           id?: string
           is_public?: boolean | null
+          needs_logistics?: boolean | null
+          preferred_service_type?: string | null
           product_category: string
           product_name: string
           quantity: string
           requester_id: string
           required_by?: string | null
           rfq_type?: string
+          shipping_origin?: string | null
           status?: string
           target_business_id?: string | null
           unit?: string | null
@@ -708,12 +774,15 @@ export type Database = {
           description?: string | null
           id?: string
           is_public?: boolean | null
+          needs_logistics?: boolean | null
+          preferred_service_type?: string | null
           product_category?: string
           product_name?: string
           quantity?: string
           requester_id?: string
           required_by?: string | null
           rfq_type?: string
+          shipping_origin?: string | null
           status?: string
           target_business_id?: string | null
           unit?: string | null

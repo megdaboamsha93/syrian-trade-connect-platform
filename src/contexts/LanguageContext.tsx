@@ -301,8 +301,7 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
       'nav.messages': 'الرسائل',
       'nav.rfqs': 'طلبات الأسعار',
       'nav.logistics': 'النقل والشحن',
-      'nav.myLogistics': 'خدمات الشحن الخاصة بي',
-      'nav.myLogistics': 'خدماتي اللوجستية',
+      'nav.myLogistics': 'خدمات الشحن',
       // Analytics
       'analytics.noBusinessFound': 'لم يتم العثور على عمل',
       'analytics.pleaseRegisterFirst': 'يرجى تسجيل عمل أولاً لعرض التحليلات',
