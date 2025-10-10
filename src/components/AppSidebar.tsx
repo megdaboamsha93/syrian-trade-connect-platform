@@ -45,18 +45,6 @@ export function AppSidebar() {
       icon: Heart,
       requiresAuth: true,
     },
-    {
-      titleKey: 'nav.messages',
-      url: '/messages',
-      icon: MessageSquare,
-      requiresAuth: true,
-    },
-    {
-      titleKey: 'nav.rfqs',
-      url: '/rfqs',
-      icon: FileText,
-      requiresAuth: true,
-    },
   ];
 
   const businessItems = [
@@ -70,6 +58,21 @@ export function AppSidebar() {
       titleKey: 'nav.analytics',
       url: '/analytics',
       icon: BarChart3,
+      requiresAuth: true,
+    },
+  ];
+
+  const communicationItems = [
+    {
+      titleKey: 'nav.messages',
+      url: '/messages',
+      icon: MessageSquare,
+      requiresAuth: true,
+    },
+    {
+      titleKey: 'nav.rfqs',
+      url: '/rfqs',
+      icon: FileText,
       requiresAuth: true,
     },
   ];
@@ -125,6 +128,32 @@ export function AppSidebar() {
             <SidebarGroupContent>
               <SidebarMenu>
               {businessItems.map((item) => {
+                const title = t(item.titleKey);
+                return (
+                  <SidebarMenuItem key={item.titleKey} className="group-data-[collapsible=icon]:flex group-data-[collapsible=icon]:justify-center">
+                    <SidebarMenuButton asChild tooltip={title} isActive={isActive(item.url)}>
+                      <NavLink to={item.url} className="flex items-center gap-2 group-data-[collapsible=icon]:!w-10 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:gap-0">
+                        <item.icon className="h-5 w-5 group-data-[collapsible=icon]:mx-auto" />
+                        <span className="truncate group-data-[collapsible=icon]:hidden">{title}</span>
+                      </NavLink>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                );
+              })}
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+        )}
+
+        {/* Communication Section - Only show if logged in */}
+        {user && (
+          <SidebarGroup>
+            <SidebarGroupLabel className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2 group-data-[collapsible=icon]:hidden">
+              {t('nav.messages')}
+            </SidebarGroupLabel>
+            <SidebarGroupContent>
+              <SidebarMenu>
+              {communicationItems.map((item) => {
                 const title = t(item.titleKey);
                 return (
                   <SidebarMenuItem key={item.titleKey} className="group-data-[collapsible=icon]:flex group-data-[collapsible=icon]:justify-center">

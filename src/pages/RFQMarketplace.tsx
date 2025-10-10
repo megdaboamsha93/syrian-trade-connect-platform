@@ -225,7 +225,7 @@ export default function RFQMarketplace() {
             <div className="grid grid-cols-2 gap-3 text-sm">
               <div className="flex items-center gap-2">
                 <Package className="h-4 w-4 text-muted-foreground" />
-                <span>{rfq.quantity} {rfq.unit || ''}</span>
+                <span>{rfq.quantity}{rfq.unit ? ` ${rfq.unit}` : ''}</span>
               </div>
               
               {rfq.budget_range && (
