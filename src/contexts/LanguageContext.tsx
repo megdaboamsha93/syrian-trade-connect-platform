@@ -28,6 +28,7 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
       'nav.messages': 'Messages',
       'nav.rfqs': 'RFQs',
       'nav.logistics': 'Logistics',
+      'nav.myLogistics': 'My Logistics',
       // Analytics
       'analytics.noBusinessFound': 'No Business Found',
       'analytics.pleaseRegisterFirst': 'Please register a business first to view analytics',
@@ -300,6 +301,7 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
       'nav.messages': 'الرسائل',
       'nav.rfqs': 'طلبات الأسعار',
       'nav.logistics': 'النقل والشحن',
+      'nav.myLogistics': 'خدماتي اللوجستية',
       // Analytics
       'analytics.noBusinessFound': 'لم يتم العثور على عمل',
       'analytics.pleaseRegisterFirst': 'يرجى تسجيل عمل أولاً لعرض التحليلات',

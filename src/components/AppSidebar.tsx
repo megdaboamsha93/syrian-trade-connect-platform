@@ -54,6 +54,12 @@ export function AppSidebar() {
       requiresAuth: true,
     },
     {
+      titleKey: 'nav.myLogistics',
+      url: '/my-logistics',
+      icon: Truck,
+      requiresAuth: true,
+    },
+    {
       titleKey: 'nav.analytics',
       url: '/analytics',
       icon: BarChart3,
