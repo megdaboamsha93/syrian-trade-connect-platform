@@ -13,23 +13,52 @@ L.Icon.Default.mergeOptions({
   shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png',
 });
 
-// Country coordinates for common Middle Eastern and European countries
-const countryCoordinates: Record<string, [number, number]> = {
-  'Syria': [34.8021, 38.9968],
-  'Lebanon': [33.8547, 35.8623],
-  'Turkey': [38.9637, 35.2433],
-  'Iraq': [33.2232, 43.6793],
-  'Jordan': [30.5852, 36.2384],
-  'Egypt': [26.8206, 30.8025],
-  'UAE': [23.4241, 53.8478],
-  'Saudi Arabia': [23.8859, 45.0792],
-  'Germany': [51.1657, 10.4515],
-  'France': [46.2276, 2.2137],
-  'Italy': [41.8719, 12.5674],
-  'Greece': [39.0742, 21.8243],
-  'Cyprus': [35.1264, 33.4299],
-  'Russia': [61.5240, 105.3188],
-  'China': [35.8617, 104.1954],
+// Port/Hub coordinates for major trade routes
+const portCoordinates: Record<string, [number, number]> = {
+  // Middle East Ports
+  'Syria': [35.5138, 35.7800], // Latakia Port
+  'Lebanon': [33.9010, 35.4951], // Beirut Port
+  'Turkey': [41.0205, 28.9747], // Istanbul Port
+  'Iraq': [30.5085, 47.7830], // Umm Qasr Port
+  'Jordan': [29.5321, 35.0063], // Aqaba Port
+  'Egypt': [31.2001, 29.9187], // Alexandria Port
+  'UAE': [25.2867, 55.3364], // Dubai Port
+  'Saudi Arabia': [21.5433, 39.1728], // Jeddah Port
+  
+  // European Ports
+  'Germany': [53.5511, 9.9937], // Hamburg Port
+  'France': [43.2965, 5.3698], // Marseille Port
+  'Italy': [40.8518, 14.2681], // Naples Port
+  'Greece': [37.9420, 23.6463], // Piraeus Port
+  'Cyprus': [34.9174, 33.6290], // Limassol Port
+  'Spain': [41.3851, 2.1734], // Barcelona Port
+  'Netherlands': [51.9225, 4.4792], // Rotterdam Port
+  
+  // Major Hubs
+  'Russia': [43.1332, 131.9113], // Vladivostok (Far East)
+  'China': [31.2304, 121.4737], // Shanghai Port
+  'India': [18.9388, 72.8354], // Mumbai Port
+  'Singapore': [1.2644, 103.8220], // Singapore Port
+};
+
+// Key waypoints for realistic sea routes (avoiding land)
+const seaWaypoints: Record<string, [number, number][]> = {
+  // Mediterranean routes
+  'med-east-west': [
+    [35.5, 25.0], // Between Cyprus and Crete
+    [37.0, 15.0], // Sicily strait
+  ],
+  // Suez Canal route
+  'suez': [
+    [30.0, 32.5], // Suez Canal north
+    [29.0, 33.0], // Suez Canal south
+    [20.0, 40.0], // Red Sea
+  ],
+  // Gulf routes
+  'gulf': [
+    [26.0, 56.0], // Strait of Hormuz
+    [25.0, 60.0], // Arabian Sea
+  ],
 };
 
 interface LogisticsMapProps {
@@ -79,6 +108,39 @@ export function LogisticsMap({ providers, selectedProvider }: LogisticsMapProps)
     }
   };
 
+  // Calculate realistic route with waypoints
+  const calculateRoute = (
+    origin: [number, number],
+    dest: [number, number],
+    serviceType: string
+  ): [number, number][] => {
+    if (serviceType === 'air') {
+      // Air routes can be direct
+      return [origin, dest];
+    }
+
+    if (serviceType === 'sea') {
+      // Add waypoints for sea routes to follow coastlines
+      const route: [number, number][] = [origin];
+      
+      // If route crosses Mediterranean
+      if (origin[1] < 40 && dest[1] < 40 && Math.abs(origin[1] - dest[1]) > 10) {
+        route.push(...seaWaypoints['med-east-west']);
+      }
+      
+      // If route involves Gulf region
+      if ((origin[1] > 45 && origin[1] < 60) || (dest[1] > 45 && dest[1] < 60)) {
+        route.push(...seaWaypoints['gulf']);
+      }
+      
+      route.push(dest);
+      return route;
+    }
+
+    // Land and rail routes - direct for now
+    return [origin, dest];
+  };
+
   return (
     <div className="relative w-full h-[500px] rounded-lg overflow-hidden">
       <MapContainer
@@ -96,12 +158,13 @@ export function LogisticsMap({ providers, selectedProvider }: LogisticsMapProps)
 
         {/* Draw routes */}
         {displayedRoutes.map((route, index) => {
-          const originCoords = countryCoordinates[route.origin_country];
-          const destCoords = countryCoordinates[route.destination_country];
+          const originCoords = portCoordinates[route.origin_country];
+          const destCoords = portCoordinates[route.destination_country];
 
           if (!originCoords || !destCoords) return null;
 
           const routeColor = getRouteColor(route.service_type);
+          const routePath = calculateRoute(originCoords, destCoords, route.service_type);
 
           return (
             <div key={`${route.id}-${index}`}>
@@ -133,14 +196,14 @@ export function LogisticsMap({ providers, selectedProvider }: LogisticsMapProps)
                 </Popup>
               </Marker>
 
-              {/* Route Line */}
+              {/* Route Line with waypoints */}
               <Polyline
                 // @ts-ignore
-                positions={[originCoords, destCoords]}
+                positions={routePath}
                 pathOptions={{
                   color: routeColor,
-                  weight: 2,
-                  opacity: 0.6,
+                  weight: 3,
+                  opacity: 0.7,
                   dashArray: route.service_type === 'air' ? '10, 10' : undefined,
                 }}
               >

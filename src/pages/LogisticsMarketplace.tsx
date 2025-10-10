@@ -14,10 +14,11 @@ export default function LogisticsMarketplace() {
   const { t, language } = useLanguage();
   const [searchQuery, setSearchQuery] = useState('');
   const [serviceTypeFilter, setServiceTypeFilter] = useState<string>('all');
+  const [regionFilter, setRegionFilter] = useState<string>('all');
   const [selectedProvider, setSelectedProvider] = useState<string | null>(null);
 
   const { data: providers, isLoading } = useQuery({
-    queryKey: ['logistics-providers', searchQuery, serviceTypeFilter],
+    queryKey: ['logistics-providers', searchQuery, serviceTypeFilter, regionFilter],
     queryFn: async () => {
       let query = supabase
         .from('logistics_providers')
@@ -39,6 +40,23 @@ export default function LogisticsMarketplace() {
 
       const { data, error } = await query;
       if (error) throw error;
+      
+      // Filter by region on the client side since we need to check service_areas
+      if (regionFilter !== 'all' && data) {
+        return data.filter(provider => 
+          provider.service_areas?.some((area: any) => {
+            if (regionFilter === 'middle-east') {
+              return ['Syria', 'Lebanon', 'Turkey', 'Iraq', 'Jordan', 'Egypt', 'UAE', 'Saudi Arabia'].includes(area.country);
+            } else if (regionFilter === 'europe') {
+              return ['Germany', 'France', 'Italy', 'Greece', 'Cyprus', 'Spain', 'Netherlands'].includes(area.country);
+            } else if (regionFilter === 'asia') {
+              return ['China', 'India', 'Singapore', 'Russia'].includes(area.country);
+            }
+            return false;
+          })
+        );
+      }
+      
       return data;
     },
   });
@@ -80,10 +98,10 @@ export default function LogisticsMarketplace() {
           />
           
           <Select value={serviceTypeFilter} onValueChange={setServiceTypeFilter}>
-            <SelectTrigger>
+            <SelectTrigger className="z-50">
               <SelectValue placeholder={language === 'ar' ? 'نوع الخدمة' : 'Service Type'} />
             </SelectTrigger>
-            <SelectContent>
+            <SelectContent className="z-[1001]">
               <SelectItem value="all">{language === 'ar' ? 'جميع الخدمات' : 'All Services'}</SelectItem>
               <SelectItem value="air">{language === 'ar' ? 'جوي' : 'Air'}</SelectItem>
               <SelectItem value="sea">{language === 'ar' ? 'بحري' : 'Sea'}</SelectItem>
@@ -92,10 +110,28 @@ export default function LogisticsMarketplace() {
             </SelectContent>
           </Select>
 
-          <Button variant="outline">
-            <MapPin className="mr-2 h-4 w-4" />
-            {language === 'ar' ? 'تصفية حسب المنطقة' : 'Filter by Region'}
-          </Button>
+          <Select value={regionFilter} onValueChange={setRegionFilter}>
+            <SelectTrigger className="z-50">
+              <SelectValue>
+                <div className="flex items-center">
+                  <MapPin className="mr-2 h-4 w-4" />
+                  {regionFilter === 'all' 
+                    ? (language === 'ar' ? 'جميع المناطق' : 'All Regions')
+                    : regionFilter === 'middle-east'
+                    ? (language === 'ar' ? 'الشرق الأوسط' : 'Middle East')
+                    : regionFilter === 'europe'
+                    ? (language === 'ar' ? 'أوروبا' : 'Europe')
+                    : (language === 'ar' ? 'آسيا' : 'Asia')}
+                </div>
+              </SelectValue>
+            </SelectTrigger>
+            <SelectContent className="z-[1001]">
+              <SelectItem value="all">{language === 'ar' ? 'جميع المناطق' : 'All Regions'}</SelectItem>
+              <SelectItem value="middle-east">{language === 'ar' ? 'الشرق الأوسط' : 'Middle East'}</SelectItem>
+              <SelectItem value="europe">{language === 'ar' ? 'أوروبا' : 'Europe'}</SelectItem>
+              <SelectItem value="asia">{language === 'ar' ? 'آسيا' : 'Asia'}</SelectItem>
+            </SelectContent>
+          </Select>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
