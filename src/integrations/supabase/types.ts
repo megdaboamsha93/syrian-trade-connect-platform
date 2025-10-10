@@ -359,6 +359,63 @@ export type Database = {
           },
         ]
       }
+      logistics_providers: {
+        Row: {
+          average_rating: number | null
+          company_name_ar: string
+          company_name_en: string
+          contact_email: string
+          contact_phone: string | null
+          created_at: string
+          description_ar: string | null
+          description_en: string | null
+          id: string
+          is_verified: boolean | null
+          logo_url: string | null
+          owner_id: string
+          review_count: number | null
+          service_types: string[] | null
+          updated_at: string
+          website_url: string | null
+        }
+        Insert: {
+          average_rating?: number | null
+          company_name_ar: string
+          company_name_en: string
+          contact_email: string
+          contact_phone?: string | null
+          created_at?: string
+          description_ar?: string | null
+          description_en?: string | null
+          id?: string
+          is_verified?: boolean | null
+          logo_url?: string | null
+          owner_id: string
+          review_count?: number | null
+          service_types?: string[] | null
+          updated_at?: string
+          website_url?: string | null
+        }
+        Update: {
+          average_rating?: number | null
+          company_name_ar?: string
+          company_name_en?: string
+          contact_email?: string
+          contact_phone?: string | null
+          created_at?: string
+          description_ar?: string | null
+          description_en?: string | null
+          id?: string
+          is_verified?: boolean | null
+          logo_url?: string | null
+          owner_id?: string
+          review_count?: number | null
+          service_types?: string[] | null
+          updated_at?: string
+          website_url?: string | null
+        }
+        Relationships: []
+      }
       messages: {
         Row: {
           attachments: string[] | null
@@ -725,6 +782,100 @@ export type Database = {
             columns: ["rfq_request_id"]
             isOneToOne: false
             referencedRelation: "rfq_requests"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      service_areas: {
+        Row: {
+          cities: string[] | null
+          country: string
+          coverage_type: string
+          created_at: string
+          id: string
+          provider_id: string
+        }
+        Insert: {
+          cities?: string[] | null
+          country: string
+          coverage_type: string
+          created_at?: string
+          id?: string
+          provider_id: string
+        }
+        Update: {
+          cities?: string[] | null
+          country?: string
+          coverage_type?: string
+          created_at?: string
+          id?: string
+          provider_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "service_areas_provider_id_fkey"
+            columns: ["provider_id"]
+            isOneToOne: false
+            referencedRelation: "logistics_providers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      shipping_routes: {
+        Row: {
+          created_at: string
+          destination_city: string | null
+          destination_country: string
+          frequency: string | null
+          id: string
+          is_active: boolean | null
+          notes: string | null
+          origin_city: string | null
+          origin_country: string
+          provider_id: string
+          route_name: string
+          service_type: string
+          transit_time_days: number | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          destination_city?: string | null
+          destination_country: string
+          frequency?: string | null
+          id?: string
+          is_active?: boolean | null
+          notes?: string | null
+          origin_city?: string | null
+          origin_country: string
+          provider_id: string
+          route_name: string
+          service_type: string
+          transit_time_days?: number | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          destination_city?: string | null
+          destination_country?: string
+          frequency?: string | null
+          id?: string
+          is_active?: boolean | null
+          notes?: string | null
+          origin_city?: string | null
+          origin_country?: string
+          provider_id?: string
+          route_name?: string
+          service_type?: string
+          transit_time_days?: number | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "shipping_routes_provider_id_fkey"
+            columns: ["provider_id"]
+            isOneToOne: false
+            referencedRelation: "logistics_providers"
             referencedColumns: ["id"]
           },
         ]
