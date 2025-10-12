@@ -43,26 +43,74 @@ export function AppSidebar() {
   const isLogisticsProvider = profile?.business_type === 'logistics_provider' || profile?.business_type === 'both';
   const isStandardBusiness = profile?.business_type === 'standard' || profile?.business_type === 'both';
 
-  const businessItems = [
-    { titleKey: 'nav.home', url: '/', icon: Home },
-    { titleKey: 'nav.browse', url: '/browse', icon: Search },
-    { titleKey: 'rfq.marketplace.title', url: '/rfq-marketplace', icon: ClipboardList },
-    { titleKey: 'nav.logistics', url: '/logistics', icon: Truck },
-    { titleKey: 'nav.favorites', url: '/favorites', icon: Heart },
-    { titleKey: 'nav.myBusinesses', url: '/my-business', icon: Building2 },
-    { titleKey: 'nav.orders', url: '/orders', icon: Package },
-    { titleKey: 'nav.analytics', url: '/analytics', icon: BarChart3 },
+  const exploreItems = [
+    {
+      titleKey: 'nav.home',
+      url: '/',
+      icon: Home,
+    },
+    {
+      titleKey: 'nav.browse',
+      url: '/browse',
+      icon: Search,
+    },
+    {
+      titleKey: 'rfq.marketplace.title',
+      url: '/rfq-marketplace',
+      icon: ClipboardList,
+    },
+    {
+      titleKey: 'nav.logistics',
+      url: '/logistics',
+      icon: Truck,
+    },
+  ];
+
+  // Business items for standard businesses
+  const standardBusinessItems = [
+    {
+      titleKey: 'nav.myBusinesses',
+      url: '/my-business',
+      icon: Building2,
+    },
+    {
+      titleKey: 'nav.orders',
+      url: '/orders',
+      icon: Package,
+    },
+    {
+      titleKey: 'nav.analytics',
+      url: '/analytics',
+      icon: BarChart3,
+    },
   ];
 
   // Logistics items for logistics providers
   const logisticsItems = [
-    { titleKey: 'nav.myLogistics', url: '/my-logistics', icon: Truck },
+    {
+      titleKey: 'nav.myLogistics',
+      url: '/my-logistics',
+      icon: Truck,
+    },
   ];
 
   // Common items for all authenticated users
   const commonItems = [
-    { titleKey: 'nav.messages', url: '/messages', icon: MessageSquare },
-    { titleKey: 'nav.rfqs', url: '/rfqs', icon: FileText },
+    {
+      titleKey: 'nav.messages',
+      url: '/messages',
+      icon: MessageSquare,
+    },
+    {
+      titleKey: 'nav.rfqs',
+      url: '/rfqs',
+      icon: FileText,
+    },
+    {
+      titleKey: 'nav.favorites',
+      url: '/favorites',
+      icon: Heart,
+    },
   ];
 
   return (
@@ -82,7 +130,31 @@ export function AppSidebar() {
       </SidebarHeader>
 
       <SidebarContent className="px-3 py-4 group-data-[collapsible=icon]:px-2">
-        {/* My Business Section - combined with general items */}
+        {/* Explore Section */}
+        <SidebarGroup className="mb-6">
+          <SidebarGroupLabel className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2 group-data-[collapsible=icon]:hidden">
+            {t('nav.home')}
+          </SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {exploreItems.map((item) => {
+                const title = t(item.titleKey);
+                return (
+                  <SidebarMenuItem key={item.titleKey} className="group-data-[collapsible=icon]:flex group-data-[collapsible=icon]:justify-center">
+                    <SidebarMenuButton asChild tooltip={title} isActive={isActive(item.url)}>
+                      <NavLink to={item.url} className="flex items-center gap-2 group-data-[collapsible=icon]:!w-10 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:gap-0">
+                        <item.icon className="h-5 w-5 group-data-[collapsible=icon]:mx-auto" />
+                        <span className="truncate group-data-[collapsible=icon]:hidden">{title}</span>
+                      </NavLink>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                );
+              })}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+
+        {/* Standard Business Section */}
         {user && isStandardBusiness && (
           <SidebarGroup>
             <SidebarGroupLabel className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2 group-data-[collapsible=icon]:hidden">
@@ -90,7 +162,7 @@ export function AppSidebar() {
             </SidebarGroupLabel>
             <SidebarGroupContent>
               <SidebarMenu>
-              {businessItems.map((item) => {
+              {standardBusinessItems.map((item) => {
                 const title = t(item.titleKey);
                 return (
                   <SidebarMenuItem key={item.titleKey} className="group-data-[collapsible=icon]:flex group-data-[collapsible=icon]:justify-center">
@@ -137,6 +209,9 @@ export function AppSidebar() {
         {/* Common Items Section */}
         {user && (
           <SidebarGroup>
+            <SidebarGroupLabel className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2 group-data-[collapsible=icon]:hidden">
+              {t('nav.general')}
+            </SidebarGroupLabel>
             <SidebarGroupContent>
               <SidebarMenu>
               {commonItems.map((item) => {

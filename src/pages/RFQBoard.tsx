@@ -200,7 +200,7 @@ export default function RFQBoard() {
                 {rfq.required_by && (
                   <div className="flex items-center text-sm text-muted-foreground">
                     <Calendar className="h-4 w-4 mr-2" />
-                    <span>{new Date(rfq.required_by).toLocaleDateString('en-US')}</span>
+                    <span>{new Date(rfq.required_by).toLocaleDateString()}</span>
                   </div>
                 )}
 
