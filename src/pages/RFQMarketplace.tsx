@@ -200,7 +200,6 @@ export default function RFQMarketplace() {
   const RFQCard = ({ rfq }: { rfq: RFQRequest }) => {
     const timeAgo = formatDistanceToNow(new Date(rfq.created_at), {
       addSuffix: true,
-      locale: language === 'ar' ? ar : undefined,
     });
 
     return (
@@ -210,7 +209,7 @@ export default function RFQMarketplace() {
             <div className="flex-1">
               <div className="flex items-center gap-2 mb-2">
                 <CardTitle className="text-lg">{rfq.product_name}</CardTitle>
-                <Badge variant={rfq.rfq_type === 'governmental' ? 'default' : 'secondary'}>
+                <Badge variant="success">
                   {rfq.rfq_type === 'governmental' ? t('rfq.type.governmental') : t('rfq.type.open')}
                 </Badge>
               </div>
@@ -250,7 +249,7 @@ export default function RFQMarketplace() {
               {rfq.required_by && (
                 <div className="flex items-center gap-2">
                   <Calendar className="h-4 w-4 text-muted-foreground" />
-                  <span>{new Date(rfq.required_by).toLocaleDateString(language === 'ar' ? 'ar-SA' : 'en-US')}</span>
+                  <span>{new Date(rfq.required_by).toLocaleDateString('en-US')}</span>
                 </div>
               )}
             </div>
