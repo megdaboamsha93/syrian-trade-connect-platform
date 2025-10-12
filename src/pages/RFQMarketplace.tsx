@@ -15,6 +15,7 @@ import { toast } from 'sonner';
 import { formatDistanceToNow } from 'date-fns';
 import { ar } from 'date-fns/locale';
 import type { Database } from '@/integrations/supabase/types';
+import { RFQResponseDialog } from '@/components/RFQResponseDialog';
 
 type RFQRequest = Database['public']['Tables']['rfq_requests']['Row'];
 type FilterPreference = Database['public']['Tables']['rfq_filter_preferences']['Row'];
@@ -37,6 +38,10 @@ export default function RFQMarketplace() {
   const [saveFilterOpen, setSaveFilterOpen] = useState(false);
   const [filterName, setFilterName] = useState('');
   const [notifyOnMatch, setNotifyOnMatch] = useState(true);
+
+  // Respond dialog
+  const [responseOpen, setResponseOpen] = useState(false);
+  const [selectedRFQ, setSelectedRFQ] = useState<RFQRequest | null>(null);
 
   useEffect(() => {
     loadPublicRFQs();
@@ -255,7 +260,10 @@ export default function RFQMarketplace() {
                 <Button 
                   variant="default" 
                   className="w-full"
-                  onClick={() => window.location.href = `/messages/new/${rfq.requester_id}`}
+                  onClick={() => {
+                    setSelectedRFQ(rfq);
+                    setResponseOpen(true);
+                  }}
                 >
                   {t('rfq.sendQuote')}
                 </Button>
@@ -470,6 +478,12 @@ export default function RFQMarketplace() {
             )}
           </TabsContent>
         </Tabs>
+
+        <RFQResponseDialog
+          open={responseOpen}
+          onOpenChange={setResponseOpen}
+          rfq={selectedRFQ}
+        />
       </div>
     </div>
   );
