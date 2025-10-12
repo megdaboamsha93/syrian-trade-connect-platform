@@ -26,6 +26,7 @@ export default function CompleteProfile() {
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [selectedIndustries, setSelectedIndustries] = useState<string[]>([]);
   const [isGovernment, setIsGovernment] = useState(false);
+  const [businessType, setBusinessType] = useState<'standard' | 'logistics_provider' | 'both'>('standard');
 
   const categories = ['electronics', 'textiles', 'food', 'machinery', 'chemicals'];
   const industries = ['manufacturing', 'agriculture', 'textiles', 'materials', 'services'];
@@ -93,6 +94,7 @@ export default function CompleteProfile() {
           location: location.trim(),
           preferred_language: language,
           is_government_account: isGovernment,
+          business_type: businessType,
         })
         .eq('id', user?.id);
 
@@ -116,7 +118,12 @@ export default function CompleteProfile() {
         description: language === 'ar' ? 'تم تحديث ملفك الشخصي' : 'Your profile has been updated',
       });
 
-      navigate('/register-business');
+      // Navigate based on business type
+      if (businessType === 'logistics_provider') {
+        navigate('/my-logistics');
+      } else {
+        navigate('/register-business');
+      }
     } catch (error: any) {
       toast({
         title: language === 'ar' ? 'خطأ' : 'Error',
@@ -236,11 +243,56 @@ export default function CompleteProfile() {
               </div>
             </div>
 
-            <div className="space-y-3 pt-2 border-t">
+            <div className="space-y-4 pt-2 border-t">
               <Label>
-                {language === 'ar' ? 'نوع الحساب' : 'Account Type'}
+                {language === 'ar' ? 'نوع العمل' : 'Business Type'}
               </Label>
-              <div className="flex items-start space-x-3">
+              
+              <div className="space-y-3">
+                <div className="flex items-start space-x-3 rtl:space-x-reverse">
+                  <input
+                    type="radio"
+                    id="standard"
+                    name="businessType"
+                    checked={businessType === 'standard'}
+                    onChange={() => setBusinessType('standard')}
+                    className="mt-1 h-4 w-4"
+                  />
+                  <div className="flex-1">
+                    <Label htmlFor="standard" className="font-normal cursor-pointer">
+                      {language === 'ar' ? 'عمل تجاري عادي' : 'Standard Business'}
+                    </Label>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      {language === 'ar'
+                        ? 'شركة تقدم منتجات أو خدمات'
+                        : 'Company offering products or services'}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex items-start space-x-3 rtl:space-x-reverse">
+                  <input
+                    type="radio"
+                    id="logistics"
+                    name="businessType"
+                    checked={businessType === 'logistics_provider'}
+                    onChange={() => setBusinessType('logistics_provider')}
+                    className="mt-1 h-4 w-4"
+                  />
+                  <div className="flex-1">
+                    <Label htmlFor="logistics" className="font-normal cursor-pointer">
+                      {language === 'ar' ? 'مزود خدمات نقل وشحن' : 'Logistics Provider'}
+                    </Label>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      {language === 'ar'
+                        ? 'شركة متخصصة في النقل والشحن الدولي'
+                        : 'Company specialized in shipping and logistics'}
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex items-start space-x-3 rtl:space-x-reverse pt-2">
                 <input
                   type="checkbox"
                   id="isGovernment"
@@ -252,12 +304,12 @@ export default function CompleteProfile() {
                   <Label htmlFor="isGovernment" className="font-normal cursor-pointer">
                     {language === 'ar' 
                       ? 'حساب حكومي أو مرتبط بالحكومة' 
-                      : 'Government or Government-associated Account'}
+                      : 'Government Account'}
                   </Label>
                   <p className="text-xs text-muted-foreground mt-1">
                     {language === 'ar'
-                      ? 'سيتيح لك هذا إنشاء طلبات التسعير الحكومية بعد التحقق'
-                      : 'This will allow you to create governmental RFQs after verification'}
+                      ? 'سيتيح لك هذا إنشاء طلبات التسعير الحكومية'
+                      : 'Allows creating governmental RFQs'}
                   </p>
                 </div>
               </div>

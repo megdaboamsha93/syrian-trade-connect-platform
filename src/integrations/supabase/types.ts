@@ -692,6 +692,9 @@ export type Database = {
       profiles: {
         Row: {
           avatar_url: string | null
+          business_type:
+            | Database["public"]["Enums"]["business_account_type"]
+            | null
           created_at: string
           full_name: string
           id: string
@@ -703,6 +706,9 @@ export type Database = {
         }
         Insert: {
           avatar_url?: string | null
+          business_type?:
+            | Database["public"]["Enums"]["business_account_type"]
+            | null
           created_at?: string
           full_name: string
           id: string
@@ -714,6 +720,9 @@ export type Database = {
         }
         Update: {
           avatar_url?: string | null
+          business_type?:
+            | Database["public"]["Enums"]["business_account_type"]
+            | null
           created_at?: string
           full_name?: string
           id?: string
@@ -1287,6 +1296,10 @@ export type Database = {
         }
         Returns: boolean
       }
+      is_logistics_provider: {
+        Args: { _user_id: string }
+        Returns: boolean
+      }
       mark_all_notifications_read: {
         Args: Record<PropertyKey, never>
         Returns: undefined
@@ -1310,6 +1323,7 @@ export type Database = {
     }
     Enums: {
       app_role: "admin" | "moderator" | "user"
+      business_account_type: "standard" | "logistics_provider" | "both"
       business_type: "importer" | "exporter" | "both"
     }
     CompositeTypes: {
@@ -1439,6 +1453,7 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["admin", "moderator", "user"],
+      business_account_type: ["standard", "logistics_provider", "both"],
       business_type: ["importer", "exporter", "both"],
     },
   },

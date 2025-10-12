@@ -139,12 +139,12 @@ export default function MyLogistics() {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Truck className="h-6 w-6" />
-              {language === 'ar' ? 'تسجيل شركة شحن' : 'Register Logistics Provider'}
+              {language === 'ar' ? 'إعداد خدمات النقل' : 'Setup Logistics Services'}
             </CardTitle>
             <CardDescription>
               {language === 'ar'
-                ? 'سجل شركتك وابدأ في عرض خدمات الشحن الخاصة بك'
-                : 'Register your company and start offering logistics services'}
+                ? 'قم بإعداد شركة النقل الخاصة بك وابدأ في عرض الخدمات'
+                : 'Set up your logistics company and start offering services'}
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -201,8 +201,8 @@ export default function MyLogistics() {
 
               <Button type="submit" className="w-full" disabled={createProvider.isPending}>
                 {createProvider.isPending
-                  ? (language === 'ar' ? 'جاري التسجيل...' : 'Registering...')
-                  : (language === 'ar' ? 'تسجيل الشركة' : 'Register Company')}
+                  ? (language === 'ar' ? 'جاري الإعداد...' : 'Setting up...')
+                  : (language === 'ar' ? 'إعداد الشركة' : 'Setup Company')}
               </Button>
             </form>
           </CardContent>
