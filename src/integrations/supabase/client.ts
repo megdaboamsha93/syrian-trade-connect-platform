@@ -5,13 +5,34 @@ import type { Database } from './types';
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
 const SUPABASE_PUBLISHABLE_KEY = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
 
+// Validate environment variables
+if (!SUPABASE_URL || SUPABASE_URL === 'https://your-project.supabase.co') {
+  console.error(
+    '❌ Missing or invalid VITE_SUPABASE_URL in .env file.\n' +
+    'Please create a .env file from .env.example and add your Supabase URL.\n' +
+    'Get your credentials from: https://app.supabase.com/project/_/settings/api'
+  );
+}
+
+if (!SUPABASE_PUBLISHABLE_KEY || SUPABASE_PUBLISHABLE_KEY === 'your-anon-public-key') {
+  console.error(
+    '❌ Missing or invalid VITE_SUPABASE_PUBLISHABLE_KEY in .env file.\n' +
+    'Please create a .env file from .env.example and add your Supabase anon key.\n' +
+    'Get your credentials from: https://app.supabase.com/project/_/settings/api'
+  );
+}
+
 // Import the supabase client like this:
 // import { supabase } from "@/integrations/supabase/client";
 
-export const supabase = createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
-  auth: {
-    storage: localStorage,
-    persistSession: true,
-    autoRefreshToken: true,
+export const supabase = createClient<Database>(
+  SUPABASE_URL || 'https://placeholder.supabase.co',
+  SUPABASE_PUBLISHABLE_KEY || 'placeholder-key',
+  {
+    auth: {
+      storage: localStorage,
+      persistSession: true,
+      autoRefreshToken: true,
+    }
   }
-});
+);

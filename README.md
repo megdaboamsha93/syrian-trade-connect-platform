@@ -44,6 +44,7 @@ syrian-trade-connect-platform/
 - **Node.js** (v18+ recommended)
 - **npm** (v9+ recommended)
 - **MongoDB Atlas** account (free tier is fine)
+- **Supabase** account (free tier is fine) - Get your credentials from [https://app.supabase.com](https://app.supabase.com)
 
 ---
 
@@ -71,6 +72,12 @@ SMTP_FROM=...
 ### Frontend (`.env` in project root)
 ```
 VITE_API_URL=http://localhost:5000
+
+# Supabase Configuration
+# Get these from: https://app.supabase.com/project/_/settings/api
+VITE_SUPABASE_PROJECT_ID=your-project-id
+VITE_SUPABASE_PUBLISHABLE_KEY=your-anon-public-key
+VITE_SUPABASE_URL=https://your-project.supabase.co
 ```
 
 ---
@@ -91,6 +98,11 @@ cd .. && npm install
 
 ### 3. **Set up environment variables**
 - Copy `.env.example` to `.env` in both backend and root as needed, and fill in your values.
+- For Supabase credentials:
+  1. Go to [https://app.supabase.com/project/_/settings/api](https://app.supabase.com/project/_/settings/api)
+  2. Copy your **Project URL** to `VITE_SUPABASE_URL`
+  3. Copy your **anon/public key** to `VITE_SUPABASE_PUBLISHABLE_KEY`
+  4. Copy your **Project ID** to `VITE_SUPABASE_PROJECT_ID`
 
 ### 4. **Start the backend**
 ```bash
