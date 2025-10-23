@@ -9,6 +9,7 @@ import { CheckCircle, Building2, Heart } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import { sanitizeText } from '@/lib/sanitize';
 
 type Business = Database['public']['Tables']['businesses']['Row'];
 
@@ -120,7 +121,7 @@ const BusinessCard: React.FC<BusinessCardProps> = ({ business, showFavorite = tr
         </div>
         <CardContent className="p-4">
           <div className="flex items-start gap-2 mb-2">
-            <div className="text-lg font-semibold line-clamp-1 flex-1">{name}</div>
+            <div className="text-lg font-semibold line-clamp-1 flex-1">{sanitizeText(name)}</div>
             {business.is_verified && (
               <Badge variant="default" className="gap-1 shrink-0">
                 <CheckCircle className="h-3 w-3" />
@@ -137,10 +138,10 @@ const BusinessCard: React.FC<BusinessCardProps> = ({ business, showFavorite = tr
             </Badge>
           </div>
           <p className="text-sm text-muted-foreground line-clamp-3">
-            {shortDesc}
+            {sanitizeText(shortDesc)}
           </p>
           <div className="mt-3 text-xs text-muted-foreground">
-            {business.location}{business.founded_year ? ` • ${t('business.founded')} ${business.founded_year}` : ''}
+            {sanitizeText(business.location)}{business.founded_year ? ` • ${t('business.founded')} ${business.founded_year}` : ''}
           </div>
         </CardContent>
       </Card>

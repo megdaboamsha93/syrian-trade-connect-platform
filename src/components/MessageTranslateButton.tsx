@@ -4,6 +4,7 @@ import { Languages, Loader2 } from 'lucide-react';
 import { useTranslate } from '@/hooks/useTranslate';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { toast } from 'sonner';
+import { sanitizeText } from '@/lib/sanitize';
 
 interface MessageTranslateButtonProps {
   messageText: string;
@@ -56,7 +57,7 @@ export function MessageTranslateButton({ messageText, onTranslated }: MessageTra
 
   return (
     <div className="space-y-2">
-      <p className="text-sm whitespace-pre-wrap break-words">{displayText}</p>
+      <p className="text-sm whitespace-pre-wrap break-words">{sanitizeText(displayText)}</p>
       <Button
         variant="ghost"
         size="sm"
