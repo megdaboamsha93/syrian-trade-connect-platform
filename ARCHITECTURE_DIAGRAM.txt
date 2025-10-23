@@ -1,0 +1,132 @@
+==========================================
+CURRENT ARCHITECTURE - VISUAL OVERVIEW
+==========================================
+
+┌─────────────────────────────────────────────────────────────────────┐
+│                          FRONTEND (React/Vite)                      │
+│                   localhost:8080 (development)                      │
+├─────────────────────────────────────────────────────────────────────┤
+│  ┌──────────────────────────────────────────────────────────────┐  │
+│  │           AuthContext.tsx (Supabase Auth)                    │  │
+│  │  - Email/Password signup & login                             │  │
+│  │  - Session management                                        │  │
+│  │  - Auto token refresh                                        │  │
+│  └──────────────────────────────────────────────────────────────┘  │
+│                                                                      │
+│  ┌──────────────────────────────────────────────────────────────┐  │
+│  │           Supabase Client (PostgreSQL + Storage)             │  │
+│  │  - Business data (CRUD)                                      │  │
+│  │  - RFQ system                                                │  │
+│  │  - Orders & Logistics                                        │  │
+│  │  - Notifications (real-time)                                 │  │
+│  │  - User preferences & interests                              │  │
+│  │  - File storage (logos, covers)                              │  │
+│  │  - Analytics (views, engagement)                             │  │
+│  └──────────────────────────────────────────────────────────────┘  │
+│                                ↑                                    │
+│                                │                                    │
+│                     DIRECT SUPABASE CALLS                           │
+│                   (NO BACKEND API CALLS)                            │
+│                                ↓                                    │
+└─────────────────────────────────────────────────────────────────────┘
+                                  │
+                                  │
+                ╔═════════════════╩═════════════════╗
+                ║                                   ║
+                ↓                                   ↓
+    ┌──────────────────────┐          ┌──────────────────────┐
+    │   BACKEND (Node.js)  │          │  SUPABASE DATABASE   │
+    │   localhost:5000     │          │  (PostgreSQL)        │
+    ├──────────────────────┤          ├──────────────────────┤
+    │  Express.js API      │          │  Public Tables:      │
+    │  ✓ Auth endpoints    │          │  - businesses        │
+    │  ✗ Business routes   │          │  - rfq_requests      │
+    │  ✗ Message routes    │          │  - rfq_responses     │
+    │  ✗ Search routes     │          │  - orders            │
+    │  ✗ Upload routes     │          │  - logistics_        │
+    │                      │          │    providers         │
+    │  MongoDB Connection: │          │  - conversations     │
+    │  - User auth models  │          │  - messages          │
+    │  - JWT middleware    │          │  - notifications     │
+    │  - Business models   │          │  - user_interests    │
+    │  - Message models    │          │  - verification_     │
+    │  - Conversation      │          │    requests          │
+    │    models (UNUSED)   │          │  - users (profiles)  │
+    │                      │          │                      │
+    │  (NO API ROUTES)     │          │  Buckets:            │
+    │  (MODELS DEFINED)    │          │  - business-logos    │
+    │  (NO FRONTEND CALLS) │          │  - business-covers   │
+    └──────────────────────┘          └──────────────────────┘
+            ↓                                     ↑
+            │                    ONLY CALLED
+            │                   (NEVER USED)
+            │
+    ┌──────────────────────┐
+    │  MongoDB Atlas       │
+    │                      │
+    │  Collections:        │
+    │  - users (auth)      │
+    │  - businesses        │
+    │  - messages          │
+    │  - conversations     │
+    │  (MODELS DEFINED)    │
+    │  (NO ROUTES)         │
+    │  (NO DATA SYNC)      │
+    └──────────────────────┘
+
+
+==========================================
+THE PROBLEM - DATA FLOW
+==========================================
+
+Current Flow (BROKEN):
+  Frontend → Supabase directly (bypasses backend)
+  Backend → MongoDB (never called)
+  
+Result:
+  - Backend API exists but is NOT USED
+  - No backend protection/validation for Supabase data
+  - User auth in 2 places (MongoDB + Supabase)
+  - Data inconsistency between systems
+  - Business data only in Supabase (defined in MongoDB but unused)
+
+
+==========================================
+WHAT'S WORKING
+==========================================
+
+✓ Backend exists and is running
+✓ JWT authentication implemented in backend
+✓ Mongoose models (User, Business, Message, Conversation)
+✓ Security middleware (helmet, CORS, rate-limiting)
+✓ Password hashing (bcryptjs)
+✓ Email verification flow (stubbed)
+✓ Frontend is fully functional with Supabase
+✓ Real-time features (notifications, message updates)
+
+
+==========================================
+WHAT'S NOT WORKING
+==========================================
+
+✗ Backend API routes (commented out):
+  - /api/business/* (CRUD operations)
+  - /api/messages/* (messaging system)
+  - /api/search/* (search functionality)
+  - /api/upload/* (file uploads)
+
+✗ Email system (development stub only)
+  - Verification emails logged to console
+  - Reset password emails logged to console
+  - No SMTP configuration in utils/email.js
+
+✗ Data sync:
+  - No sync between MongoDB and Supabase
+  - Business data only in Supabase
+  - User auth separate in each system
+
+✗ Frontend integration:
+  - Frontend doesn't call backend API
+  - Backend middleware never used
+  - JWT tokens not utilized
+
