@@ -15,8 +15,15 @@ const userSchema = new mongoose.Schema({
   password: {
     type: String,
     required: [true, 'Password is required'],
-    minlength: [6, 'Password must be at least 6 characters'],
-    select: false
+    minlength: [12, 'Password must be at least 12 characters'],
+    select: false,
+    validate: {
+      validator: function(v) {
+        // Password must contain: uppercase, lowercase, number, special character
+        return /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{12,}$/.test(v);
+      },
+      message: 'Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character'
+    }
   },
   firstName: {
     type: String,
@@ -133,17 +140,29 @@ userSchema.methods.generateAuthToken = function() {
 
 // Generate email verification token
 userSchema.methods.generateEmailVerificationToken = function() {
+  // Generate random token
   const token = crypto.randomBytes(32).toString('hex');
-  this.emailVerificationToken = token;
+
+  // Hash token before storing in database (security best practice)
+  const hashedToken = crypto.createHash('sha256').update(token).digest('hex');
+  this.emailVerificationToken = hashedToken;
   this.emailVerificationExpires = Date.now() + 24 * 60 * 60 * 1000; // 24 hours
+
+  // Return unhashed token to send in email
   return token;
 };
 
 // Generate password reset token
 userSchema.methods.generatePasswordResetToken = function() {
+  // Generate random token
   const token = crypto.randomBytes(32).toString('hex');
-  this.passwordResetToken = token;
+
+  // Hash token before storing in database (security best practice)
+  const hashedToken = crypto.createHash('sha256').update(token).digest('hex');
+  this.passwordResetToken = hashedToken;
   this.passwordResetExpires = Date.now() + 1 * 60 * 60 * 1000; // 1 hour
+
+  // Return unhashed token to send in email
   return token;
 };
 

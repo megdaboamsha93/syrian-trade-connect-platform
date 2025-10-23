@@ -15,10 +15,10 @@ const validateRegistration = [
     .withMessage('Please enter a valid email')
     .normalizeEmail(),
   body('password')
-    .isLength({ min: 6 })
-    .withMessage('Password must be at least 6 characters long')
-    .matches(/\d/)
-    .withMessage('Password must contain a number'),
+    .isLength({ min: 12 })
+    .withMessage('Password must be at least 12 characters long')
+    .matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]/)
+    .withMessage('Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character (@$!%*?&)'),
   body('firstName')
     .trim()
     .isLength({ min: 2, max: 50 })
@@ -137,8 +137,11 @@ router.post('/login', validateLogin, async (req, res) => {
 // Verify email
 router.get('/verify-email/:token', async (req, res) => {
   try {
+    // Hash the incoming token to compare with stored hash
+    const hashedToken = crypto.createHash('sha256').update(req.params.token).digest('hex');
+
     const user = await User.findOne({
-      emailVerificationToken: req.params.token,
+      emailVerificationToken: hashedToken,
       emailVerificationExpires: { $gt: Date.now() }
     });
 
@@ -159,7 +162,7 @@ router.get('/verify-email/:token', async (req, res) => {
 });
 
 // Request password reset
-router.post('/forgot-password', 
+router.post('/forgot-password',
   body('email').isEmail().withMessage('Please enter a valid email'),
   async (req, res) => {
     try {
@@ -169,16 +172,17 @@ router.post('/forgot-password',
       }
 
       const user = await User.findOne({ email: req.body.email });
-      if (!user) {
-        return res.status(404).json({ error: 'User not found' });
+
+      // Always return success message to prevent user enumeration
+      // Even if user doesn't exist, send generic response
+      if (user) {
+        const resetToken = user.generatePasswordResetToken();
+        await user.save();
+        await sendPasswordResetEmail(user.email, resetToken);
       }
 
-      const resetToken = user.generatePasswordResetToken();
-      await user.save();
-
-      await sendPasswordResetEmail(user.email, resetToken);
-
-      res.json({ message: 'Password reset instructions sent to your email' });
+      // Generic response prevents attackers from determining if email exists
+      res.json({ message: 'If that email address is registered, you will receive password reset instructions.' });
     } catch (error) {
       console.error('Password reset request error:', error);
       res.status(500).json({ error: 'Server error during password reset request' });
@@ -199,8 +203,11 @@ router.post('/reset-password/:token', [
       return res.status(400).json({ errors: errors.array() });
     }
 
+    // Hash the incoming token to compare with stored hash
+    const hashedToken = crypto.createHash('sha256').update(req.params.token).digest('hex');
+
     const user = await User.findOne({
-      passwordResetToken: req.params.token,
+      passwordResetToken: hashedToken,
       passwordResetExpires: { $gt: Date.now() }
     });
 
