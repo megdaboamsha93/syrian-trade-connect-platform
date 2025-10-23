@@ -8,17 +8,17 @@ import DOMPurify from 'dompurify';
  */
 export function sanitizeHtml(
   dirty: string,
-  options?: DOMPurify.Config
+  options?: any
 ): string {
   // Default configuration for most use cases
-  const defaultConfig: DOMPurify.Config = {
+  const defaultConfig = {
     ALLOWED_TAGS: ['b', 'i', 'em', 'strong', 'a', 'p', 'br', 'ul', 'ol', 'li'],
     ALLOWED_ATTR: ['href', 'target', 'rel'],
     ALLOW_DATA_ATTR: false,
     ...options,
   };
 
-  return DOMPurify.sanitize(dirty, defaultConfig);
+  return DOMPurify.sanitize(dirty, defaultConfig) as unknown as string;
 }
 
 /**
@@ -31,7 +31,7 @@ export function sanitizeText(dirty: string): string {
   return DOMPurify.sanitize(dirty, {
     ALLOWED_TAGS: [],
     ALLOWED_ATTR: [],
-  });
+  }) as unknown as string;
 }
 
 /**
